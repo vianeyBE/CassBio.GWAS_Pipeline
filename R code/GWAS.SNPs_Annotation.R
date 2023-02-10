@@ -152,10 +152,10 @@ annotation <- function(Mdir, output, gff3, annotationFile,
     
     # 5: Save output ---------------------------------------------------------------
     
-    message(paste("Saving output file: ", output, ".GWAS_Annotation.txt", sep = ""))
+    message(paste("Saving output file: ", output, ".GWAS_Annotation.csv", sep = ""))
     
-    write.table(gensF, file = paste(output, ".GWAS_Annotation.txt", sep = ""), 
-                sep = "\t", quote = FALSE, row.names = FALSE)
+    write.csv(gensF, file = paste(output, ".GWAS_Annotation.txt", sep = ""),
+              quote = FALSE, row.names = FALSE)
     
   } else {
     message("No SNPs to Annotate")
