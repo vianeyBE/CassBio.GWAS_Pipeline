@@ -12,7 +12,7 @@ GAPIT3 <- function(phenofile, genofile, wdir, trait_list=NULL){
   # 1: Load Packages and Data --------------------------------------------------
   library(GAPIT3)
   
-  myY2  <- read.delim(phenofile) 
+  myY2  <- read.csv(phenofile) 
   myG <- read.delim(genofile, head = FALSE)
   
   taxacol <- names(myY2)[1] <- "Taxa"
@@ -21,6 +21,7 @@ GAPIT3 <- function(phenofile, genofile, wdir, trait_list=NULL){
   if (is.null(trait_list)){
     message("Using full phenotype dataset")
     myY <- myY2
+    trait_list <- names(myY)[-1]
   }
   else {
     message("Subsetting according provided list")
@@ -33,6 +34,7 @@ GAPIT3 <- function(phenofile, genofile, wdir, trait_list=NULL){
   # 2: GAPIT -------------------------------------------------------------------
 
   for ( trait in trait_list ){
+    dir.create(wdir)
     setwd(wdir)
     dir.create(trait)
     setwd(paste(wdir, trait, sep = "" ))
@@ -41,7 +43,7 @@ GAPIT3 <- function(phenofile, genofile, wdir, trait_list=NULL){
     myGAPIT <- GAPIT(
       Y = myY[, c(taxacol, trait)],
       G = myG,
-      PCA.total=3,
+      PCA.total=10,
       model = c("GLM","MLM","FarmCPU","Blink"),
       Multiple_analysis = TRUE,
       #Geno.View.output = FALSE,
