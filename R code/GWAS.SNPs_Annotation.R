@@ -154,7 +154,7 @@ annotation <- function(Mdir, output, gff3, annotationFile,
     
     message(paste("Saving output file: ", output, ".GWAS_Annotation.csv", sep = ""))
     
-    write.csv(gensF, file = paste(output, ".GWAS_Annotation.txt", sep = ""),
+    write.csv(gensF, file = paste(output, ".GWAS_Annotation.csv", sep = ""),
               quote = FALSE, row.names = FALSE)
     
   } else {
