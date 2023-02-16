@@ -16,14 +16,16 @@ annotation <- function(Mdir, output, gff3, annotationFile,
   # 1: Load all the directories, info, and data ----------------------------------
   
   # Load packages
+  if (!require(dplyr)) install.packages(dplyr)
+  if (!require(tidyverse)) install.packages(tidyverse)
+  
   library(dplyr)
   library(tidyverse)
   
-  
   # Load data and re-organize it
   annot <- read.delim(annotationFile, header = F) %>%
-    rename(ID = V1, Gen1 = V2, Gen2 = V3, Gen3 = V4, PF = V5, PTHR = V6, KOG = V7, na = V8, K0 = V9,
-           GO = V10, AT = V11, NPI = V12, name = V13) %>%
+    rename(ID = V1, Gen1 = V2, Gen2 = V3, Gen3 = V4, PF = V5, PTHR = V6, KOG = V7, na = V8,
+           K0 = V9, GO = V10, AT = V11, NPI = V12, name = V13) %>%
     select(ID, Gen1, Gen2, Gen3, GO, NPI, name)
   
   GFF <- read.delim(gff3, header = F, comment.char = "#") %>%
@@ -69,10 +71,7 @@ annotation <- function(Mdir, output, gff3, annotationFile,
     csv.l[[i]] <- db
     
     # Progress bar
-    cat('\r',
-        i,
-        ' files processed |',
-        rep('=', i / 4),
+    cat('\r', i, ' files processed |', rep('=', i / 4),
         ifelse(i == length(names), '|\n',  '>'), sep = '')
   }
   
@@ -82,7 +81,7 @@ annotation <- function(Mdir, output, gff3, annotationFile,
   
   message(paste("There are", dim(GWAS)[1], "SNPs after filtering" ))
   
-  if (!dim(GWAS)[1]==0){
+  if (!dim(GWAS)[1] == 0){
     
     # 3: Match the results with the gene annotation database -------------------
     
@@ -155,7 +154,7 @@ annotation <- function(Mdir, output, gff3, annotationFile,
     message(paste("Saving output file: ", output, ".GWAS_Annotation.csv", sep = ""))
     
     write.csv(gensF, file = paste(output, ".GWAS_Annotation.csv", sep = ""),
-              quote = FALSE, row.names = FALSE)
+              quote = F, row.names = F)
     
   } else {
     message("No SNPs to Annotate")
@@ -163,9 +162,9 @@ annotation <- function(Mdir, output, gff3, annotationFile,
   }
   
   # Remove objects that will not be used
-  rm(csv.l, data, data.der, data.izq, db, i, gensL, gensLC, gensLCc, gensLD, name.F, name.T, names, p)
+  rm(csv.l, data, data.der, data.izq, db, i, gensL, gensLC, gensLCc, gensLD, name.F, name.T, 
+     names, p)
   
   message("Done! ")
   
 }
-
