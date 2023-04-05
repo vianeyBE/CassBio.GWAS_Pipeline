@@ -1,14 +1,19 @@
-# Author: Camilo E. Sanchez (c.e.sanchez@cgiar.org) Vianey Barrera-Enriquez (vpbarrera@gmail.com)
-# Get the annotation of the gen containing the SNP using the GWAS GAPIT results
-# Additionally, it retrieve the closest  gene down and up stream.
-# It requires: 
-# Mdir: the directory that contains the GAPIT results separated by traits
-# output: basename of the output file
-# gff3: gff3 annotation format. It contains gene ID, transcript ID, GO ID, star, end
-# annotationFile: text anotation file containing additional description of the genes
+# Shor name: Annotation for GWAS results
+# Description (1): Get the annotation of the gen containing the SNP using the GWAS GAPIT results
+# Description (2): Retrieves the closest genes down and up stream
+# Output: Basename of the output file
+# 
+# Authors: Camilo E. Sanchez (c.e.sanchez@cgiar.org) Vianey Barrera-Enriquez (vpbarrera@gmail.com)
+#
+# Arguments:
+# pat: The location path of the files
+# wdyw: What do you want to filter? (Gen, exon)
+# Mdir: Name of the directory that contains the GAPIT results
+# mod: Names of the models to filter
 
-### ADD p value % MAF from GWAS RESULTS #######
-# Configure the requirements
+
+
+# 1: # Configure the initial requirements --------------------------------------
 pat <- as.character()
 wdyw <- as.character()
 Mdir <- as.character()
@@ -24,7 +29,7 @@ mod <- c("BLINK", "FarmCPU", "MLM")
 if (rlang::is_empty(pat)) {
   pat <- readline(prompt =
   "Enter the path of file names to looking for (p.e., QTL_LOD_Intervals. [Must finish with a point (.)]): ")
-}
+} 
 
 if (rlang::is_empty(wdyw)) {
   wdyw <- readline(prompt =
@@ -41,7 +46,7 @@ if (rlang::is_empty(mod)) {
 
 
 
-# 1: Load all the directories, info, and data ----------------------------------
+# 2: Load all the directories, info, and data ----------------------------------
 
 # Load packages
 if (!require(tidyverse)) install.packages(tidyverse)
@@ -73,19 +78,16 @@ GFF <- read.delim("Mesculenta_305_v6.1.gene.gff3", header = F, comment.char = "#
 
 
 
-# 2: Find all the CSVs with the results and filter them ------------------------
-
-message("Getting list of CSV files...")
-
+# 3: Find all the CSVs with the results and filter them ------------------------
 # Get the names of the files
+message("Getting list of CSV files...")
 setwd(Mdir)
 names <- list.files(path = Mdir, pattern = pat, all.files = F, full.names = F, recursive = T)
-
-message(paste("GWAS files found:", length(names)))
 
 # Create an empty list and the variable to iterate
 # Read, rename, modify and save all the csv files in the list
 message("Reading GWAS files...")
+message(paste("GWAS files found:", length(names)))
 
 # Creates the objects to perform the loop
 csv.l <- list()
@@ -120,7 +122,7 @@ rm(csv.l, i, p, name.F, name.T)
 
 
 
-# 3: Match the results with the gene annotation database -----------------------
+# 4: Match the results with the gene annotation database -----------------------
 
 # Creates a conditional
 # If there is at least one result of the GWAS models, the annotation is done
@@ -201,7 +203,7 @@ if (dim(GWAS)[1] > 0){
   
   
   
-  # 4: Formatting dataframe ----------------------------------------------------
+  # 5: Formatting dataframe ----------------------------------------------------
   
   message("Obtaining gene information...")
     
@@ -241,7 +243,7 @@ if (dim(GWAS)[1] > 0){
     
     
     
-    # 5: Save output -----------------------------------------------------------
+    # 6: Save output -----------------------------------------------------------
     
     message("Saving output file: 'GWAS_Annotation.csv' in working directory")
     
