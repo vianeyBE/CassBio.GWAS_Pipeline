@@ -1,7 +1,7 @@
-# Cassava_Bioinformatics_Platform.GWAS_Pipeline
+# Cassava Bioinformatics Platform: GWAS_Pipeline
 Pipeline for Genome-wide association studies in Cassava
 
-Autor: Vianey Barrera-Enriquez and Camilo E. Sanchez
+**Autor**: Vianey Barrera-Enriquez and Camilo E. Sanchez
 
 The pipeline has four main steps:
 
@@ -123,5 +123,3 @@ A single PDF file containing the boxplot of the SNPs.
 
 ## Contact
 For questions or feedback about this script, please contact Vianey Barrera-Enriquez at vbarrera@cgiar.org.
-
-;
