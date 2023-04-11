@@ -1,83 +1,106 @@
 ---
-title: "GWAS Notebook for Cassava Populations"
-auhor:
-  - Vianey Barrera-Enriquez
-  - Camilo E. Sanchez
+title: "GWAS Notebook for Cassava populations"
+authors:
+- "Vianey Barrera-Enriquez"
+- "Camilo E. Sanchez"
 output: html_notebook
 ---
 
-# Loading Functions
+
+
+# Loading functions
 
 ```{r}
 rpath <- "./R code/"
-lapply(list.files(rpath, pattern = "\\.R$", full.names = TRUE), source)
+lapply(list.files(rpath, pattern = "\\.R$", full.names = T), source)
+```
+
+
+
+# Multivariate methods
+
+```{r}
+#
 
 ```
 
 
-# GWAS Analysis 
+
+# GWAS analysis
 
 ```{r}
+# 
 phenofile <- 'metabolomic_markers.batch05.csv'
-wdir = paste(dir,"/Results_Batch_05/", sep='')
-output = "CM8996.batch05"
+wdir <- paste(dir,"/Results_Batch_05/", sep = '')
+output <- "CM8996.batch05"
 ```
 
-```{r message=TRUE, warning=FALSE}
-
-GAPIT3(phenofile, genofile, wdir, trait_list=NULL)
+```{r message = T, warning = F}
+# 
+GAPIT3(phenofile, genofile, wdir, trait_list = NULL)
 ```
 
 
 
+# Checking results and getting annotation
 
-# Checking Results and Getting Annotation
 ```{r}
+# 
 gff3 <- file.choose()
 ```
 
 ```{r}
+# 
 annotationFile <- file.choose()
 ```
 
 ```{r}
-wdir = paste(dir,"/Results_Batch_05/", sep='')
-output = "CM8996.batch05"
+# 
+wdir <- paste(dir, "/Results_Batch_05/", sep = '')
+output <- "CM8996.batch05"
 ```
 
-
-```{r message=TRUE, warning=FALSE}
-annotation(Mdir=wdir, 
-           output=output, 
+```{r message = T, warning = F}
+# 
+annotation(Mdir = wdir, 
+           output = output, 
            gff3 = gff3, 
            annotationFile = annotationFile)
 ```
 
- - First batch: 65 SNPs (196 files)
- - Second batch: 83 SNPs (200 files)
- - Third batch: 99 SNPs(200 files)
- - Four batch: 53 SNPs (200 files)
- - Five batch: 
- 
-# Plot Boxplot
+
+
+# Manhattan plot
 
 ```{r}
+# 
+
+```
+
+
+
+# Boxplots
+
+```{r}
+# 
 phenofile <- 'metabolomic_markers.batch02.csv'
-wdir = paste(dir,"/Results_Boxplot/", sep='')
-outputname = "AM1588_metabolomic_data.batch02.boxplot"
+wdir <- paste(dir,"/Results_Boxplot/", sep = '')
+outputname <- "AM1588_metabolomic_data.batch02.boxplot"
 
 ```
 
 ```{r}
-snp_list_file = file.choose()
+#
+snp_list_file <- file.choose()
 ```
 
 ```{r}
+# 
 labelfile <- file.choose()
 ```
 
-
-```{r message=TRUE, warning=FALSE}
+```{r message = T, warning = F}
+# 
 GWAS_Boxplot(outputname = outputname, 
              dir = wdir, 
              phenofile, 
@@ -85,5 +108,3 @@ GWAS_Boxplot(outputname = outputname,
              snp_list_file, 
              labelfile)
 ```
-
-
