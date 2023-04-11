@@ -6,11 +6,12 @@ Pipeline for Genome-wide association studies in Cassava
 The pipeline has four main steps:
 
 1. Quality control (*in progress*)
-2. GWAS Analysis using GAPIT
-3. Annotation of results (*in progress*)
-4. Boxplot of significant markers genotypes vs. phenotype  
+2. Population Structure and Covariable selection (*in progress*)
+3. GWAS Analysis using GAPIT
+4. Annotation of results (*in progress*)
+5. Boxplot of significant markers genotypes vs. phenotype  
 
-## 2. GWAS: GAPIT
+## 3. GWAS: GAPIT
 
 This R script runs a Genome-Wide Association Study (GWAS) analysis using the GAPIT3 R package. It saves the results of each trait in an individual folder.
 
@@ -46,7 +47,7 @@ The function will create a folder for each trait in the trait_list vector in the
 - devtools
 - GAPIT3
 
-## 3. Annotation
+## 4. Annotation
 
 This code annotates the gen containing the significat SNPs from the GAPIT results. Additional, it retrieves the closest genes downstream and upstream.
 
@@ -64,7 +65,7 @@ A single CSV file containing relevant gene information plus SNPs' P-value, trait
 ### Dependencies
 - `tidyverse`
 
-## 3. Boxplot: Genotype vs Phenotype
+## 5. Boxplot: Genotype vs Phenotype
 
 This R function generates a boxplot for a given SNP. The function takes as inputs a CSV file with the phenotype values and a list of SNPs. The function can also receive an optional CSV file to add extra information about the samples to the plot (categories, family, ect.) The output of the function is a PDF file with the plot.
 
