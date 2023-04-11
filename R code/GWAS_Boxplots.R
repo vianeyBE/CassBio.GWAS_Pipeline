@@ -1,19 +1,23 @@
+# Short name: 
+# Description: Plot a boxplot for a SNP: x is genotype, y is phenotype. It is possible to add extra information about the samples using the labelfile
+# Output: output base name
 #
 # Author: Vianey Barrera-Enriquez (vpbarrerae@gmail.com)
-# Plot a boxplot for a SNP: x is genotype, y is phenotype.
-# It is possible to add extra information about the samples using the labelfile
-# output: output base name
-# dir:directory to save output
-# pheno: phenotype data in tabular format, column with samples name should be names 'Taxa'
-# geno: genotype data in hapmap format
-# snp_list: CSV file with three columns
-#   Column 01 name: SNPS, list of SNPS to plot, name should be the same as in the geno data
-#   Column 02 name: trait, name of the trait as in the pheno data
-#   Column 03 name: xlabel, name of the trait to be included as label
 #
+# Arguments:
+# outputname: Name that will have the output
+# dir: Directory to save output
+# phenofile: Phenotype data in tabular format. Column with samples name should be names 'Taxa'
+# genofile: Genotype data in hapmap format
+# snp_list_file: CSV file with three columns:
+#                Column 01: SNPS. List of SNPS to plot, name should be the same as in the geno data
+#                Column 02: trait. Name of the trait as in the pheno data
+#                Column 03: xlabel. Name of the trait to be included as label
 # labelfile: CSV file with two columns (optional)
-#   Column 01 name: Taxa, sample names
-#   Column 02 name: label, label or category to add at the plot
+#            Column 01: taxa. Sample names
+#            Column 02: label. Label or category to add at the plot
+
+
 
 GWAS_Boxplot <- function(outputname, dir, phenofile, genofile, snp_list_file, labelfile = NULL){
 

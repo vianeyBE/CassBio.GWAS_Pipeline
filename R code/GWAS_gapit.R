@@ -1,15 +1,20 @@
+# Short name:
+# Description: Run GWAS analysis using GAPIT3 R package.
+# Output: It saves the results of each trait in a individual folder.
 #
 # Author: Vianey Barrera-Enriquez (vpbarrerae@gmail.com)
-# Run GWAS analysis using GAPIT3 R package. It saves the results of each trait
-# in a individual folder. 
-# phenofile: measurements or BLUPs of the traits. Row are individuals and Columns are traits/variables
-# genofile: genotype data on hapmap format
-# wdir: working directory. Here it will create the folders for each trait
-# trait_list: vector with the trait's name to do GWAS. Default NULL
+#
+# Arguments:
+# phenofile: Measurements or BLUPs of the traits. Row are individuals and columns are traits/variables
+# genofile: Genotype data on hapmap format
+# wdir: Working directory. Here it will create the folders for each trait
+# trait_list: Vector with the trait's name to do GWAS. Default NULL
+
+
 
 GAPIT3 <- function(phenofile, genofile, wdir, trait_list = NULL){
 
-  # 1: Load Packages and Data --------------------------------------------------
+  # 1: Load packages and data --------------------------------------------------
   if (!require(devtools)) install.packages(devtools)
   library(devtools)
   devtools::install_github("jiabowang/GAPIT3", force = T)

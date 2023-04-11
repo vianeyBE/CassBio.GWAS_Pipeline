@@ -1,9 +1,9 @@
-# Shor name: Annotation for GWAS results
+# Short name: Annotation for GWAS results
 # Description (1): Get the annotation of the gen containing the SNP using the GWAS GAPIT results
 # Description (2): Retrieves the closest genes down and up stream
 # Output: Basename of the output file
 # 
-# Authors: Camilo E. Sanchez (c.e.sanchez@cgiar.org) Vianey Barrera-Enriquez (vpbarrera@gmail.com)
+# Authors: Camilo E. Sanchez (c.e.sanchez@cgiar.org) and Vianey Barrera-Enriquez (vpbarrera@gmail.com)
 #
 # Arguments:
 # pat: The location path of the files

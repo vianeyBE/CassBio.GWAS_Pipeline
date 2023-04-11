@@ -2,7 +2,7 @@
 # Description: Make a customizable Manhattan plot the GWAS GAPIT results
 # Output: Manhattan plots for one, several, or all traits
 #
-# Authors: Camilo E. Sanchez (c.e.sanchez@cgiar.org) Vianey Barrera-Enriquez (vpbarrera@gmail.com)
+# Authors: Camilo E. Sanchez (c.e.sanchez@cgiar.org) and Vianey Barrera-Enriquez (vpbarrera@gmail.com)
 #
 # Arguments: 
 # pat: The location path of the files
