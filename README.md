@@ -1,4 +1,4 @@
-# Cassava Bioinformatics Platform: GWAS_Pipeline
+# Cassava Bioinformatics Platform: GWAS Pipeline
 Pipeline for Genome-wide association studies in Cassava
 
 **Autor**: Vianey Barrera-Enriquez and Camilo E. Sanchez
