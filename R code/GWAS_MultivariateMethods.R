@@ -1,6 +1,7 @@
 # Short name: Multivariate methods for GWAS covariates
 # Description: It can perform several multivariate methods (MDS, PCA, DAPC) to identify covariates for GWAS 
 # Output(s): It depends on the chosen method. For example:
+#            - NDMS:
 #            - MDS:
 #            - PCA:
 #            - DAPC:
@@ -12,14 +13,11 @@
 
 
 
-# 1: Load packages and data ----------------------------------------------------
-if (!require(SNPRelate)) install.packages(SNPRelate)
-if (!require(gdsfmt)) install.packages(gdsfmt)
-if (!require(ggplot2)) install.packages(ggplot2ggplot2)
-if (!require(ggtree)) install.packages(ggtree)
-if (!require(ape)) install.packages(ape)
-if (!require(plotly)) install.packages(plotly)
-if (!require(tidyverse)) install.packages(tidyverse)
+####### To do ####### 
+# 1: Transform into function structure for each method
+# 2: Interactive graphs (using plotly and saving them as html format)
+# 3: For DAPC: Customizable labels
+# 4: Finish the head description
 
 library(SNPRelate)
 library(gdsfmt)
@@ -30,15 +28,6 @@ library(plotly)
 library(tidyverse)
 library(psych)
 
-
-
-####### To do ####### 
-# 1: Transform into functions structure for each method
-# 2: Interactive graphs (using plotly and saving them as html format)
-# 3: For DAPC: Customizable labels
-# 4: Finish the script script on the head
-# 5: Add the NDMS and MDS parts
-
 annotation <- read.csv('GWAS_PPD.labels.csv')
 vcf <- 'GWAS_PPD.snps.filter_info.missing_0.10.imputation.vcf.gz'
 gds <- 'GWAS_PPD.gds'
@@ -48,7 +37,68 @@ sample_id <- read.gdsn(index.gdsn(genofile, "sample.id"))
 
 
 
-# 3: PCA -----------------------------------------------------------------------
+# 1: Non-metric multidimensional scaling (NDMS) --------------------------------
+
+NDMS <- function(traits, distance){}
+
+d.m <- metaMDS(traits1, distance = "euclidian", binary = F, autotransform = T)
+
+score <- as.data.frame(scores(d.m, display = c("sites", "species")))
+score <- tibble::rownames_to_column(score, "VALUE")
+score <- select(score, NMDS1, NMDS2, VALUE) %>%
+  tidyr::separate(col = VALUE, into = c("Genotipo", "trata"), sep = paste("---"))
+
+# Plot
+ggplot(score, aes(NMDS1, NMDS2, color = trata)) +
+  geom_point() +
+  geom_text_repel(data = score_f, aes(x = NMDS1, y = NMDS2, label = Genotipo), color = "black",
+                  size = 3.5, box.padding = unit(0.9, "lines"), point.padding = unit(0.9, "lines")) +
+  labs(color = "Treatment") +
+  theme_classic() +
+  theme(axis.text = element_text(size = 14, angle = 0, color = "black"),
+        axis.title = element_text(size = 14, angle = 0, color = "black"),
+        axis.title.y = element_text(margin = margin(r = 10)),
+        axis.title.x = element_text(margin = margin(t = 10)),
+        legend.text = element_text(size = 14, color = "black"),
+        legend.position = "bottom", legend.title = element_text(size = 14, angle = 0, color = "black"))
+
+
+
+# 2: Multidimensional scaling (MDS) --------------------------------------------
+
+MDS <- function(traits){}
+
+d.m1 <- vegdist(traits1[,2:10], method = "euclidian") # dist function can also be used
+mds.stuff <- cmdscale(d.m1, eig = T, x.ret = T)
+mds.var.per <- round(mds.stuff$eig / (sum(mds.stuff$eig) * 100), 3)
+mds.values <- mds.stuff$points
+mds.data <- data.frame(VALUE = rownames(mds.values), x = mds.values[,1], y = mds.values[,2])
+mds.data <- select(mds.data, x, y, VALUE) %>%
+  tidyr::separate(col = VALUE, into = c("Genotipo", "trata"), sep = paste("---"))
+
+# Plot
+ggplot(mds.data, aes(x, y, color = trata)) +
+  geom_point() +
+  geom_text_repel(data = ms.data_f, aes(x = x, y = y, label = Genotipo), color = "black", 
+                  size = 3.5, box.padding = unit(0.9, "lines"), point.padding = unit(0.9, "lines")) +
+  labs(x = paste("MDS1 - ", mds.var.per[1], "%", sep = ""),
+       y = paste("MDS2 - ", mds.var.per[2], "%", sep = ""),
+       color = "Treatment") +
+  theme_classic() +
+  theme(axis.text = element_text(size = 14, angle = 0, color = "black"),
+        axis.title = element_text(size = 14, angle = 0, color = "black"),
+        axis.title.y = element_text(margin = margin(r = 10)),
+        axis.title.x = element_text(margin = margin(t = 10)),
+        legend.text = element_text(size = 14, color = "black"),
+        legend.position = "bottom", legend.title = element_text(size = 14, angle = 0, color = "black")) +
+  ylim(-400, 400) + xlim(-500, 500)
+
+
+
+# 3: Principal component analysis (PCA) ----------------------------------------
+
+PCA <- function(genofile){}
+
 pca <- snpgdsPCA(genofile, autosome.only = T, remove.monosnp = T, algorithm = "exact",
                  eigen.method = "DSPEVX", need.genmat = T)
 
@@ -88,8 +138,6 @@ message(paste("There are a total of", length(PC$PC), "PCs \n\nIf you: \n",
               "(7) Try with the 'Velicer's MAP criteria', you would retain",
               which.min(na.omit(fac.t$map)), "PCs \n\n",
               "Also, you could retain a fixed number of PCs or retain PCs based on the scree plot"))
-
-
 
 # Scree plots
 ggplot(PC, aes(x = PC, y = eigen)) +
@@ -157,12 +205,11 @@ htmlwidgets::saveWidget(as_widget(fig), "GWAS_PCA.html")
 
 
 
-# 4: DAPC ----------------------------------------------------------------------
-# Load packages and data
-if (!require(adegenet)) install.packages(adegenet)
-if (!require(vcfR)) install.packages(vcfR)
-if (!require(tibble)) install.packages(tibble)
+# 4: Discriminant analysis of principal components (DAPC) ----------------------
 
+DAPC <- function(vcf){}
+
+# Load packages and data
 library(adegenet)
 library(vcfR)
 library(tibble)
