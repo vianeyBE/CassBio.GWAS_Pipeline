@@ -1,0 +1,89 @@
+---
+title: "GWAS Notebook for Cassava Populations"
+auhor:
+  - Vianey Barrera-Enriquez
+  - Camilo E. Sanchez
+output: html_notebook
+---
+
+# Loading Functions
+
+```{r}
+rpath <- "./R code/"
+lapply(list.files(rpath, pattern = "\\.R$", full.names = TRUE), source)
+
+```
+
+
+# GWAS Analysis 
+
+```{r}
+phenofile <- 'metabolomic_markers.batch05.csv'
+wdir = paste(dir,"/Results_Batch_05/", sep='')
+output = "CM8996.batch05"
+```
+
+```{r message=TRUE, warning=FALSE}
+
+GAPIT3(phenofile, genofile, wdir, trait_list=NULL)
+```
+
+
+
+
+# Checking Results and Getting Annotation
+```{r}
+gff3 <- file.choose()
+```
+
+```{r}
+annotationFile <- file.choose()
+```
+
+```{r}
+wdir = paste(dir,"/Results_Batch_05/", sep='')
+output = "CM8996.batch05"
+```
+
+
+```{r message=TRUE, warning=FALSE}
+annotation(Mdir=wdir, 
+           output=output, 
+           gff3 = gff3, 
+           annotationFile = annotationFile)
+```
+
+ - First batch: 65 SNPs (196 files)
+ - Second batch: 83 SNPs (200 files)
+ - Third batch: 99 SNPs(200 files)
+ - Four batch: 53 SNPs (200 files)
+ - Five batch: 
+ 
+# Plot Boxplot
+
+```{r}
+phenofile <- 'metabolomic_markers.batch02.csv'
+wdir = paste(dir,"/Results_Boxplot/", sep='')
+outputname = "AM1588_metabolomic_data.batch02.boxplot"
+
+```
+
+```{r}
+snp_list_file = file.choose()
+```
+
+```{r}
+labelfile <- file.choose()
+```
+
+
+```{r message=TRUE, warning=FALSE}
+GWAS_Boxplot(outputname = outputname, 
+             dir = wdir, 
+             phenofile, 
+             genofile, 
+             snp_list_file, 
+             labelfile)
+```
+
+

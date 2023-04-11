@@ -122,4 +122,4 @@ A single PDF file containing the boxplot of the SNPs.
 ---
 
 ## Contact
-For questions or feedback about this script, please contact Vianey Barrera-Enriquez at vbarrera@cgiar.org.
+For questions or feedback about this pipeline, please contact Vianey Barrera-Enriquez at v.barrera@cgiar.org.
