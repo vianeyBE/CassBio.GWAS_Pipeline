@@ -13,17 +13,19 @@
 
 # 1: # Configure the initial requirements --------------------------------------
 # Manually using the console
-pat <- message("Enter the path of file names to looking for\n\n",
-               "For example: QTL_LOD_Intervals. The path must finish with a point (.)\n\n",
-               "Finish with two tabs")
+message("Enter the path of file names to looking for\n\n",
+        "For example: QTL_LOD_Intervals. The path must finish with a point (.)\n\n",
+        "Finish with two tabs")
 pat <- scan(what = character(), n = 1)
 
-mod <- message("Enter the model(s) of interest\n\n", "Options: BLINK, GLM, MLM, FarmCPU)\n\n",
-               "Finish with two tabs")
+message("Enter the model(s) of interest\n\n",
+        "Options: BLINK, GLM, MLM, FarmCPU\n\n",
+        "Finish with two tabs")
 mod <- scan(what = character(), n = 4)
 
-Mdir <- message("Enter the working directory\n\n", "For example: home/user/folder\n\n",
-                "Finish with two tabs")
+message("Enter the working directory\n\n",
+        "For example: home/user/folder\n\n",
+        "Finish with two tabs")
 Mdir <- scan(what = character(), n = 1)
 
 # Set as default

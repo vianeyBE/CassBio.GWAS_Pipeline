@@ -8,40 +8,45 @@
 # Arguments:
 # pat: The location path of the files
 # wdyw: What do you want to filter? (Gen, exon)
-# Mdir: Name of the directory that contains the GAPIT results
 # mod: Names of the models to filter
+# Mdir: Name of the directory that contains the GAPIT results
 
 
 
 # 1: # Configure the initial requirements --------------------------------------
-pat <- as.character()
-wdyw <- as.character()
-Mdir <- as.character()
-mod <- as.character()
+# Manually using the console
+message("Enter the path of file names to looking for\n\n",
+        "For example: QTL_LOD_Intervals. The path must finish with a point (.)\n\n",
+        "Finish with two tabs")
+pat <- scan(what = character(), n = 1)
 
-# Configure them manually on code
-pat <- "GAPIT.Association.GWAS_Results."
-wdyw <- "gene"
-Mdir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/03_GWAS_PPD_Populations/04_GWAS/GAPIT_Results"
-mod <- c("BLINK", "FarmCPU", "MLM")
+message("Enter what are you looking for to anotate\n\n",
+        "Options: CDS, five_prime_UTR, gene, mRNA, three_prime_UTR\n\n",
+        "Finish with two tabs")
+wdyw <- scan(what = character(), n = 5)
 
-# Configure them using a prompt
+message("Enter the model(s) of interest\n\n",
+        "Options: BLINK, GLM, MLM, FarmCPU\n\n",
+        "Finish with two tabs")
+mod <- scan(what = character(), n = 4)
+
+message("Enter the working directory\n\n",
+        "For example: home/user/folder\n\n",
+        "Finish with two tabs")
+Mdir <- scan(what = character(), n = 1)
+
+# Set as default
 if (rlang::is_empty(pat)) {
-  pat <- readline(prompt =
-  "Enter the path of file names to looking for (p.e., QTL_LOD_Intervals. [Must finish with a point (.)]): ")
-} 
-
+  pat <- "GAPIT.Association.GWAS_Results."
+}
 if (rlang::is_empty(wdyw)) {
-  wdyw <- readline(prompt =
-  "Enter what are you looking for to anotate (options: CDS, five_prime_UTR, gene, mRNA, three_prime_UTR): ")
+  mod <- c("gene")
 }
-
-if (rlang::is_empty(Mdir)) {
-  Mdir <- readline(prompt = "Enter the working directory (p.e., home/user/folder): ")
-}
-
 if (rlang::is_empty(mod)) {
-  Mdir <- readline(prompt = "Enter the model(s) of interest (options: BLINK, GLM, MLM, FarmCPU): ")
+  mod <- c("BLINK", "FarmCPU", "MLM")
+}
+if (rlang::is_empty(Mdir)) {
+  Mdir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/03_GWAS_PPD_Populations/04_GWAS/GAPIT_Results"
 }
 
 
