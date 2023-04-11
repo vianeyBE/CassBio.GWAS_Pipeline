@@ -1,4 +1,18 @@
-# Load packages and data -------------------------------------------------------
+# Short name: Multivariate methods for GWAS covariates
+# Description: It can perform several multivariate methods (MDS, PCA, DAPC) to identify covariates for GWAS 
+# Output(s): It depends on the chosen method. For example:
+#            - MDS:
+#            - PCA:
+#            - DAPC:
+#
+# Authors: Camilo E. Sanchez (c.e.sanchez@cgiar.org) and Vianey Barrera-Enriquez (vpbarrera@gmail.com)
+#
+# Arguments: 
+# 
+
+
+
+# 1: Load packages and data ----------------------------------------------------
 if (!require(SNPRelate)) install.packages(SNPRelate)
 if (!require(gdsfmt)) install.packages(gdsfmt)
 if (!require(ggplot2)) install.packages(ggplot2ggplot2)
@@ -16,21 +30,25 @@ library(plotly)
 library(tidyverse)
 library(psych)
 
+
+
 ####### To do ####### 
-# 1: Add functions structure for each method
-# 2: Interactive graphs
-# 3: Labels
+# 1: Transform into functions structure for each method
+# 2: Interactive graphs (using plotly and saving them as html format)
+# 3: For DAPC: Customizable labels
+# 4: Finish the script script on the head
+# 5: Add the NDMS and MDS parts
 
 annotation <- read.csv('GWAS_PPD.labels.csv')
 vcf <- 'GWAS_PPD.snps.filter_info.missing_0.10.imputation.vcf.gz'
 gds <- 'GWAS_PPD.gds'
-snpgdsVCF2GDS(vcf,gds, ignore.chr.prefix = "chromosome")
+snpgdsVCF2GDS(vcf, gds, ignore.chr.prefix = "chromosome")
 genofile <- snpgdsOpen(gds)
 sample_id <- read.gdsn(index.gdsn(genofile, "sample.id"))
 
 
 
-# PCA --------------------------------------------------------------------------
+# 3: PCA -----------------------------------------------------------------------
 pca <- snpgdsPCA(genofile, autosome.only = T, remove.monosnp = T, algorithm = "exact",
                  eigen.method = "DSPEVX", need.genmat = T)
 
@@ -132,35 +150,39 @@ fig <- fig %>% layout(title = 'PCA',
 fig
 
 # Save the plot
-saveWidget(fig, "GWAS_PPD.pca.html", selfcontained = F, libdir = "lib")
-htmlwidgets::saveWidget(as_widget(fig), "GWAS_PPD.pca.html")
+saveWidget(fig, "GWAS_PCA.html", selfcontained = F, libdir = "lib")
+htmlwidgets::saveWidget(as_widget(fig), "GWAS_PCA.html")
 
 
 
 
 
-# DAPC -------------------------------------------------------------------------
-# Load packages
+# 4: DAPC ----------------------------------------------------------------------
+# Load packages and data
+if (!require(adegenet)) install.packages(adegenet)
+if (!require(vcfR)) install.packages(vcfR)
+if (!require(tibble)) install.packages(tibble)
+
 library(adegenet)
 library(vcfR)
 library(tibble)
 
-# Load files
 vcf <- read.vcfR('GWAS_PPD.snps.filter_info.missing_0.10.imputation.vcf.gz', verbose = T)
-
 my_genind <- vcfR2genind(vcf)
 my_genind
 
-# To identify clusters. It shows a graph with the accumulated variance explained 
-# by the eigenvalues of the PCA. ALL PC were retained (200, actually there is less, about 150)
-# The second graph shows the elbow at k=3 (Number of clusters)
+
+# Identify clusters
+# Shows a graph with the accumulated variance explained by the eigenvalues of the PCA
+# All PC were retained (200, actually there is less, about 150)
+# The second graph shows the elbow at k = 3 (Number of clusters)
 grp <- find.clusters(my_genind)
 
 # Transform the data using PCA and then performs a discriminant Analysis.
 # DAPC actually benefit from less PC. Here 80 will be selected
 dapc <- dapc(my_genind, grp$grp)
 
-pdf("GWAS_PPD.dapc_scatter.pdf", width = 10, height = 8) 
+pdf("GWAS_DAPC_scatter.pdf", width = 10, height = 8) 
 scatter(dapc, scree.pca = F, ratio.pca = 0.3, pch = 20, cell = 1, solid = 0.6, cex = 2.5, clab = 0,
         scree.da = F, leg = T, txt.leg = paste("Cluster", 1:3))
 dev.off()
