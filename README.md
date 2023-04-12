@@ -12,6 +12,7 @@ The pipeline has six main steps:
 5. Boxplot of significant markers: genotypes vs. phenotype
 6. Customizable Manhattan plots (*in progress*)
 
+<<<<<<< Updated upstream
 ## 1. Quality control
 
 *In progress*
@@ -21,6 +22,47 @@ The pipeline has six main steps:
 *In progress*
 
 ## 3. GWAS analysis
+=======
+## 1. VCF Quality Control 
+
+```sh
+inputFile="/path/to/inputFile.vcf.gz"
+prefix="gwas_results"
+
+# Get lisf of samples from VCF 
+bcftools query -l ${inputFile} > ${prefix}.list.samples.txt
+
+# Get stats
+bcftools stats ${inputFile} > ${prefix}.stats.txt
+
+## Calculate allele frequency 
+vcftools --gzvcf ${inputFile} --freq2 --out ${prefix}.frequency
+
+## Stats mean depth per individual
+vcftools --gzvcf ${inputFile} --depth --out ${prefix}.depth
+
+## mean depth per site
+vcftools --gzvcf ${inputFile} --site-mean-depth --out ${prefix}.depth_site
+
+## Site Quality
+vcftools --gzvcf ${inputFile} --site-quality --out ${prefix}.quality
+
+## missing data per individual
+vcftools --gzvcf ${inputFile} --missing-indv --out ${prefix}.missing
+
+## missing data per site
+vcftools --gzvcf ${inputFile} --missing-site --out ${prefix}.missing_site
+
+## Heterozygosity and inbreeding coefficients per individual 
+vcftools --gzvcf ${inputFile} --het --out ${prefix}.heterozygosity
+
+## Hardy Weinberg p-value 
+vcftools --gzvcf ${inputFile} --hardy --out ${prefix}.hwe
+```
+
+
+## 3. GWAS: GAPIT
+>>>>>>> Stashed changes
 
 This R script runs a Genome-Wide Association Study (GWAS) analysis using the GAPIT3 R package. It saves the results of each trait in an individual folder.
 
