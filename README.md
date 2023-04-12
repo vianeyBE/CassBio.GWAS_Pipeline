@@ -1,17 +1,26 @@
 # Cassava Bioinformatics Platform: GWAS Pipeline
 Pipeline for Genome-wide association studies in Cassava
 
-**Autor**: Vianey Barrera-Enriquez and Camilo E. Sanchez
+**Authors**: Vianey Barrera-Enriquez and Camilo E. Sanchez
 
-The pipeline has four main steps:
+The pipeline has six main steps:
 
 1. Quality control (*in progress*)
-2. Population Structure and Covariable selection (*in progress*)
-3. GWAS Analysis using GAPIT
+2. Population structure and covariable selection (*in progress*)
+3. GWAS analysis using GAPIT3
 4. Annotation of results (*in progress*)
-5. Boxplot of significant markers genotypes vs. phenotype  
+5. Boxplot of significant markers: genotypes vs. phenotype
+6. Customizable Manhattan plots (*in progress*)
 
-## 3. GWAS: GAPIT
+## 1. Quality control
+
+*In progress*
+
+## 2. Population structure and covariable selection
+
+*In progress*
+
+## 3. GWAS analysis
 
 This R script runs a Genome-Wide Association Study (GWAS) analysis using the GAPIT3 R package. It saves the results of each trait in an individual folder.
 
@@ -44,10 +53,10 @@ This will perform a GWAS analysis using the phenotype data in ; my_phenotypes.cs
 The function will create a folder for each trait in the trait_list vector in the working directory. In each folder, it will save the results of the GWAS analysis for that trait. For more information about GAPIT outputs, please check the official GAPIT documentation. 
 
 ### Dependencies
-- devtools
-- GAPIT3
+- `devtools`
+- `GAPIT3`
 
-## 4. Annotation
+## 4. Annotation of results
 
 This code annotates the gen containing the significat SNPs from the GAPIT results. Additional, it retrieves the closest genes downstream and upstream.
 
@@ -109,16 +118,20 @@ GWAS_Boxplot("outputname", ".path/to/save/plots/", "phenotype.csv", "genotype.hm
 A single PDF file containing the boxplot of the SNPs. 
 
 ### Dependencies
-- tidyverse
-- tibble
-- dplyr
-- janitor
-- ggplot2
-- Biostrings
-- hrbrthemes
-- forcats
-- ggsignif
-- RColorBrewer
+- `tidyverse`
+- `tibble`
+- `dplyr`
+- `janitor`
+- `ggplot2`
+- `Biostrings`
+- `hrbrthemes`
+- `forcats`
+- `ggsignif`
+- `RColorBrewer`
+
+## 6. Manhattan plots
+
+*In progress*
 
 ---
 
