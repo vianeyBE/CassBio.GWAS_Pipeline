@@ -12,18 +12,9 @@ The pipeline has six main steps:
 5. Boxplot of significant markers: genotypes vs. phenotype
 6. Customizable Manhattan plots (*in progress*)
 
-<<<<<<< Updated upstream
 ## 1. Quality control
 
 *In progress*
-
-## 2. Population structure and covariable selection
-
-*In progress*
-
-## 3. GWAS analysis
-=======
-## 1. VCF Quality Control 
 
 ```sh
 inputFile="/path/to/inputFile.vcf.gz"
@@ -61,8 +52,11 @@ vcftools --gzvcf ${inputFile} --hardy --out ${prefix}.hwe
 ```
 
 
+## 2. Population structure and covariable selection
+
+*In progress*
+
 ## 3. GWAS: GAPIT
->>>>>>> Stashed changes
 
 This R script runs a Genome-Wide Association Study (GWAS) analysis using the GAPIT3 R package. It saves the results of each trait in an individual folder.
 
