@@ -6,11 +6,13 @@ Pipeline for Genome-wide association studies in Cassava
 The pipeline has six main steps:
 
 1. Quality control (*in progress*)
-2. Population structure and covariable selection (*in progress*)
-3. GWAS analysis using GAPIT3
-4. Annotation of results (*in progress*)
-5. Boxplot of significant markers: genotypes vs. phenotype
-6. Customizable Manhattan plots (*in progress*)
+2. Imputation (*in progress*)
+3. LD Decay
+4. Population structure and covariable selection (*in progress*)
+5. GWAS analysis using GAPIT3
+6. Annotation of results (*in progress*)
+7. Boxplot of significant markers: genotypes vs. phenotype
+8. Customizable Manhattan plots (*in progress*)
 
 ## 1. Quality control
 
@@ -51,12 +53,19 @@ vcftools --gzvcf ${inputFile} --het --out ${prefix}.heterozygosity
 vcftools --gzvcf ${inputFile} --hardy --out ${prefix}.hwe
 ```
 
-
-## 2. Population structure and covariable selection
+## 2. Imputation
 
 *In progress*
 
-## 3. GWAS: GAPIT
+## 3. LD Decay
+
+*In progress*
+
+## 4. Population structure and covariable selection
+
+*In progress*
+
+## 5. GWAS: GAPIT
 
 This R script runs a Genome-Wide Association Study (GWAS) analysis using the GAPIT3 R package. It saves the results of each trait in an individual folder.
 
@@ -92,7 +101,7 @@ The function will create a folder for each trait in the trait_list vector in the
 - `devtools`
 - `GAPIT3`
 
-## 4. Annotation of results
+## 6. Annotation of results
 
 This code annotates the gen containing the significat SNPs from the GAPIT results. Additional, it retrieves the closest genes downstream and upstream.
 
@@ -110,7 +119,7 @@ A single CSV file containing relevant gene information plus SNPs' P-value, trait
 ### Dependencies
 - `tidyverse`
 
-## 5. Boxplot: Genotype vs Phenotype
+## 7. Boxplot: Genotype vs Phenotype
 
 This R function generates a boxplot for a given SNP. The function takes as inputs a CSV file with the phenotype values and a list of SNPs. The function can also receive an optional CSV file to add extra information about the samples to the plot (categories, family, ect.) The output of the function is a PDF file with the plot.
 
@@ -165,11 +174,36 @@ A single PDF file containing the boxplot of the SNPs.
 - `ggsignif`
 - `RColorBrewer`
 
-## 6. Manhattan plots
+## 8. Manhattan plots
 
 *In progress*
 
 ---
+## Citation
+
+- Petr Danecek, James K Bonfield, Jennifer Liddle, John Marshall, Valeriu Ohan, Martin O Pollard, Andrew Whitwham, Thomas Keane, Shane A McCarthy, Robert M Davies, Heng Li, Twelve years of SAMtools and BCFtools, GigaScience, Volume 10, Issue 2, February 2021, giab008, https://doi.org/10.1093/gigascience/giab008
+
+- Petr Danecek, Adam Auton, Goncalo Abecasis, Cornelis A. Albers, Eric Banks, Mark A. DePristo, Robert E. Handsaker, Gerton Lunter, Gabor T. Marth, Stephen T. Sherry, Gilean McVean, Richard Durbin, 1000 Genomes Project Analysis Group, The variant call format and VCFtools, Bioinformatics, Volume 27, Issue 15, August 2011, Pages 2156–2158, https://doi.org/10.1093/bioinformatics/btr330
+
+- B L Browning, X Tian, Y Zhou, and S R Browning (2021) Fast two-stage phasing of large-scale sequence data. Am J Hum Genet 108(10):1880-1890. doi:10.1016/j.ajhg.2021.08.005
+
+- B L Browning, Y Zhou, and S R Browning (2018). A one-penny imputed genome from next generation reference panels. Am J Hum Genet 103(3):338-348. doi:10.1016/j.ajhg.2018.07.015
+
+- Chi Zhang, Shan-Shan Dong, Jun-Yang Xu, Wei-Ming He, Tie-Lin Yang, PopLDdecay: a fast and effective tool for linkage disequilibrium decay analysis based on variant call format files, Bioinformatics, Volume 35, Issue 10, May 2019, Pages 1786–1788, https://doi.org/10.1093/bioinformatics/bty875
+
+- Thibaut Jombart, adegenet: a R package for the multivariate analysis of genetic markers, Bioinformatics, Volume 24, Issue 11, June 2008, Pages 1403–1405, https://doi.org/10.1093/bioinformatics/btn129
+
+- Xiuwen Zheng, David Levine, Jess Shen, Stephanie M. Gogarten, Cathy Laurie, Bruce S. Weir, A high-performance computing toolset for relatedness and principal component analysis of SNP data, Bioinformatics, Volume 28, Issue 24, December 2012, Pages 3326–3328, https://doi.org/10.1093/bioinformatics/bts606
+
+- Wang J., Zhang Z., GAPIT Version 3: Boosting Power and Accuracy for Genomic Association and Prediction, Genomics, Proteomics & Bioinformatics (2021), doi: https://doi.org/10.1016/j.gpb.2021.08.005.
+
+- Huang M, Liu X, Zhou Y, Summers RM, Zhang Z. BLINK: A package for the next level of genome-wide association studies with both individuals and markers in the millions. Gigascience. https://doi.org/10.1093/gigascience/giy154.
+
+- Liu X., Huang M., Fan B., Buckler E. S., Zhang Z., 2016 Iterative Usage of Fixed and Random Effect Models for Powerful and Efficient Genome-Wide Association Studies. PLoS Genet. 12: e1005767. https://doi.org/10.1371/journal.pgen.1005767.
+
+- David M. Goodstein, Shengqiang Shu, Russell Howson, Rochak Neupane, Richard D. Hayes, Joni Fazo, Therese Mitros, William Dirks, Uffe Hellsten, Nicholas Putnam, and Daniel S. Rokhsar, Phytozome: a comparative platform for green plant genomics, Nucleic Acids Res. 2012 40 (D1): D1178-D1186
+
+- R Core Team (2021). R: A language and environment for statistical computing. R Foundation for Statistical Computing, Vienna, Austria. URL https://www.R-project.org/.
 
 ## Contact
 For questions or feedback about this pipeline, please contact Vianey Barrera-Enriquez at v.barrera@cgiar.org.
