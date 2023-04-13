@@ -9,70 +9,99 @@
 # Authors: Camilo E. Sanchez (c.e.sanchez@cgiar.org) and Vianey Barrera-Enriquez (vpbarrera@gmail.com)
 #
 # Arguments: 
-# 
+# 1. For NDMS:
+#        dir: Name of the directory that contains the data
+#        traits: A matrix/database of genotypes/individuals in rows and their traits in in columns
+#        dist: Dissimilarity index/measure to use. The default is bray.
+#        trata: Boolean value indicating whether the data includes different treatments
 
 
 
 ####### To do ####### 
-# 1: Transform into function structure for each method
-# 2: Interactive graphs (using plotly and saving them as html format)
-# 3: For DAPC: Customizable labels
-# 4: Finish the head description
+# 1: Add function structures for MDS, PCA, and DAPC (including plotly-htmal plots)
+# 2: Finish head description
 
 
 
 # 1: Non-metric multidimensional scaling (NDMS) --------------------------------
 
-# traits: A matrix/database of genotypes/individuals in rows and their traits in in columns
-# names: 
-# extra: 
-# dist: Dissimilarity index/measure to use. The default is euclidean.
 
+
+# Test data
 setwd("D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/")
-traits <- read.csv("results_treatment_1.csv", header = T) %>%
-  rename(PAR = Light.Intensity..PAR., PS1AC = PS1.Active.Centers, PS1OC = PS1.Oxidized.Centers, gH = gH.) %>%
-  select(Genotipo, LEF, PAR, NPQt, Phi2, PS1AC, PS1OC, PhiNO, SPAD, gH, kP700, PhiNPQ)
-  
-traits <- traits %>% replace(. == "null", NA) %>% replace(. == "NULL", NA)
-traits <- na.omit(traits)
-traits <- traits[!duplicated(traits$Genotipo), ]
-traits$PS1OC <- as.numeric(traits$PS1OC)
-traits$gH <- as.numeric(traits$gH)
-traits <- abs(traits)
 
+# Without color
+dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
+traits <- read.csv("Prueba.csv", header = T)
 
+# With color
+traits <- traits[-2]
 
-
-NDMS <- function(traits, distance){}
-
-# Load libraries
-library(vegan)
-library(tidyverse)
-library(ggrepel)
-library(plotly)
-library(htmlwidgets)
-
-# Define principal arguments
-names <- traits[1]
-traits <- traits[-1]
 dist <- c("bray")
+trata <- F
 
-# Perform MDS
-MDS <- metaMDS(traits, distance = dist, binary = F, autotransform = T)
-MDS.pd <- as.data.frame(scores(MDS, display = c("sites")))
+NDMS <- function(dir, traits, distance, trata){
+  
+  # Load libraries
+  library(vegan)
+  library(tidyverse)
+  library(ggrepel)
+  library(ggtree)
+  library(plotly)
+  library(htmlwidgets)
+  
+  # Conditional for color case
+  if (trata == T){
+    
+    # Separate database
+    names <- traits[1]
+    traits <- traits[-1]
+    
+    # Perform MDS
+    MDS <- metaMDS(traits, distance = dist, binary = F, autotransform = T)
+    MDS.pd <- as.data.frame(scores(MDS, display = c("sites")))
+    
+    # Merge MDS data with their names
+    MDS.f <- cbind(names, MDS.pd)
+    MDS.f <- MDS.f %>% rename(Label = 1)
+    
+    # Plot MDS
+    fig <- plot_ly(data = MDS.f, x = ~ NMDS1, y = ~ NMDS2, type = 'scatter',
+                   mode = 'markers', text = ~ Label)
+    
+    # Save the plot
+    saveWidget(fig, "GWAS_NDMS.html", selfcontained = F, libdir = "lib")
+    saveWidget(as_widget(fig), "GWAS_NDMS.html")
+    
+  } else {
+    
+    # Separate database
+    names <- traits[1]
+    tr <- traits[2]
+    traits <- traits[3:dim(traits)[2]]
+    
+    # Perform MDS
+    MDS <- metaMDS(traits, distance = dist, binary = F, autotransform = T)
+    MDS.pd <- as.data.frame(scores(MDS, display = c("sites")))
+    
+    # Merge MDS data with their names
+    MDS.f <- cbind(names, tr, MDS.pd) 
+    MDS.f <- MDS.f %>% rename(Label = 1, Treat = 2)
+    
+    # Plot MDS
+    fig <- plot_ly(data = MDS.f, x = ~ NMDS1, y = ~ NMDS2, color = ~ Treat, type = 'scatter',
+                   mode = 'markers', symbol = ~ trata, text = ~ Label) %>%
+      layout(legend = list(title = list(text = '<b> Treatment </b>'), orientation = 'h'))
+    
+    # Save the plot
+    saveWidget(fig, "GWAS_NDMS.html", selfcontained = F, libdir = "lib")
+    saveWidget(as_widget(fig), "GWAS_NDMS.html")
+    
+  }
+  
+}
 
-# Merge MDS data with their names
-MDS.f <- cbind(names, MDS.pd)
-
-# Plot MDS
-ggplot(MDS.f, aes(NMDS1, NMDS2)) +
-  geom_point() +
-  labs() +
-  theme_classic() +
-  theme(axis.text = element_text(size = 14, angle = 0, color = "black"),
-        axis.title = element_text(size = 14, angle = 0, color = "black"),
-        axis.title.y = element_text(margin = margin(r = 10)),
-        axis.title.x = element_text(margin = margin(t = 10)))
+NDMS(dir, traits, distance, trata)
 
 
 

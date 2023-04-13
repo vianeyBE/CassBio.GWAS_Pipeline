@@ -16,8 +16,7 @@ lapply(list.files(rpath, pattern = "\\.R$", full.names = T), source)
 ```
 
 
-
-# Multivariate methods
+# 1. Quality control
 
 ```{r}
 #
@@ -25,8 +24,15 @@ lapply(list.files(rpath, pattern = "\\.R$", full.names = T), source)
 ```
 
 
+# 2. Population structure and covariable selection
 
-# GWAS analysis
+```{r}
+#
+
+```
+
+
+# 3. GWAS analysis
 
 ```{r}
 # 
@@ -41,8 +47,7 @@ GAPIT3(phenofile, genofile, wdir, trait_list = NULL)
 ```
 
 
-
-# Checking results and getting annotation
+# 4. Annotation of results
 
 ```{r}
 # 
@@ -69,17 +74,7 @@ annotation(Mdir = wdir,
 ```
 
 
-
-# Manhattan plot
-
-```{r}
-# 
-
-```
-
-
-
-# Boxplots
+# 5. Boxplots: Genotype vs Phenotype
 
 ```{r}
 # 
@@ -108,3 +103,11 @@ GWAS_Boxplot(outputname = outputname,
              snp_list_file, 
              labelfile)
 ```
+
+# 6. Manhattan plots
+
+```{r}
+# 
+
+```
+
