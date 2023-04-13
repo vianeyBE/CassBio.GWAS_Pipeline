@@ -1,8 +1,8 @@
 # Short name: Multivariate methods for GWAS covariable selection
 # Description: It can perform several multivariate methods (MDS, PCA, DAPC) to identify covariates for GWAS 
 # Output(s): It depends on the chosen method. For example:
-#            - NDMS:
-#            - MDS:
+#            - NDMS: An interactive html plot
+#            - MDS: An interactive html plot
 #            - PCA:
 #            - DAPC:
 #
@@ -14,134 +14,162 @@
 #        traits: A matrix/database of genotypes/individuals in rows and their traits in in columns
 #        dist: Dissimilarity index/measure to use. The default is bray.
 #        trata: Boolean value indicating whether the data includes different treatments
+# 2. For MDS:
+#        dir: Name of the directory that contains the data
+#        traits: A matrix/database of genotypes/individuals in rows and their traits in in columns
+#        dist: Dissimilarity index/measure to use. The default is bray.
+#        trata: Boolean value indicating whether the data includes different treatments
 
 
 
 ####### To do ####### 
-# 1: Add function structures for MDS, PCA, and DAPC (including plotly-htmal plots)
+# 1: Add function structures for PCA, and DAPC (including plotly - htmal plots)
 # 2: Finish head description
+
+# Phenotypic test data
+dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
+dist <- c("gower")
+trata <- F
+
+# Phenotypic test data
+setwd("D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/")
+traits <- read.csv("Prueba.csv", header = T) # Add colors
+traits <- traits[-2] # No color
 
 
 
 # 1: Non-metric multidimensional scaling (NDMS) --------------------------------
 
-
-
-# Test data
-setwd("D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/")
-
-# Without color
-dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
-traits <- read.csv("Prueba.csv", header = T)
-
-# With color
-traits <- traits[-2]
-
-dist <- c("bray")
-trata <- F
-
-NDMS <- function(dir, traits, distance, trata){
+NDMS <- function(dir, traits, dist, trata){
   
   # Load libraries
   library(vegan)
   library(tidyverse)
-  library(ggrepel)
-  library(ggtree)
   library(plotly)
   library(htmlwidgets)
   
   # Conditional for color case
   if (trata == T){
     
-    # Separate database
-    names <- traits[1]
-    traits <- traits[-1]
-    
-    # Perform MDS
-    MDS <- metaMDS(traits, distance = dist, binary = F, autotransform = T)
-    MDS.pd <- as.data.frame(scores(MDS, display = c("sites")))
-    
-    # Merge MDS data with their names
-    MDS.f <- cbind(names, MDS.pd)
-    MDS.f <- MDS.f %>% rename(Label = 1)
-    
-    # Plot MDS
-    fig <- plot_ly(data = MDS.f, x = ~ NMDS1, y = ~ NMDS2, type = 'scatter',
-                   mode = 'markers', text = ~ Label)
-    
-    # Save the plot
-    saveWidget(fig, "GWAS_NDMS.html", selfcontained = F, libdir = "lib")
-    saveWidget(as_widget(fig), "GWAS_NDMS.html")
-    
-  } else {
-    
-    # Separate database
+    # Database handling
     names <- traits[1]
     tr <- traits[2]
     traits <- traits[3:dim(traits)[2]]
     
-    # Perform MDS
-    MDS <- metaMDS(traits, distance = dist, binary = F, autotransform = T)
-    MDS.pd <- as.data.frame(scores(MDS, display = c("sites")))
+    # Peform the NDMS
+    NDMS <- metaMDS(traits, distance = dist, binary = F, autotransform = T)
+    NDMS.pd <- as.data.frame(scores(MDS, display = c("sites")))
     
     # Merge MDS data with their names
-    MDS.f <- cbind(names, tr, MDS.pd) 
-    MDS.f <- MDS.f %>% rename(Label = 1, Treat = 2)
+    NDMS.f <- cbind(names, tr, NDMS.pd) 
+    NDMS.f <- NDMS.f %>% rename(Label = 1, Treat = 2)
     
     # Plot MDS
-    fig <- plot_ly(data = MDS.f, x = ~ NMDS1, y = ~ NMDS2, color = ~ Treat, type = 'scatter',
-                   mode = 'markers', symbol = ~ trata, text = ~ Label) %>%
+    fig <- plot_ly(data = NDMS.f, x = ~ NMDS1, y = ~ NMDS2, color = ~ as.factor(Treat), type = 'scatter',
+                   mode = 'markers', symbol = ~ as.factor(Treat), text = ~ Label) %>%
       layout(legend = list(title = list(text = '<b> Treatment </b>'), orientation = 'h'))
     
     # Save the plot
     saveWidget(fig, "GWAS_NDMS.html", selfcontained = F, libdir = "lib")
     saveWidget(as_widget(fig), "GWAS_NDMS.html")
     
-  }
-  
+    } else {
+      
+      # Database handling
+      names <- traits[1]
+      traits <- traits[-1]
+      
+      # Perform NDMS
+      NDMS <- metaMDS(traits, distance = dist, binary = F, autotransform = T)
+      NDMS.pd <- as.data.frame(scores(NDMS, display = c("sites")))
+      
+      # Merge MDS data with their names
+      NDMS.f <- cbind(names, NDMS.pd)
+      NDMS.f <- NDMS.f %>% rename(Label = 1)
+      
+      # Plot MDS
+      fig <- plot_ly(data = NDMS.f, x = ~ NMDS1, y = ~ NMDS2, type = 'scatter',
+                     mode = 'markers', text = ~ Label)
+      
+      # Save the plot
+      saveWidget(fig, "GWAS_NDMS.html", selfcontained = F, libdir = "lib")
+      saveWidget(as_widget(fig), "GWAS_NDMS.html")
+      
+    }
 }
 
-NDMS(dir, traits, distance, trata)
+NDMS(dir, traits, dist, trata)
 
 
 
 # 2: Multidimensional scaling (MDS) --------------------------------------------
 
-traits <- xxxx
-met <- c("euclidian")
+MDS <- function(dir, traits, dist, trata){
+  
+  # Load libraries
+  library(vegan)
+  library(tidyverse)
+  library(plotly)
+  library(htmlwidgets)
+  
+  # Conditional for color case
+  if (trata == T){
+    
+    # Database handling
+    names <- traits[1]
+    tr <- traits[2]
+    traits <- traits[3:dim(traits)[2]]
+    
+    # Performs MDS, calculates cumulative variance
+    diss <- vegdist(traits, method = dist) # dist function can also be used
+    MDS <- cmdscale(diss, eig = T, x.ret = T)
+    MDS.var <- round(MDS$eig / (sum(MDS$eig) * 100), 3)
+    
+    # Merge NDMS data with their names
+    MDS.f <- cbind(names, tr, MDS$points)
+    MDS.f <- MDS.f %>% rename(Label = 1, Treat = 2, MDS1 = 3, MDS2 = 4)
+    
+    # Plot
+    fig <- plot_ly(data = MDS.f, x = ~ MDS1, y = ~ MDS2, color = ~ as.factor(Treat), type = 'scatter',
+                   mode = 'markers', symbol = ~ as.factor(Treat), text = ~ Label) %>%
+      layout(legend = list(title = list(text = '<b> Treatment </b>'), orientation = 'h'),
+             xaxis = list(title = paste("MDS1 - ", MDS.var[1], "%", sep = "")), 
+             yaxis = list(title = paste("MDS2 - ", MDS.var[2], "%", sep = "")))
+    
+    # Save the plot
+    saveWidget(fig, "GWAS_MDS.html", selfcontained = F, libdir = "lib")
+    saveWidget(as_widget(fig), "GWAS_MDS.html")
+    
+  } else {
+    
+    # Database handling
+    names <- traits[1]
+    traits <- traits[2:dim(traits)[2]]
+    
+    # Performs MDS, calculates cumulative variance
+    diss <- vegdist(traits, method = dist) # dist function can also be used
+    MDS <- cmdscale(diss, eig = T, x.ret = T)
+    MDS.var <- round(MDS$eig / (sum(MDS$eig) * 100), 3)
+    
+    # Merge NDMS data with their names
+    MDS.f <- cbind(names, MDS$points)
+    MDS.f <- MDS.f %>% rename(Label = 1, MDS1 = 2, MDS2 = 3)
+    
+    # Plot
+    fig <- plot_ly(data = MDS.f, x = ~ MDS1, y = ~ MDS2, type = 'scatter',
+                   mode = 'markers', text = ~ Label) %>%
+      layout(xaxis = list(title = paste("MDS1 - ", MDS.var[1], "%", sep = "")), 
+             yaxis = list(title = paste("MDS2 - ", MDS.var[2], "%", sep = "")))
+    
+    # Save the plot
+    saveWidget(fig, "GWAS_MDS.html", selfcontained = F, libdir = "lib")
+    saveWidget(as_widget(fig), "GWAS_MDS.html")
+    
+  }
+  
+}
 
-MDS <- function(traits){}
-
-library(vegan)
-library(tidyverse)
-library(ggrepel)
-library(plotly)
-library(htmlwidgets)
-
-d.m1 <- vegdist(traits[,2:10], method = met) # dist function can also be used
-mds.stuff <- cmdscale(d.m1, eig = T, x.ret = T)
-mds.var.per <- round(mds.stuff$eig / (sum(mds.stuff$eig) * 100), 3)
-mds.values <- mds.stuff$points
-mds.data <- data.frame(VALUE = rownames(mds.values), x = mds.values[,1], y = mds.values[,2])
-mds.data <- select(mds.data, x, y, VALUE) %>%
-  tidyr::separate(col = VALUE, into = c("Genotipo", "trata"), sep = paste("---"))
-
-# Plot
-ggplot(mds.data, aes(x, y, color = trata)) +
-  geom_point() +
-  geom_text_repel(data = ms.data_f, aes(x = x, y = y, label = Genotipo), color = "black", 
-                  size = 3.5, box.padding = unit(0.9, "lines"), point.padding = unit(0.9, "lines")) +
-  labs(x = paste("MDS1 - ", mds.var.per[1], "%", sep = ""),
-       y = paste("MDS2 - ", mds.var.per[2], "%", sep = ""),
-       color = "Treatment") +
-  theme_classic() +
-  theme(axis.text = element_text(size = 14, angle = 0, color = "black"),
-        axis.title = element_text(size = 14, angle = 0, color = "black"),
-        axis.title.y = element_text(margin = margin(r = 10)),
-        axis.title.x = element_text(margin = margin(t = 10)),
-        legend.text = element_text(size = 14, color = "black"),
-        legend.position = "bottom", legend.title = element_text(size = 14, angle = 0, color = "black")) +
-  ylim(-400, 400) + xlim(-500, 500)
+MDS(dir, traits, dist, trata)
 
 
 
