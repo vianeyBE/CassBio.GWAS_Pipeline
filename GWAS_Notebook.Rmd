@@ -15,7 +15,6 @@ rpath <- "./R code/"
 lapply(list.files(rpath, pattern = "\\.R$", full.names = T), source)
 ```
 
-
 # 1. Quality control
 
 ```{r}
@@ -24,7 +23,7 @@ lapply(list.files(rpath, pattern = "\\.R$", full.names = T), source)
 ```
 
 
-# 2. Population structure and covariable selection
+# 2. Imputation
 
 ```{r}
 #
@@ -32,7 +31,23 @@ lapply(list.files(rpath, pattern = "\\.R$", full.names = T), source)
 ```
 
 
-# 3. GWAS analysis
+# 3. LD Decay
+
+```{r}
+#
+
+```
+
+
+# 4. Population structure and covariable selection
+
+```{r}
+#
+
+```
+
+
+# 5. GWAS analysis
 
 ```{r}
 # 
@@ -47,7 +62,7 @@ GAPIT3(phenofile, genofile, wdir, trait_list = NULL)
 ```
 
 
-# 4. Annotation of results
+# 6. Annotation of results
 
 ```{r}
 # 
@@ -74,7 +89,7 @@ annotation(Mdir = wdir,
 ```
 
 
-# 5. Boxplots: Genotype vs Phenotype
+# 7. Boxplots: Genotype vs Phenotype
 
 ```{r}
 # 
@@ -104,7 +119,7 @@ GWAS_Boxplot(outputname = outputname,
              labelfile)
 ```
 
-# 6. Manhattan plots
+# 8. Manhattan plots
 
 ```{r}
 # 
