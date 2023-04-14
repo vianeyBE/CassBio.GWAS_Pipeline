@@ -19,28 +19,45 @@
 #        traits: A matrix/database of genotypes/individuals in rows and their traits in in columns
 #        dist: Dissimilarity index/measure to use. The default is bray.
 #        trata: Boolean value indicating whether the data includes different treatments
+# 3. For PCA:
+#        dir: Name of the directory that contains the data
+#        type: A character string indicating wheter data is genotypic ("geno") of phenotypic ("pheno")
+#        trata: Boolean value indicating whether the data includes different treatments
+#        genofile: An object of class SNPGDSFileClass. A SNP - GDS file
+#        phenofile: A matrix/database of genotypes/individuals in rows and their traits in in columns
+#        vcf: 
+#        gds: 
+#        PC.retain: 
+#        
+# 4. For DAPC:
+#
 
 
 
 ####### To do ####### 
-# 1: Add function structures for PCA, and DAPC (including plotly - htmal plots)
+# 1: Add function structures for PCA (including plotly - htmal plots)
 # 2: Finish head description
 
-# Phenotypic test data
+# Test arguments
 dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
 dist <- c("gower")
 trata <- F
 
 # Phenotypic test data
-setwd("D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/")
+setwd(dir)
 traits <- read.csv("Prueba.csv", header = T) # Add colors
 traits <- traits[-2] # No color
 
 
 
+
+
 # 1: Non-metric multidimensional scaling (NDMS) --------------------------------
 
-NDMS <- function(dir, traits, dist, trata){
+NDMS <- function(dir, traits, dist, trata = F){
+  
+  # Set working directory
+  setwd(dir)
   
   # Load libraries
   library(vegan)
@@ -104,7 +121,10 @@ NDMS(dir, traits, dist, trata)
 
 # 2: Multidimensional scaling (MDS) --------------------------------------------
 
-MDS <- function(dir, traits, dist, trata){
+MDS <- function(dir, traits, dist, trata = F){
+  
+  # Set working directory
+  setwd(dir)
   
   # Load libraries
   library(vegan)
@@ -175,61 +195,126 @@ MDS(dir, traits, dist, trata)
 
 # 3: Principal component analysis (PCA) ----------------------------------------
 
-annotation <- read.csv('GWAS_PPD.labels.csv')
+
+# Files names
+labels <- read.csv('GWAS_PPD.labels.csv')
 vcf <- 'GWAS_PPD.snps.filter_info.missing_0.10.imputation.vcf.gz'
 gds <- 'GWAS_PPD.gds'
-snpgdsVCF2GDS(vcf, gds, ignore.chr.prefix = "chromosome")
-genofile <- snpgdsOpen(gds)
-sample_id <- read.gdsn(index.gdsn(genofile, "sample.id"))
+type <- "Geno"
 
-PCA <- function(genofile){}
+# Load files
+setwd("D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/03_GWAS_PPD_Populations/02_PCA")
 
-library(SNPRelate)
-library(gdsfmt)
-library(tidyverse)
-library(psych)
-library(plotly)
-library(htmlwidgets)
 
-pca <- snpgdsPCA(genofile, autosome.only = T, remove.monosnp = T, algorithm = "exact",
-                 eigen.method = "DSPEVX", need.genmat = T)
 
-# Creates the table to to analyze the number of PCs to retain as well as to draw scree plots
-PC <- data.frame(PC = 1:length(pca$varprop), id = pca[["sample.id"]],
-                 eigen = pca[["eigenval"]], var = pca$varprop * 100) %>%
-  mutate(var.cum = cumsum(var))
 
-# Establish a cutoff
-cutoff <- 1 / length(PC$PC) * 100
+PCA <- function(dir, type, trata, phenofile = NULL, genofile = NULL, vcf = NULL, gds = NULL, PC.retain = T){
+  
+  # Set working directory
+  setwd(dir)
+  
+  # Load libraries
+  library(SNPRelate)
+  library(gdsfmt)
+  library(tidyverse)
+  library(psych)
+  library(plotly)
+  library(htmlwidgets)
+  
+}
 
-# Obtain the genetic correlation matrix
-cor.m <- pca[['genmat']]
-cor.m <- as.matrix(replace(cor.m, cor.m > 1, 1))
+# Conditional to determine if the data is genotypic of phenotypic
+if (type == "Pheno") {
+  
+  message("Selected data option: Phenotypic")
+  
+  # Internal conditional to determine if perform or not the PCs retaining
+  if (PC.retain == T) {
+    
+    message("Principal components retaining analyses in process")
+    
+  } else {
+    
+    message("NOT doing the PCs retaining analyses")
+    
+    }
+  
+} else {
+  
+  message("Selected data option: Genotypic")
+  
+  # Conditional within the genotypic data to determine if genofile is empty or necessary to read from dir
+  if (is.null(genofile)) {
+    
+    message("Genofile is NULL\n\nReading vcf and gds files\n\nCreating genofile")
+    
+    snpgdsVCF2GDS(vcf, gds, ignore.chr.prefix = "chromosome")
+    genofile <- snpgdsOpen(gds)
+    sample_id <- read.gdsn(index.gdsn(genofile, "sample.id"))
+    
+  } else { 
+    
+    message("Genofile is not NULL\n\nPCA function continues regularly")
+    
+  }
+  
+  # Continue function
+  # Performs the SNPRelate's PCA
+  PCA <- snpgdsPCA(genofile, autosome.only = T, remove.monosnp = T, need.genmat = T,
+                   algorithm = "exact", eigen.method = "DSPEVX")
+  
+  # Creates the table to draw scree plots and analyze the number of PCs to retain 
+  PC <- data.frame(PC = 1:length(PCA$varprop), id = PCA[["sample.id"]],
+                   eigen = PCA[["eigenval"]], var = PCA$varprop * 100) %>%
+    mutate(var.cum = cumsum(var))
+  
+  # PCs retaining part
+  if (PC.retain == T) {
+    
+    message("Principal components retaining analyses in process")
+    
+    # Establish a cutoff and obtain the genetic correlation matrix
+    cutoff <- 1 / length(PC$PC) * 100
+    cor.m <- PCA[['genmat']]
+    cor.m <- as.matrix(replace(cor.m, cor.m > 1, 1))
+    
+    # Makes the parallel, VSS, Velicer's MAP, and BIC analyses
+    FA.p <- fa.parallel(cor.m, n.obs = dim(cor.m)[1], fm = "pa", fa = "pc", n.iter = 30, plot = F)
+    FAC <- nfactors(cor.m, diagonal = T, fm = "pa", n.obs = dim(cor.m)[1])
+    
+    # Obtain the summary statistics
+    FAC.t <- FAC[["vss.stats"]] %>% mutate(map = FAC$map)
+    
+    # What would you get with different ways to retain PCs
+    message(paste("There are a total of", length(PC$PC), "PCs \n\nIf you: \n",
+                  "(1) Use the 'K1' method, you would retain",
+                  dim(dplyr::filter(PC, eigen > 1))[1], "PCs \n",
+                  "(2) Accept all the PCs that explain more than one variable’s worth of data, you would retain",
+                  dim(dplyr::filter(PC, var > cutoff))[1], "PCs \n",
+                  "(3) Retain the PCs that explain at least a 70% of cumulative variance, you would retain",
+                  dim(dplyr::filter(PC, var.cum < 70))[1], "PCs \n",
+                  "(4) Establish an 80% threshold, you would retain",
+                  dim(dplyr::filter(PC, var.cum < 80))[1], "PCs \n",
+                  "(5) Perform a Parallal analysis, you would retain",
+                  FA.p$ncomp, "PCs \n",
+                  "(6) Apply the 'Very Simple Structure criteria', you would retain",
+                  which.max(FAC.t$cfit.2), "PCs \n",
+                  "(7) Try with the 'Velicer's MAP criteria', you would retain",
+                  which.min(na.omit(FAC.t$map)), "PCs \n\n",
+                  "Also, you could retain a fixed number of PCs or retain PCs based on the scree plot"))
+    
+  } else {
+    
+    message("NOT doing the PCs retaining analyses")
+    
+  }
+  
+  }
 
-# Makes the parallel, VSS, Velicer's MAP, and BIC analyses
-fa.p <- fa.parallel(cor.m, n.obs = dim(cor.m)[1], fm = "pa", fa = "pc", n.iter = 30, plot = F)
-fac <- nfactors(cor.m, diagonal = T, fm = "pa", n.obs = dim(cor.m)[1])
 
-# Obtain the summary statistics
-fac.t <- fac[["vss.stats"]] %>% mutate(map = fac$map)
 
-# What would you get with different ways to retain PCs
-message(paste("There are a total of", length(PC$PC), "PCs \n\nIf you: \n",
-              "(1) Use the 'K1' method, you would retain",
-              dim(dplyr::filter(PC, eigen > 1))[1], "PCs \n",
-              "(2) Accept all the PCs that explain more than one variable’s worth of data, you would retain",
-              dim(dplyr::filter(PC, var > cutoff))[1], "PCs \n",
-              "(3) Retain the PCs that explain at least a 70% of cumulative variance, you would retain",
-              dim(dplyr::filter(PC, var.cum < 70))[1], "PCs \n",
-              "(4) Establish an 80% threshold, you would retain",
-              dim(dplyr::filter(PC, var.cum < 80))[1], "PCs \n",
-              "(5) Perform a Parallal analysis, you would retain",
-              fa.p$ncomp, "PCs \n",
-              "(6) Apply the 'Very Simple Structure criteria', you would retain",
-              which.max(fac.t$cfit.2), "PCs \n",
-              "(7) Try with the 'Velicer's MAP criteria', you would retain",
-              which.min(na.omit(fac.t$map)), "PCs \n\n",
-              "Also, you could retain a fixed number of PCs or retain PCs based on the scree plot"))
+
+
 
 # Scree plots
 ggplot(PC, aes(x = PC, y = eigen)) +
@@ -274,20 +359,17 @@ ggplot(PC, aes(x = PC, y = var.cum)) +
   scale_x_continuous(breaks = c(0, 25, 50, 75, 100, 125, 150))
 
 
-# Table to plot the PCA
-tab <- data.frame(sample.id = pca$sample.id, stringsAsFactors = F,
-                  EV1 = pca$eigenvect[,1], EV2 = pca$eigenvect[,2]) # the first two eigenvectors
 
-dt <-  merge(tab, annotation, by.x = 'sample.id', by.y = 'Taxa')
+# Table to plot the PCA
+tab <- data.frame(sample.id = PCA$sample.id, stringsAsFactors = F,
+                  EV1 = PCA$eigenvect[,1], EV2 = PCA$eigenvect[,2]) # The first two eigenvectors
+dt <- merge(tab, labels, by.x = 'sample.id', by.y = 'Taxa')
 
 # Plot the PCA
-fig <- dt %>% plot_ly(x = ~ EV1, y = ~ EV2, color = ~ label, type = 'scatter', mode = 'markers', 
-                      symbol = ~ label, symbols = c('circle', 'x'), text = ~ sample.id, 
-                      marker = list(size = 6))
-fig <- fig %>% layout(title = 'PCA', 
-                      xaxis = list(title = paste('Dimension 1 - ', round(PC$var)[1], '%')), 
-                      yaxis = list(title = paste('Dimension 2 - ', round(PC$var)[2], '%')))
-fig
+plot_ly(data = dt, x = ~ EV1, y = ~ EV2, color = ~ label, type = 'scatter', mode = 'markers',
+        symbol = ~ label, symbols = c('circle', 'x'), text = ~ sample.id, marker = list(size = 6)) %>%
+  layout(xaxis = list(title = paste('Dimension 1 - ', round(PC$var)[1], '%')),
+         yaxis = list(title = paste('Dimension 2 - ', round(PC$var)[2], '%')))
 
 # Save the plot
 saveWidget(fig, "GWAS_PCA.html", selfcontained = F, libdir = "lib")
