@@ -19,8 +19,8 @@ The pipeline has six main steps:
 *In progress*
 
 ```sh
-inputFile="/path/to/inputFile.vcf.gz"
-prefix="gwas_results"
+inputFile = "/path/to/inputFile.vcf.gz"
+prefix = "gwas_results"
 
 # Get lisf of samples from VCF 
 bcftools query -l ${inputFile} > ${prefix}.list.samples.txt
@@ -28,28 +28,28 @@ bcftools query -l ${inputFile} > ${prefix}.list.samples.txt
 # Get stats
 bcftools stats ${inputFile} > ${prefix}.stats.txt
 
-## Calculate allele frequency 
+# Calculate allele frequency 
 vcftools --gzvcf ${inputFile} --freq2 --out ${prefix}.frequency
 
-## Stats mean depth per individual
+# Stats mean depth per individual
 vcftools --gzvcf ${inputFile} --depth --out ${prefix}.depth
 
-## mean depth per site
+# Mean depth per site
 vcftools --gzvcf ${inputFile} --site-mean-depth --out ${prefix}.depth_site
 
-## Site Quality
+# Site quality
 vcftools --gzvcf ${inputFile} --site-quality --out ${prefix}.quality
 
-## missing data per individual
+# Missing data per individual
 vcftools --gzvcf ${inputFile} --missing-indv --out ${prefix}.missing
 
-## missing data per site
+# Missing data per site
 vcftools --gzvcf ${inputFile} --missing-site --out ${prefix}.missing_site
 
-## Heterozygosity and inbreeding coefficients per individual 
+# Heterozygosity and inbreeding coefficients per individual 
 vcftools --gzvcf ${inputFile} --het --out ${prefix}.heterozygosity
 
-## Hardy Weinberg p-value 
+# Hardy-Weinberg p-value 
 vcftools --gzvcf ${inputFile} --hardy --out ${prefix}.hwe
 ```
 
@@ -151,10 +151,10 @@ The function loads all the necessary packages and data files. It then checks for
 
 ```R
 
-# generate boxplot without extra labels
+# Generate boxplot without extra labels
 GWAS_Boxplot("outputname", ".path/to/save/plots/", "phenotype.csv", "genotype.hmp", "snp_list.csv")
 
-# generate boxplot with extra labels
+# Generate boxplot with extra labels
 GWAS_Boxplot("outputname", ".path/to/save/plots/", "phenotype.csv", "genotype.hmp", "snp_list.csv", "labelfile.csv")
 
 ```
