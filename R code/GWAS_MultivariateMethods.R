@@ -11,12 +11,12 @@
 # Arguments: 
 # 1. For NDMS:
 #        dir: Name of the directory that contains the data
-#        traits: A matrix/database of genotypes/individuals in rows and their traits in in columns
+#        phenofile: A matrix/database of genotypes/individuals in rows and their traits in in columns
 #        dist: Dissimilarity index/measure to use. The default is bray.
 #        trata: Boolean value indicating whether the data includes different treatments
 # 2. For MDS:
 #        dir: Name of the directory that contains the data
-#        traits: A matrix/database of genotypes/individuals in rows and their traits in in columns
+#        phenofile: A matrix/database of genotypes/individuals in rows and their traits in in columns
 #        dist: Dissimilarity index/measure to use. The default is bray.
 #        trata: Boolean value indicating whether the data includes different treatments
 # 3. For PCA:
@@ -24,7 +24,7 @@
 #        type: A character string indicating wheter data is genotypic ("geno") of phenotypic ("pheno")
 #        trata: Boolean value indicating whether the data includes different treatments
 #        genofile: An object of class SNPGDSFileClass. A SNP - GDS file
-#        phenofile: A matrix/database of genotypes/individuals in rows and their traits in in columns
+#        phenofile: A matrix/database of genotypes/individuals in rows and their traits in columns
 #        vcf: 
 #        gds: 
 #        PC.retain: 
@@ -35,26 +35,33 @@
 
 
 ####### To do ####### 
-# 1: Add function structures for PCA (including plotly - htmal plots)
+# 1: Add color part in the PCA function
 # 2: Finish head description
 
 # Test arguments
 dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
+dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/03_GWAS_PPD_Populations/02_PCA/"
 dist <- c("gower")
 trata <- F
+type <- "Geno"
 
 # Phenotypic test data
 setwd(dir)
-traits <- read.csv("Prueba.csv", header = T) # Add colors
-traits <- traits[-2] # No color
+phenofile <- read.csv("Prueba.csv", header = T) # Add colors
+phenofile <- phenofile[-2] # No color
 
+# Genotypic test data
+setwd(dir)
+labels <- read.csv('GWAS_PPD.labels.csv')
+vcf <- 'GWAS_PPD.snps.filter_info.missing_0.10.imputation.vcf.gz'
+gds <- 'GWAS_PPD.gds'
 
 
 
 
 # 1: Non-metric multidimensional scaling (NDMS) --------------------------------
 
-NDMS <- function(dir, traits, dist, trata = F){
+NDMS <- function(dir, phenophile, dist, trata = F){
   
   # Set working directory
   setwd(dir)
@@ -69,12 +76,12 @@ NDMS <- function(dir, traits, dist, trata = F){
   if (trata == T){
     
     # Database handling
-    names <- traits[1]
-    tr <- traits[2]
-    traits <- traits[3:dim(traits)[2]]
+    names <- phenofile[1]
+    tr <- phenofile[2]
+    phenofile <- phenofile[3:dim(phenofile)[2]]
     
     # Peform the NDMS
-    NDMS <- metaMDS(traits, distance = dist, binary = F, autotransform = T)
+    NDMS <- metaMDS(phenofile, distance = dist, binary = F, autotransform = T)
     NDMS.pd <- as.data.frame(scores(MDS, display = c("sites")))
     
     # Merge MDS data with their names
@@ -84,7 +91,7 @@ NDMS <- function(dir, traits, dist, trata = F){
     # Plot MDS
     fig <- plot_ly(data = NDMS.f, x = ~ NMDS1, y = ~ NMDS2, color = ~ as.factor(Treat), type = 'scatter',
                    mode = 'markers', symbol = ~ as.factor(Treat), text = ~ Label) %>%
-      layout(legend = list(title = list(text = '<b> Treatment </b>'), orientation = 'h'))
+      layout(legend = list(title = list(text = '<b> Groups </b>'), orientation = 'h'))
     
     # Save the plot
     saveWidget(fig, "GWAS_NDMS.html", selfcontained = F, libdir = "lib")
@@ -93,11 +100,11 @@ NDMS <- function(dir, traits, dist, trata = F){
     } else {
       
       # Database handling
-      names <- traits[1]
-      traits <- traits[-1]
+      names <- phenofile[1]
+      phenofile <- phenofile[-1]
       
       # Perform NDMS
-      NDMS <- metaMDS(traits, distance = dist, binary = F, autotransform = T)
+      NDMS <- metaMDS(phenofile, distance = dist, binary = F, autotransform = T)
       NDMS.pd <- as.data.frame(scores(NDMS, display = c("sites")))
       
       # Merge MDS data with their names
@@ -115,13 +122,13 @@ NDMS <- function(dir, traits, dist, trata = F){
     }
 }
 
-NDMS(dir, traits, dist, trata)
+NDMS(dir, phenofile, dist, trata)
 
 
 
 # 2: Multidimensional scaling (MDS) --------------------------------------------
 
-MDS <- function(dir, traits, dist, trata = F){
+MDS <- function(dir, phenofile, dist, trata = F){
   
   # Set working directory
   setwd(dir)
@@ -136,12 +143,12 @@ MDS <- function(dir, traits, dist, trata = F){
   if (trata == T){
     
     # Database handling
-    names <- traits[1]
-    tr <- traits[2]
-    traits <- traits[3:dim(traits)[2]]
+    names <- phenofile[1]
+    tr <- phenofile[2]
+    phenofile <- phenofile[3:dim(phenofile)[2]]
     
     # Performs MDS, calculates cumulative variance
-    diss <- vegdist(traits, method = dist) # dist function can also be used
+    diss <- vegdist(phenofile, method = dist) # dist function can also be used
     MDS <- cmdscale(diss, eig = T, x.ret = T)
     MDS.var <- round(MDS$eig / (sum(MDS$eig) * 100), 3)
     
@@ -152,7 +159,7 @@ MDS <- function(dir, traits, dist, trata = F){
     # Plot
     fig <- plot_ly(data = MDS.f, x = ~ MDS1, y = ~ MDS2, color = ~ as.factor(Treat), type = 'scatter',
                    mode = 'markers', symbol = ~ as.factor(Treat), text = ~ Label) %>%
-      layout(legend = list(title = list(text = '<b> Treatment </b>'), orientation = 'h'),
+      layout(legend = list(title = list(text = '<b> Groups </b>'), orientation = 'h'),
              xaxis = list(title = paste("MDS1 - ", MDS.var[1], "%", sep = "")), 
              yaxis = list(title = paste("MDS2 - ", MDS.var[2], "%", sep = "")))
     
@@ -163,11 +170,11 @@ MDS <- function(dir, traits, dist, trata = F){
   } else {
     
     # Database handling
-    names <- traits[1]
-    traits <- traits[2:dim(traits)[2]]
+    names <- phenofile[1]
+    phenofile <- phenofile[2:dim(phenofile)[2]]
     
     # Performs MDS, calculates cumulative variance
-    diss <- vegdist(traits, method = dist) # dist function can also be used
+    diss <- vegdist(phenofile, method = dist) # dist function can also be used
     MDS <- cmdscale(diss, eig = T, x.ret = T)
     MDS.var <- round(MDS$eig / (sum(MDS$eig) * 100), 3)
     
@@ -189,24 +196,11 @@ MDS <- function(dir, traits, dist, trata = F){
   
 }
 
-MDS(dir, traits, dist, trata)
+MDS(dir, phenofile, dist, trata)
 
 
 
 # 3: Principal component analysis (PCA) ----------------------------------------
-
-
-# Files names
-labels <- read.csv('GWAS_PPD.labels.csv')
-vcf <- 'GWAS_PPD.snps.filter_info.missing_0.10.imputation.vcf.gz'
-gds <- 'GWAS_PPD.gds'
-type <- "Geno"
-
-# Load files
-setwd("D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/03_GWAS_PPD_Populations/02_PCA")
-
-
-
 
 PCA <- function(dir, type, trata, phenofile = NULL, genofile = NULL, vcf = NULL, gds = NULL, PC.retain = T){
   
@@ -228,10 +222,52 @@ if (type == "Pheno") {
   
   message("Selected data option: Phenotypic")
   
-  # Internal conditional to determine if perform or not the PCs retaining
+  # Function continues to the PCA calculation itself
+  # Database handling
+  names <- phenofile[1]
+  phenofile <- phenofile[3:dim(phenofile)[2]]
+  
+  # Performs a 'normal' PCA
+  PCA <- prcomp(phenofile)
+  
+  # Creates the table to draw scree plots and analyze the number of PCs to retain
+  PC <- data.frame(PC = 1:dim(phenofile)[2], eigen = PCA$sdev^2,
+                   var = ((sqrt(PCA$sdev^2))^2 / (sum(var(phenofile)))) * 100) %>%
+    mutate(var.cum = cumsum(var))
+  
+  # Conditional for PCs retaining analysis 
   if (PC.retain == T) {
     
     message("Principal components retaining analyses in process")
+    
+    # Establish a cutoff and obtain the genetic correlation matrix
+    cutoff <- 1 / length(PC$PC) * 100
+
+    # Makes the parallel, VSS, Velicer's MAP, and BIC analyses
+    FA.p <- fa.parallel(phenofile, fm = "pa", fa = "pc", n.iter = 30, plot = F)
+    FAC <- nfactors(phenofile)
+    dev.off()
+    
+    # Obtain the summary statistics
+    FAC.t <- FAC[["vss.stats"]] %>% mutate(map = FAC$map)
+    
+    # What would you get with different ways to retain PCs
+    message(paste("There are a total of", length(PC$PC), "PCs \n\nIf you: \n",
+                  "(1) Use the 'K1' method, you would retain",
+                  dim(dplyr::filter(PC, eigen > 1))[1], "PCs \n",
+                  "(2) Accept all the PCs that explain more than one variable’s worth of data, you would retain",
+                  dim(dplyr::filter(PC, var > cutoff))[1], "PCs \n",
+                  "(3) Retain the PCs that explain at least a 70% of cumulative variance, you would retain",
+                  dim(dplyr::filter(PC, var.cum < 70))[1], "PCs \n",
+                  "(4) Establish an 80% threshold, you would retain",
+                  dim(dplyr::filter(PC, var.cum < 80))[1], "PCs \n",
+                  "(5) Perform a Parallal analysis, you would retain",
+                  FA.p$ncomp, "PCs \n",
+                  "(6) Apply the 'Very Simple Structure criteria', you would retain",
+                  which.max(FAC.t$cfit.2), "PCs \n",
+                  "(7) Try with the 'Velicer's MAP criteria', you would retain",
+                  which.min(na.omit(FAC.t$map)), "PCs \n\n",
+                  "Also, you could retain a fixed number of PCs or retain PCs based on the scree plot"))
     
   } else {
     
@@ -239,11 +275,38 @@ if (type == "Pheno") {
     
     }
   
+  # Function continues to the plots
+  # Scree plots
+  # Individual variance
+  plot_ly(data = PC, x = ~ PC, y = ~ var, type = "scatter", mode = "lines+markers", text = ~ round(var, 2),
+          line = list(color = "grey")) %>%
+    layout(xaxis = list(title = "PC"), yaxis = list(title = "Explained variance (%)"))
+  
+  # Cumulative variance
+  plot_ly(data = PC, x = ~ PC, y = ~ var.cum, type = "scatter", mode = "lines+markers",
+          text = ~ round(var.cum, 2), line = list(color = "grey")) %>%
+    layout(xaxis = list(title = "PC"), yaxis = list(title = "Cumulative variance (%)"))
+  
+  # Table to plot the PCA
+  tab <- data.frame(PCA[["x"]])
+  dt <- tab %>% mutate(sample.id = names$Genotipo) %>% select(sample.id, PC1, PC2) %>%
+    dplyr::rename(sample.id = "sample.id", EV1 = "PC1", EV2 = "PC2")
+  
+  # Plot the PCA
+  fig <- plot_ly(data = dt, x = ~ EV1, y = ~ EV2, type = "scatter", mode = "markers",
+                 text = ~ sample.id, marker = list(size = 6)) %>%
+    layout(xaxis = list(title = paste("Dimension 1 - ", round(PC$var)[1], "%")),
+           yaxis = list(title = paste("Dimension 2 - ", round(PC$var)[2], "%")))
+  
+  # Save the plot
+  saveWidget(fig, "GWAS_PCA.html", selfcontained = F, libdir = "lib")
+  saveWidget(as_widget(fig), "GWAS_PCA.html")
+  
 } else {
   
   message("Selected data option: Genotypic")
   
-  # Conditional within the genotypic data to determine if genofile is empty or necessary to read from dir
+  # Conditional within genotypic part to determine if genofile is empty or necessary to read from dir
   if (is.null(genofile)) {
     
     message("Genofile is NULL\n\nReading vcf and gds files\n\nCreating genofile")
@@ -258,7 +321,7 @@ if (type == "Pheno") {
     
   }
   
-  # Continue function
+  # Function continues to the PCA calculation itself
   # Performs the SNPRelate's PCA
   PCA <- snpgdsPCA(genofile, autosome.only = T, remove.monosnp = T, need.genmat = T,
                    algorithm = "exact", eigen.method = "DSPEVX")
@@ -268,7 +331,7 @@ if (type == "Pheno") {
                    eigen = PCA[["eigenval"]], var = PCA$varprop * 100) %>%
     mutate(var.cum = cumsum(var))
   
-  # PCs retaining part
+  # Conditional for PCs retaining analysis 
   if (PC.retain == T) {
     
     message("Principal components retaining analyses in process")
@@ -280,7 +343,7 @@ if (type == "Pheno") {
     
     # Makes the parallel, VSS, Velicer's MAP, and BIC analyses
     FA.p <- fa.parallel(cor.m, n.obs = dim(cor.m)[1], fm = "pa", fa = "pc", n.iter = 30, plot = F)
-    FAC <- nfactors(cor.m, diagonal = T, fm = "pa", n.obs = dim(cor.m)[1])
+    FAC <- nfactors(cor.m, diagonal = T, fm = "pa", n.obs = dim(cor.m)[1], plot = F)
     
     # Obtain the summary statistics
     FAC.t <- FAC[["vss.stats"]] %>% mutate(map = FAC$map)
@@ -309,83 +372,47 @@ if (type == "Pheno") {
     
   }
   
+  # Function continues to the plots
+  # Scree plots
+  # Individual variance
+  plot_ly(data = PC, x = ~ PC, y = ~ var, type = "scatter", mode = "lines+markers", text = ~ round(var, 2),
+          line = list(color = "grey")) %>%
+    layout(xaxis = list(title = "PC"), yaxis = list(title = "Explained variance (%)"))
+  
+  # Cumulative variance
+  plot_ly(data = PC, x = ~ PC, y = ~ var.cum, type = "scatter", mode = "lines+markers",
+          text = ~ round(var.cum, 2), line = list(color = "grey")) %>%
+    layout(xaxis = list(title = "PC"), yaxis = list(title = "Cumulative variance (%)"))
+  
+  # Table to plot the PCA
+  tab <- data.frame(sample.id = PCA$sample.id, stringsAsFactors = F,
+                    EV1 = PCA$eigenvect[,1], EV2 = PCA$eigenvect[,2])
+  dt <- merge(tab, labels, by.x = "sample.id", by.y = "Taxa")
+  
+  # Plot the PCA
+  fig <- plot_ly(data = dt, x = ~ EV1, y = ~ EV2, color = ~ label, type = "scatter", mode = "markers",
+                 symbol = ~ label, symbols = c("circle", "x"), text = ~ sample.id,
+                 marker = list(size = 6)) %>%
+    layout(legend = list(title = list(text = "<b> Groups </b>"), orientation = "h"),
+           xaxis = list(title = paste("Dimension 1 - ", round(PC$var)[1], "%")),
+           yaxis = list(title = paste("Dimension 2 - ", round(PC$var)[2], "%")))
+  
+  # Save the plot
+  saveWidget(fig, "GWAS_PCA.html", selfcontained = F, libdir = "lib")
+  saveWidget(as_widget(fig), "GWAS_PCA.html")
+  
   }
-
-
-
-
-
-
-# Scree plots
-ggplot(PC, aes(x = PC, y = eigen)) +
-  geom_point(shape = 1) +
-  geom_point(data = dplyr::filter(PC, eigen > 1), color = "black") +
-  geom_hline(yintercept = 1) +
-  labs(y = "Eigen values", x = "PC") +
-  theme_classic() +
-  theme(axis.title = element_text(size = 14, color = "black"),
-        axis.text = element_text(size = 14, color = "black"),
-        axis.title.y = element_text(margin = margin(r = 10)),
-        axis.title.x = element_text(margin = margin(t = 10))) +
-  scale_y_continuous(breaks = c(0, 5, 10, 15, 20)) +
-  scale_x_continuous(breaks = c(0, 25, 50, 75, 100, 125, 150))
-
-ggplot(PC, aes(x = PC, y = var)) +
-  geom_point(shape = 1) +
-  geom_point(data = dplyr::filter(PC, var.cum < 80), aes(x = PC, y = var), color = "black") +
-  geom_point(data = dplyr::filter(PC, var.cum < 70), aes(x = PC, y = var), color = "red") +
-  geom_hline(yintercept = cutoff) +
-  labs(y = "Explained variance (%)", x = "PC") +
-  theme_classic() +
-  theme(axis.title = element_text(size = 14, color = "black"),
-        axis.text = element_text(size = 14, color = "black"),
-        axis.title.y = element_text(margin = margin(r = 10)),
-        axis.title.x = element_text(margin = margin(t = 10))) +
-  scale_y_continuous(breaks = c(0, 2, 4, 6, 8, 10, 12)) +
-  scale_x_continuous(breaks = c(0, 25, 50, 75, 100, 125, 150))
-
-ggplot(PC, aes(x = PC, y = var.cum)) +
-  geom_point(shape = 1) +
-  geom_point(data = dplyr::filter(PC, var.cum < 80), aes(x = PC, y = var.cum), color = "black") +
-  geom_point(data = dplyr::filter(PC, var.cum < 70), aes(x = PC, y = var.cum), color = "red") +
-  geom_hline(yintercept = max(dplyr::filter(PC, var > cutoff)$var.cum)) +
-  labs(y = "Cumulative variance (%)", x = "PC") +
-  theme_classic() +
-  theme(axis.title = element_text(size = 14, color = "black"),
-        axis.text = element_text(size = 14, color = "black"),
-        axis.title.y = element_text(margin = margin(r = 10)),
-        axis.title.x = element_text(margin = margin(t = 10))) +
-  scale_y_continuous(breaks = c(0, 20, 40, 60, 80, 100)) +
-  scale_x_continuous(breaks = c(0, 25, 50, 75, 100, 125, 150))
-
-
-
-# Table to plot the PCA
-tab <- data.frame(sample.id = PCA$sample.id, stringsAsFactors = F,
-                  EV1 = PCA$eigenvect[,1], EV2 = PCA$eigenvect[,2]) # The first two eigenvectors
-dt <- merge(tab, labels, by.x = 'sample.id', by.y = 'Taxa')
-
-# Plot the PCA
-plot_ly(data = dt, x = ~ EV1, y = ~ EV2, color = ~ label, type = 'scatter', mode = 'markers',
-        symbol = ~ label, symbols = c('circle', 'x'), text = ~ sample.id, marker = list(size = 6)) %>%
-  layout(xaxis = list(title = paste('Dimension 1 - ', round(PC$var)[1], '%')),
-         yaxis = list(title = paste('Dimension 2 - ', round(PC$var)[2], '%')))
-
-# Save the plot
-saveWidget(fig, "GWAS_PCA.html", selfcontained = F, libdir = "lib")
-saveWidget(as_widget(fig), "GWAS_PCA.html")
 
 
 
 # 4: Discriminant analysis of principal components (DAPC) ----------------------
 
+# Load data
 vcf <- read.vcfR('GWAS_PPD.snps.filter_info.missing_0.10.imputation.vcf.gz', verbose = T)
 my_genind <- vcfR2genind(vcf)
 my_genind
 
-DAPC <- function(vcf){}
-
-# Load packages and data
+# Load libraries
 library(adegenet)
 library(grDevices)
 library(vcfR)
@@ -403,6 +430,7 @@ grp <- find.clusters(my_genind)
 # DAPC actually benefit from less PC. Here 80 will be selected
 dapc <- dapc(my_genind, grp$grp)
 
+# Plot the DAPC
 pdf("GWAS_DAPC_scatter.pdf", width = 10, height = 8) 
 scatter(dapc, scree.pca = F, ratio.pca = 0.3, pch = 20, cell = 1, solid = 0.6, cex = 2.5, clab = 0,
         scree.da = F, leg = T, txt.leg = paste("Cluster", 1:3))
