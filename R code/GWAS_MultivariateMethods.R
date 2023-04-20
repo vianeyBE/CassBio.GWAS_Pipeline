@@ -42,7 +42,7 @@
 dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
 dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/03_GWAS_PPD_Populations/02_PCA/"
 dist <- c("gower")
-type <- "Pheno"
+type <- "Geno"
 
 # Phenotypic test data
 setwd(dir)
@@ -51,7 +51,7 @@ phenofile <- phenofile[-2] # No color
 
 # Genotypic test data
 setwd(dir)
-labels <- read.csv('GWAS_PPD.labels.csv')
+labels <- read.csv('GWAS_PPD.labels.csv') ######################
 vcf <- 'GWAS_PPD.snps.filter_info.missing_0.10.imputation.vcf.gz'
 gds <- 'GWAS_PPD.gds'
 
@@ -215,231 +215,233 @@ PCA <- function(dir, type, groups = T, phenofile = NULL, genofile = NULL, vcf = 
   library(plotly)
   library(htmlwidgets)
   
-}
-
-# Conditional to determine if the data is genotypic of phenotypic
-if (type == "Pheno"){
-  
-  message("Selected data option: Phenotypic")
-  
-  # Conditional for groups / no groups database handling
-  if (groups == T){
-  
-  # Database handling for color/groups
-  names <- phenofile[1]
-  tr <- phenofile[2]
-  phenofile <- phenofile[3:dim(phenofile)[2]]
-  
-  } else {
+  # Conditional to determine if the data is genotypic of phenotypic
+  if (type == "Pheno"){
     
-    # Database handling for non color/groups
-    names <- phenofile[1]
-    phenofile <- phenofile[3:dim(phenofile)[2]]
+    message("Selected data option: Phenotypic")
     
-  }
-  
-  # Function continues to the PCA calculation itself
-  
-  # Performs a 'normal' PCA
-  PCA <- prcomp(phenofile)
-  
-  # Creates the table to draw scree plots and analyze the number of PCs to retain
-  PC <- data.frame(PC = 1:dim(phenofile)[2], eigen = PCA$sdev^2,
-                   var = ((sqrt(PCA$sdev^2))^2 / (sum(var(phenofile)))) * 100) %>%
-    mutate(var.cum = cumsum(var))
-  
-  # Conditional for PCs retaining analysis 
-  if (PC.retain == T){
-    
-    message("Principal components retaining analyses in process")
-    
-    # Establish a cutoff and obtain the genetic correlation matrix
-    cutoff <- 1 / length(PC$PC) * 100
-
-    # Makes the parallel, VSS, Velicer's MAP, and BIC analyses
-    FA.p <- fa.parallel(phenofile, fm = "pa", fa = "pc", n.iter = 30, plot = F)
-    FAC <- nfactors(phenofile)
-    dev.off()
-    
-    # Obtain the summary statistics
-    FAC.t <- FAC[["vss.stats"]] %>% mutate(map = FAC$map)
-    
-    # What would you get with different ways to retain PCs
-    message(paste("There are a total of", length(PC$PC), "PCs \n\nIf you: \n",
-                  "(1) Use the 'K1' method, you would retain",
-                  dim(dplyr::filter(PC, eigen > 1))[1], "PCs \n",
-                  "(2) Accept all the PCs that explain more than one variable’s worth of data, you would retain",
-                  dim(dplyr::filter(PC, var > cutoff))[1], "PCs \n",
-                  "(3) Retain the PCs that explain at least a 70% of cumulative variance, you would retain",
-                  dim(dplyr::filter(PC, var.cum < 70))[1], "PCs \n",
-                  "(4) Establish an 80% threshold, you would retain",
-                  dim(dplyr::filter(PC, var.cum < 80))[1], "PCs \n",
-                  "(5) Perform a Parallal analysis, you would retain",
-                  FA.p$ncomp, "PCs \n",
-                  "(6) Apply the 'Very Simple Structure criteria', you would retain",
-                  which.max(FAC.t$cfit.2), "PCs \n",
-                  "(7) Try with the 'Velicer's MAP criteria', you would retain",
-                  which.min(na.omit(FAC.t$map)), "PCs \n\n",
-                  "Also, you could retain a fixed number of PCs or retain PCs based on the scree plot"))
-    
-  } else {
-    
-    message("NOT doing the PCs retaining analyses")
-    
+    # Conditional for groups / no groups database handling
+    if (groups == T){
+      
+      # Database handling for color/groups
+      names <- phenofile[1]
+      tr <- phenofile[2]
+      phenofile <- phenofile[3:dim(phenofile)[2]]
+      
+    } else {
+      
+      # Database handling for non color/groups
+      names <- phenofile[1]
+      phenofile <- phenofile[3:dim(phenofile)[2]]
+      
     }
-  
-  # Function continues to the plots
-  # Scree plots
-  # Individual variance
-  plot_ly(data = PC, x = ~ PC, y = ~ var, type = "scatter", mode = "lines+markers", text = ~ round(var, 2),
-          line = list(color = "grey")) %>%
-    layout(xaxis = list(title = "PC"), yaxis = list(title = "Explained variance (%)"))
-  
-  # Cumulative variance
-  plot_ly(data = PC, x = ~ PC, y = ~ var.cum, type = "scatter", mode = "lines+markers",
-          text = ~ round(var.cum, 2), line = list(color = "grey")) %>%
-    layout(xaxis = list(title = "PC"), yaxis = list(title = "Cumulative variance (%)"))
-  
-  # Conditional for groups / no groups PCA plot
-  if (groups == T){
+    
+    # Function continues to the PCA calculation itself
+    
+    # Performs a 'normal' PCA
+    PCA <- prcomp(phenofile)
+    
+    # Creates the table to draw scree plots and analyze the number of PCs to retain
+    PC <- data.frame(PC = 1:dim(phenofile)[2], eigen = PCA$sdev^2,
+                     var = ((sqrt(PCA$sdev^2))^2 / (sum(var(phenofile)))) * 100) %>%
+      mutate(var.cum = cumsum(var))
+    
+    # Conditional for PCs retaining analysis 
+    if (PC.retain == T){
+      
+      message("Principal components retaining analyses in process")
+      
+      # Establish a cutoff and obtain the genetic correlation matrix
+      cutoff <- 1 / length(PC$PC) * 100
+      
+      # Makes the parallel, VSS, Velicer's MAP, and BIC analyses
+      FA.p <- fa.parallel(phenofile, fm = "pa", fa = "pc", n.iter = 30, plot = F)
+      FAC <- nfactors(phenofile)
+      dev.off()
+      
+      # Obtain the summary statistics
+      FAC.t <- FAC[["vss.stats"]] %>% mutate(map = FAC$map)
+      
+      # What would you get with different ways to retain PCs
+      message(paste("There are a total of", length(PC$PC), "PCs \n\nIf you: \n",
+                    "(1) Use the 'K1' method, you would retain",
+                    dim(dplyr::filter(PC, eigen > 1))[1], "PCs \n",
+                    "(2) Accept all the PCs that explain more than one variable’s worth of data, you would retain",
+                    dim(dplyr::filter(PC, var > cutoff))[1], "PCs \n",
+                    "(3) Retain the PCs that explain at least a 70% of cumulative variance, you would retain",
+                    dim(dplyr::filter(PC, var.cum < 70))[1], "PCs \n",
+                    "(4) Establish an 80% threshold, you would retain",
+                    dim(dplyr::filter(PC, var.cum < 80))[1], "PCs \n",
+                    "(5) Perform a Parallal analysis, you would retain",
+                    FA.p$ncomp, "PCs \n",
+                    "(6) Apply the 'Very Simple Structure criteria', you would retain",
+                    which.max(FAC.t$cfit.2), "PCs \n",
+                    "(7) Try with the 'Velicer's MAP criteria', you would retain",
+                    which.min(na.omit(FAC.t$map)), "PCs \n\n",
+                    "Also, you could retain a fixed number of PCs or retain PCs based on the scree plot"))
+      
+    } else {
+      
+      message("NOT doing the PCs retaining analyses")
+      
+    }
+    
+    # Function continues to the plots
+    # Scree plots
+    # Individual variance
+    plot_ly(data = PC, x = ~ PC, y = ~ var, type = "scatter", mode = "lines+markers", text = ~ round(var, 2),
+            line = list(color = "grey")) %>%
+      layout(xaxis = list(title = "PC"), yaxis = list(title = "Explained variance (%)"))
+    
+    # Cumulative variance
+    plot_ly(data = PC, x = ~ PC, y = ~ var.cum, type = "scatter", mode = "lines+markers",
+            text = ~ round(var.cum, 2), line = list(color = "grey")) %>%
+      layout(xaxis = list(title = "PC"), yaxis = list(title = "Cumulative variance (%)"))
+    
+    # Conditional for groups / no groups PCA plot
+    if (groups == T){
+      
+      # Table to plot the PCA
+      dt <- cbind(names, tr, data.frame(PCA[["x"]])) %>%
+        dplyr::rename(sample.id = 1, label = 2) %>%
+        select(sample.id, label, PC1, PC2)
+      
+      # Plot the PCA ###################
+      fig <- plot_ly(data = dt, x = ~ PC1, y = ~ PC2, color = ~ as.factor(label), type = "scatter",
+                     mode = "markers", symbol = ~ label, symbols = c("circle", "x"), text = ~ sample.id,
+                     marker = list(size = 6)) %>%
+        layout(legend = list(title = list(text = "<b> Groups </b>"), orientation = "h"),
+               xaxis = list(title = paste("Dimension 1 - ", round(PC$var)[1], "%")),
+               yaxis = list(title = paste("Dimension 2 - ", round(PC$var)[2], "%")))
+      
+    } else {
+      
+      # Table to plot the PCA
+      dt <- cbind(names, data.frame(PCA[["x"]])) %>%
+        dplyr::rename(sample.id = 1) %>%
+        select(sample.id, PC1, PC2)
+      
+      # Plot the PCA
+      fig <- plot_ly(data = dt, x = ~ PC1, y = ~ PC2, type = "scatter", mode = "markers",
+                     text = ~ sample.id, marker = list(size = 6)) %>%
+        layout(xaxis = list(title = paste("Dimension 1 - ", round(PC$var)[1], "%")),
+               yaxis = list(title = paste("Dimension 2 - ", round(PC$var)[2], "%")))
+      
+    }
+    
+    # Function continues to save the PCA plot
+    
+    # Save the plot
+    saveWidget(fig, "GWAS_PCA.html", selfcontained = F, libdir = "lib")
+    saveWidget(as_widget(fig), "GWAS_PCA.html")
+    
+  } else {
+    
+    message("Selected data option: Genotypic")
+    
+    # Conditional within genotypic part to determine if genofile is empty or necessary to read from dir
+    if (is.null(genofile)) {
+      
+      message("Genofile is NULL\n\nReading vcf and gds files\n\nCreating genofile")
+      
+      snpgdsVCF2GDS(vcf, gds, ignore.chr.prefix = "chromosome")
+      genofile <- snpgdsOpen(gds)
+      sample_id <- read.gdsn(index.gdsn(genofile, "sample.id"))
+      
+    } else { 
+      
+      message("Genofile is not NULL\n\nPCA function continues regularly")
+      
+    }
+    
+    # Function continues to the PCA calculation itself
+    # Performs the SNPRelate's PCA
+    PCA <- snpgdsPCA(genofile, autosome.only = T, remove.monosnp = T, need.genmat = T,
+                     algorithm = "exact", eigen.method = "DSPEVX")
+    
+    # Creates the table to draw scree plots and analyze the number of PCs to retain 
+    PC <- data.frame(PC = 1:length(PCA$varprop), id = PCA[["sample.id"]],
+                     eigen = PCA[["eigenval"]], var = PCA$varprop * 100) %>%
+      mutate(var.cum = cumsum(var))
+    
+    # Conditional for PCs retaining analysis 
+    if (PC.retain == T) {
+      
+      message("Principal components retaining analyses in process")
+      
+      # Establish a cutoff and obtain the genetic correlation matrix
+      cutoff <- 1 / length(PC$PC) * 100
+      cor.m <- PCA[['genmat']]
+      cor.m <- as.matrix(replace(cor.m, cor.m > 1, 1))
+      
+      # Makes the parallel, VSS, Velicer's MAP, and BIC analyses
+      FA.p <- fa.parallel(cor.m, n.obs = dim(cor.m)[1], fm = "pa", fa = "pc", n.iter = 30, plot = F)
+      FAC <- nfactors(cor.m, diagonal = T, fm = "pa", n.obs = dim(cor.m)[1], plot = F)
+      
+      # Obtain the summary statistics
+      FAC.t <- FAC[["vss.stats"]] %>% mutate(map = FAC$map)
+      
+      # What would you get with different ways to retain PCs
+      message(paste("There are a total of", length(PC$PC), "PCs \n\nIf you: \n",
+                    "(1) Use the 'K1' method, you would retain",
+                    dim(dplyr::filter(PC, eigen > 1))[1], "PCs \n",
+                    "(2) Accept all the PCs that explain more than one variable’s worth of data, you would retain",
+                    dim(dplyr::filter(PC, var > cutoff))[1], "PCs \n",
+                    "(3) Retain the PCs that explain at least a 70% of cumulative variance, you would retain",
+                    dim(dplyr::filter(PC, var.cum < 70))[1], "PCs \n",
+                    "(4) Establish an 80% threshold, you would retain",
+                    dim(dplyr::filter(PC, var.cum < 80))[1], "PCs \n",
+                    "(5) Perform a Parallal analysis, you would retain",
+                    FA.p$ncomp, "PCs \n",
+                    "(6) Apply the 'Very Simple Structure criteria', you would retain",
+                    which.max(FAC.t$cfit.2), "PCs \n",
+                    "(7) Try with the 'Velicer's MAP criteria', you would retain",
+                    which.min(na.omit(FAC.t$map)), "PCs \n\n",
+                    "Also, you could retain a fixed number of PCs or retain PCs based on the scree plot"))
+      
+    } else {
+      
+      message("NOT doing the PCs retaining analyses")
+      
+    }
+    
+    # Function continues to the plots
+    # Scree plots
+    # Individual variance
+    plot_ly(data = PC, x = ~ PC, y = ~ var, type = "scatter", mode = "lines+markers", text = ~ round(var, 2),
+            line = list(color = "grey")) %>%
+      layout(xaxis = list(title = "PC"), yaxis = list(title = "Explained variance (%)"))
+    
+    # Cumulative variance
+    plot_ly(data = PC, x = ~ PC, y = ~ var.cum, type = "scatter", mode = "lines+markers",
+            text = ~ round(var.cum, 2), line = list(color = "grey")) %>%
+      layout(xaxis = list(title = "PC"), yaxis = list(title = "Cumulative variance (%)"))
     
     # Table to plot the PCA
-    dt <- cbind(names, tr, data.frame(PCA[["x"]])) %>%
-      dplyr::rename(sample.id = 1, label = 2) %>%
-      select(sample.id, label, PC1, PC2)
-      
-    # Plot the PCA ###################
-    fig <- plot_ly(data = dt, x = ~ PC1, y = ~ PC2, color = ~ as.factor(label), type = "scatter",
-                   mode = "markers", symbol = ~ label, symbols = c("circle", "x"), text = ~ sample.id,
+    tab <- data.frame(sample.id = PCA$sample.id, stringsAsFactors = F,
+                      EV1 = PCA$eigenvect[,1], EV2 = PCA$eigenvect[,2])
+    dt <- merge(tab, labels, by.x = "sample.id", by.y = "Taxa")
+    
+    # Plot the PCA
+    fig <- plot_ly(data = dt, x = ~ EV1, y = ~ EV2, color = ~ label, type = "scatter", mode = "markers",
+                   symbol = ~ label, symbols = c("circle", "x"), text = ~ sample.id,
                    marker = list(size = 6)) %>%
       layout(legend = list(title = list(text = "<b> Groups </b>"), orientation = "h"),
              xaxis = list(title = paste("Dimension 1 - ", round(PC$var)[1], "%")),
              yaxis = list(title = paste("Dimension 2 - ", round(PC$var)[2], "%")))
     
-  } else {
-    
-    # Table to plot the PCA
-    dt <- cbind(names, data.frame(PCA[["x"]])) %>%
-      dplyr::rename(sample.id = 1) %>%
-      select(sample.id, PC1, PC2)
-    
-    # Plot the PCA
-    fig <- plot_ly(data = dt, x = ~ PC1, y = ~ PC2, type = "scatter", mode = "markers",
-                   text = ~ sample.id, marker = list(size = 6)) %>%
-      layout(xaxis = list(title = paste("Dimension 1 - ", round(PC$var)[1], "%")),
-             yaxis = list(title = paste("Dimension 2 - ", round(PC$var)[2], "%")))
+    # Save the plot
+    saveWidget(fig, "GWAS_PCA.html", selfcontained = F, libdir = "lib")
+    saveWidget(as_widget(fig), "GWAS_PCA.html")
     
   }
   
-  # Function continues to save the PCA plot
-  
-  # Save the plot
-  saveWidget(fig, "GWAS_PCA.html", selfcontained = F, libdir = "lib")
-  saveWidget(as_widget(fig), "GWAS_PCA.html")
-  
-} else {
-  
-  message("Selected data option: Genotypic")
-  
-  # Conditional within genotypic part to determine if genofile is empty or necessary to read from dir
-  if (is.null(genofile)) {
-    
-    message("Genofile is NULL\n\nReading vcf and gds files\n\nCreating genofile")
-    
-    snpgdsVCF2GDS(vcf, gds, ignore.chr.prefix = "chromosome")
-    genofile <- snpgdsOpen(gds)
-    sample_id <- read.gdsn(index.gdsn(genofile, "sample.id"))
-    
-  } else { 
-    
-    message("Genofile is not NULL\n\nPCA function continues regularly")
-    
-  }
-  
-  # Function continues to the PCA calculation itself
-  # Performs the SNPRelate's PCA
-  PCA <- snpgdsPCA(genofile, autosome.only = T, remove.monosnp = T, need.genmat = T,
-                   algorithm = "exact", eigen.method = "DSPEVX")
-  
-  # Creates the table to draw scree plots and analyze the number of PCs to retain 
-  PC <- data.frame(PC = 1:length(PCA$varprop), id = PCA[["sample.id"]],
-                   eigen = PCA[["eigenval"]], var = PCA$varprop * 100) %>%
-    mutate(var.cum = cumsum(var))
-  
-  # Conditional for PCs retaining analysis 
-  if (PC.retain == T) {
-    
-    message("Principal components retaining analyses in process")
-    
-    # Establish a cutoff and obtain the genetic correlation matrix
-    cutoff <- 1 / length(PC$PC) * 100
-    cor.m <- PCA[['genmat']]
-    cor.m <- as.matrix(replace(cor.m, cor.m > 1, 1))
-    
-    # Makes the parallel, VSS, Velicer's MAP, and BIC analyses
-    FA.p <- fa.parallel(cor.m, n.obs = dim(cor.m)[1], fm = "pa", fa = "pc", n.iter = 30, plot = F)
-    FAC <- nfactors(cor.m, diagonal = T, fm = "pa", n.obs = dim(cor.m)[1], plot = F)
-    
-    # Obtain the summary statistics
-    FAC.t <- FAC[["vss.stats"]] %>% mutate(map = FAC$map)
-    
-    # What would you get with different ways to retain PCs
-    message(paste("There are a total of", length(PC$PC), "PCs \n\nIf you: \n",
-                  "(1) Use the 'K1' method, you would retain",
-                  dim(dplyr::filter(PC, eigen > 1))[1], "PCs \n",
-                  "(2) Accept all the PCs that explain more than one variable’s worth of data, you would retain",
-                  dim(dplyr::filter(PC, var > cutoff))[1], "PCs \n",
-                  "(3) Retain the PCs that explain at least a 70% of cumulative variance, you would retain",
-                  dim(dplyr::filter(PC, var.cum < 70))[1], "PCs \n",
-                  "(4) Establish an 80% threshold, you would retain",
-                  dim(dplyr::filter(PC, var.cum < 80))[1], "PCs \n",
-                  "(5) Perform a Parallal analysis, you would retain",
-                  FA.p$ncomp, "PCs \n",
-                  "(6) Apply the 'Very Simple Structure criteria', you would retain",
-                  which.max(FAC.t$cfit.2), "PCs \n",
-                  "(7) Try with the 'Velicer's MAP criteria', you would retain",
-                  which.min(na.omit(FAC.t$map)), "PCs \n\n",
-                  "Also, you could retain a fixed number of PCs or retain PCs based on the scree plot"))
-    
-  } else {
-    
-    message("NOT doing the PCs retaining analyses")
-    
-  }
-  
-  # Function continues to the plots
-  # Scree plots
-  # Individual variance
-  plot_ly(data = PC, x = ~ PC, y = ~ var, type = "scatter", mode = "lines+markers", text = ~ round(var, 2),
-          line = list(color = "grey")) %>%
-    layout(xaxis = list(title = "PC"), yaxis = list(title = "Explained variance (%)"))
-  
-  # Cumulative variance
-  plot_ly(data = PC, x = ~ PC, y = ~ var.cum, type = "scatter", mode = "lines+markers",
-          text = ~ round(var.cum, 2), line = list(color = "grey")) %>%
-    layout(xaxis = list(title = "PC"), yaxis = list(title = "Cumulative variance (%)"))
-  
-  # Table to plot the PCA
-  tab <- data.frame(sample.id = PCA$sample.id, stringsAsFactors = F,
-                    EV1 = PCA$eigenvect[,1], EV2 = PCA$eigenvect[,2])
-  dt <- merge(tab, labels, by.x = "sample.id", by.y = "Taxa")
-  
-  # Plot the PCA
-  fig <- plot_ly(data = dt, x = ~ EV1, y = ~ EV2, color = ~ label, type = "scatter", mode = "markers",
-                 symbol = ~ label, symbols = c("circle", "x"), text = ~ sample.id,
-                 marker = list(size = 6)) %>%
-    layout(legend = list(title = list(text = "<b> Groups </b>"), orientation = "h"),
-           xaxis = list(title = paste("Dimension 1 - ", round(PC$var)[1], "%")),
-           yaxis = list(title = paste("Dimension 2 - ", round(PC$var)[2], "%")))
-  
-  # Save the plot
-  saveWidget(fig, "GWAS_PCA.html", selfcontained = F, libdir = "lib")
-  saveWidget(as_widget(fig), "GWAS_PCA.html")
-  
-  }
+}
+
+PCA(dir, type, groups = T, phenofile, genofile = NULL, vcf, gds, PC.retain = F)
 
 
-
+  
 # 4: Discriminant analysis of principal components (DAPC) ----------------------
 
 # Load data
