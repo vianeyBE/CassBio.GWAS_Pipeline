@@ -13,21 +13,21 @@
 #        dir: Name of the directory that contains the data
 #        phenofile: A matrix/database of genotypes/individuals in rows and their traits in in columns
 #        dist: Dissimilarity index/measure to use. The default is bray.
-#        trata: Boolean value indicating whether the data includes different treatments
+#        groups: Boolean value indicating whether the data includes different treatments
 # 2. For MDS:
 #        dir: Name of the directory that contains the data
 #        phenofile: A matrix/database of genotypes/individuals in rows and their traits in in columns
 #        dist: Dissimilarity index/measure to use. The default is bray.
-#        trata: Boolean value indicating whether the data includes different treatments
+#        groups: Boolean value indicating whether the data includes different treatments
 # 3. For PCA:
 #        dir: Name of the directory that contains the data
 #        type: A character string indicating wheter data is genotypic ("geno") of phenotypic ("pheno")
-#        trata: Boolean value indicating whether the data includes different treatments
+#        groups: Boolean value indicating whether the data includes different treatments
 #        genofile: An object of class SNPGDSFileClass. A SNP - GDS file
 #        phenofile: A matrix/database of genotypes/individuals in rows and their traits in columns
 #        vcf: 
 #        gds: 
-#        PC.retain: 
+#        PC.retain: Boolean value indicating whether to analyze how many PCs retain
 #        
 # 4. For DAPC:
 #
@@ -42,8 +42,7 @@
 dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
 dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/03_GWAS_PPD_Populations/02_PCA/"
 dist <- c("gower")
-trata <- F
-type <- "Geno"
+type <- "Pheno"
 
 # Phenotypic test data
 setwd(dir)
@@ -61,7 +60,7 @@ gds <- 'GWAS_PPD.gds'
 
 # 1: Non-metric multidimensional scaling (NDMS) --------------------------------
 
-NDMS <- function(dir, phenophile, dist, trata = F){
+NDMS <- function(dir, phenophile, dist, groups = F){
   
   # Set working directory
   setwd(dir)
@@ -73,7 +72,7 @@ NDMS <- function(dir, phenophile, dist, trata = F){
   library(htmlwidgets)
   
   # Conditional for color case
-  if (trata == T){
+  if (groups == T){
     
     # Database handling
     names <- phenofile[1]
@@ -122,13 +121,13 @@ NDMS <- function(dir, phenophile, dist, trata = F){
     }
 }
 
-NDMS(dir, phenofile, dist, trata)
+NDMS(dir, phenofile, dist, groups)
 
 
 
 # 2: Multidimensional scaling (MDS) --------------------------------------------
 
-MDS <- function(dir, phenofile, dist, trata = F){
+MDS <- function(dir, phenofile, dist, groups = F){
   
   # Set working directory
   setwd(dir)
@@ -140,7 +139,7 @@ MDS <- function(dir, phenofile, dist, trata = F){
   library(htmlwidgets)
   
   # Conditional for color case
-  if (trata == T){
+  if (groups == T){
     
     # Database handling
     names <- phenofile[1]
@@ -196,13 +195,14 @@ MDS <- function(dir, phenofile, dist, trata = F){
   
 }
 
-MDS(dir, phenofile, dist, trata)
+MDS(dir, phenofile, dist, groups)
 
 
 
 # 3: Principal component analysis (PCA) ----------------------------------------
 
-PCA <- function(dir, type, trata, phenofile = NULL, genofile = NULL, vcf = NULL, gds = NULL, PC.retain = T){
+PCA <- function(dir, type, groups = T, phenofile = NULL, genofile = NULL, vcf = NULL, gds = NULL,
+                PC.retain = F){
   
   # Set working directory
   setwd(dir)
@@ -218,14 +218,27 @@ PCA <- function(dir, type, trata, phenofile = NULL, genofile = NULL, vcf = NULL,
 }
 
 # Conditional to determine if the data is genotypic of phenotypic
-if (type == "Pheno") {
+if (type == "Pheno"){
   
   message("Selected data option: Phenotypic")
   
-  # Function continues to the PCA calculation itself
-  # Database handling
+  # Conditional for groups / no groups database handling
+  if (groups == T){
+  
+  # Database handling for color/groups
   names <- phenofile[1]
+  tr <- phenofile[2]
   phenofile <- phenofile[3:dim(phenofile)[2]]
+  
+  } else {
+    
+    # Database handling for non color/groups
+    names <- phenofile[1]
+    phenofile <- phenofile[3:dim(phenofile)[2]]
+    
+  }
+  
+  # Function continues to the PCA calculation itself
   
   # Performs a 'normal' PCA
   PCA <- prcomp(phenofile)
@@ -236,7 +249,7 @@ if (type == "Pheno") {
     mutate(var.cum = cumsum(var))
   
   # Conditional for PCs retaining analysis 
-  if (PC.retain == T) {
+  if (PC.retain == T){
     
     message("Principal components retaining analyses in process")
     
@@ -287,16 +300,38 @@ if (type == "Pheno") {
           text = ~ round(var.cum, 2), line = list(color = "grey")) %>%
     layout(xaxis = list(title = "PC"), yaxis = list(title = "Cumulative variance (%)"))
   
-  # Table to plot the PCA
-  tab <- data.frame(PCA[["x"]])
-  dt <- tab %>% mutate(sample.id = names$Genotipo) %>% select(sample.id, PC1, PC2) %>%
-    dplyr::rename(sample.id = "sample.id", EV1 = "PC1", EV2 = "PC2")
+  # Conditional for groups / no groups PCA plot
+  if (groups == T){
+    
+    # Table to plot the PCA
+    dt <- cbind(names, tr, data.frame(PCA[["x"]])) %>%
+      dplyr::rename(sample.id = 1, label = 2) %>%
+      select(sample.id, label, PC1, PC2)
+      
+    # Plot the PCA ###################
+    fig <- plot_ly(data = dt, x = ~ PC1, y = ~ PC2, color = ~ as.factor(label), type = "scatter",
+                   mode = "markers", symbol = ~ label, symbols = c("circle", "x"), text = ~ sample.id,
+                   marker = list(size = 6)) %>%
+      layout(legend = list(title = list(text = "<b> Groups </b>"), orientation = "h"),
+             xaxis = list(title = paste("Dimension 1 - ", round(PC$var)[1], "%")),
+             yaxis = list(title = paste("Dimension 2 - ", round(PC$var)[2], "%")))
+    
+  } else {
+    
+    # Table to plot the PCA
+    dt <- cbind(names, data.frame(PCA[["x"]])) %>%
+      dplyr::rename(sample.id = 1) %>%
+      select(sample.id, PC1, PC2)
+    
+    # Plot the PCA
+    fig <- plot_ly(data = dt, x = ~ PC1, y = ~ PC2, type = "scatter", mode = "markers",
+                   text = ~ sample.id, marker = list(size = 6)) %>%
+      layout(xaxis = list(title = paste("Dimension 1 - ", round(PC$var)[1], "%")),
+             yaxis = list(title = paste("Dimension 2 - ", round(PC$var)[2], "%")))
+    
+  }
   
-  # Plot the PCA
-  fig <- plot_ly(data = dt, x = ~ EV1, y = ~ EV2, type = "scatter", mode = "markers",
-                 text = ~ sample.id, marker = list(size = 6)) %>%
-    layout(xaxis = list(title = paste("Dimension 1 - ", round(PC$var)[1], "%")),
-           yaxis = list(title = paste("Dimension 2 - ", round(PC$var)[2], "%")))
+  # Function continues to save the PCA plot
   
   # Save the plot
   saveWidget(fig, "GWAS_PCA.html", selfcontained = F, libdir = "lib")
