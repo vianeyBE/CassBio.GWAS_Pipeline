@@ -1,5 +1,6 @@
-# Cassava Bioinformatics Platform: GWAS Pipeline
-Pipeline for Genome-wide association studies in Cassava
+# Cassava Bioinformatics Platform: GWAS Pipeline\
+
+Pipeline for Genome-wide Association Studies in Cassava
 
 **Authors**: Vianey Barrera-Enriquez and Camilo E. Sanchez
 
@@ -18,9 +19,12 @@ The pipeline has six main steps:
 
 *In progress*
 
+### Examples
+
 ```sh
-inputFile = "/path/to/inputFile.vcf.gz"
-prefix = "gwas_results"
+#
+inputFile <- "/path/to/inputFile.vcf.gz"
+prefix <- "gwas_results"
 
 # Get lisf of samples from VCF 
 bcftools query -l ${inputFile} > ${prefix}.list.samples.txt
@@ -63,7 +67,69 @@ vcftools --gzvcf ${inputFile} --hardy --out ${prefix}.hwe
 
 ## 4. Population structure and covariable selection
 
+This script contains the necesssary codes to perform four different multivariate methods: (1) Non-Metric Multidimensional scaling (NDMS) (2) Multidimensional scaling (MDS), (3) Principal Component Analysis (PCA), and (4) Discriminant analysis of principal components (DAPC).
+
+### Usage
+
+```R
+NDMS(dir, phenofile, dist = "bray", groups = F)
+
+MDS(dir, phenofile, dist = "gower", groups = F)
+
+PCA(dir, type, groups = F, phenofile = NULL, genofile = NULL, vcf = NULL, gds = NULL, PC.retain = F)
+```
+
+### Arguments
+
+1. For NDMS:
+- `dir`: Directory where data is located.
+- `phenofile`: A database of genotypes/individuals (rows) and their traits (columns).
+- `dist`: Dissimilarity index/measure to use (default = "bray").
+- `groups`: Boolean value indicating whether the data includes different treatments/groups (default = F).
+
+2. For MDS:
+- `dir`: Directory where data is located.
+- `phenofile`: A database of genotypes/individuals (rows) and their traits (columns).
+- `dist`: Dissimilarity index/measure to use (default = "gower").
+- `groups`: Boolean value indicating whether the data includes different treatments/groups (default = F).
+
+3. For PCA:
+- `dir`: Directory where data is located.
+- `type`: A character string indicating wheter data is genotypic ("geno") of phenotypic ("pheno")
+- `groups`: Boolean value indicating whether the data includes different treatments/groups (default = F).
+- `phenofile`: A database of genotypes/individuals (rows) and their traits (columns).
+- `genofile`: An object of class SNPGDSFileClass ().
+- `vcf`: A vcf file containing ...
+- `gds`: A gds file containing ...
+- `PC.retain`: Boolean value indicating whether to analyze how many PCs retain (default = F).
+
+4. For DAPC:
+- `my_genind`: An object of class genind.
+
+### Details
+
 *In progress*
+
+### Examples
+
+*In progress*
+
+### Output
+
+*In progress*
+
+### Dependencies
+
+- `vegan`
+- `tidyverse`
+- `plotly`
+- `htmlwidgets`
+- `SNPRelate`
+- `gdsfmt`
+- `psych`
+- `adegenet`
+- `grDevices`
+- `vcfR`
 
 ## 5. GWAS: GAPIT
 
@@ -95,9 +161,11 @@ GAPIT3(phenofile = "my_phenotypes.csv", genofile = "my_genotypes.hmp", wdir = "m
 This will perform a GWAS analysis using the phenotype data in ; my_phenotypes.csv and the genotype data in my_genotypes.hmp. It will create a new folder for each trait in the trait_list vector in the my_results_folder directory.
 
 ### Output
+
 The function will create a folder for each trait in the trait_list vector in the working directory. In each folder, it will save the results of the GWAS analysis for that trait. For more information about GAPIT outputs, please check the official GAPIT documentation. 
 
 ### Dependencies
+
 - `devtools`
 - `GAPIT3`
 
@@ -106,6 +174,7 @@ The function will create a folder for each trait in the trait_list vector in the
 This code annotates the gen containing the significat SNPs from the GAPIT results. Additional, it retrieves the closest genes downstream and upstream.
 
 ### Arguments:
+
 - `pat`: Location path of the files.
 - `wdyw`: Gene feature to annotate.
 - `Mdir`: Name of the directory that contains the GAPIT results.
@@ -114,9 +183,11 @@ This code annotates the gen containing the significat SNPs from the GAPIT result
 - `annotationFile`: annotation details of the genes. txt file from the genome version used for alignment. 
 
 ### Output
+
 A single CSV file containing relevant gene information plus SNPs' P-value, trait, model and effect. 
 
 ### Dependencies
+
 - `tidyverse`
 
 ## 7. Boxplot: Genotype vs Phenotype
