@@ -13,7 +13,12 @@
 
 
 
-# 1: # Configure the initial requirements --------------------------------------
+#### TO DO ####
+# 1: Convert to function
+# 2: Add choosing which version of reference genome
+
+
+# 1: Configure the initial requirements ----------------------------------------
 # Manually using the console
 message("Enter the path of file names to looking for\n\n",
         "For example: QTL_LOD_Intervals. The path must finish with a point (.)\n\n",
