@@ -22,7 +22,8 @@ The pipeline has six main steps:
 ### Examples
 
 ```sh
-#
+
+# Initial requeriments
 inputFile <- "/path/to/inputFile.vcf.gz"
 prefix <- "gwas_results"
 
@@ -55,6 +56,7 @@ vcftools --gzvcf ${inputFile} --het --out ${prefix}.heterozygosity
 
 # Hardy-Weinberg p-value 
 vcftools --gzvcf ${inputFile} --hardy --out ${prefix}.hwe
+
 ```
 
 ## 2. Imputation
@@ -72,6 +74,7 @@ This script contains the customized functions to perform four different multivar
 ### Usage
 
 ```R
+
 # NDMS, MDS, and PCA
 NDMS(dir, phenofile, dist = "bray", groups = F)
 MDS(dir, phenofile, dist = "gower", groups = F)
@@ -81,38 +84,40 @@ PCA(dir, type, groups = F, phenofile = NULL, labels = NULL, genofile = NULL, vcf
 library(adegenet)
 grp <- find.clusters(my_genind)
 dapc <- dapc(my_genind, grp$grp)
+
 ```
 
 ### Arguments
 
 1. For NDMS:
 - `dir`: Directory where data is located.
-- `phenofile`: A database of genotypes/individuals (rows) and their traits (columns).
+- `phenofile`: A database of genotypes/individuals (rows) and their traits (columns). First column must be genotypes/individuals names.
 - `dist`: Dissimilarity index/measure to use (default = "bray").
-- `groups`: Boolean value indicating whether the data includes different treatments/groups (default = F).
+- `groups`: Boolean value indicating whether the data includes different treatments/groups (default = F). If `TRUE` is selected then the second column of the `phenofile` must be the groups/treatments.
 
 2. For MDS:
 - `dir`: Directory where data is located.
-- `phenofile`: A database of genotypes/individuals (rows) and their traits (columns).
+- `phenofile`: A database of genotypes/individuals (rows) and their traits (columns). First column must be genotypes/individuals names.
 - `dist`: Dissimilarity index/measure to use (default = "gower").
-- `groups`: Boolean value indicating whether the data includes different treatments/groups (default = F).
+- `groups`: Boolean value indicating whether the data includes different treatments/groups (default = F). If `TRUE` is selected then the second column of the `phenofile` must be the groups/treatments.
 
 3. For PCA:
 - `dir`: Directory where data is located.
-- `type`: A character string indicating wheter data is genotypic ("geno") of phenotypic ("pheno")
-- `groups`: Boolean value indicating whether the data includes different treatments/groups (default = F).
+- `type`: A character string indicating wheter data is genotypic ("geno") of phenotypic ("pheno").
+- `groups`: Boolean value indicating whether the data includes different treatments/groups (default = F). If `TRUE` is selected then the second column of the `phenofile` must be the groups/treatments.
 - `phenofile`: A database of genotypes/individuals (rows) and their traits (columns). First column must be genotypes/individuals names.
 - `genofile`: An object of class SNPGDSFileClass (GDS file read with the `snpgdsOpen` function from `SNPRelate` package).
-- `gds`: A Genomic Data Structures (GDS) file (a reformated VCF file with the `snpgdsVCF2GDS` function from `vcfR` package)
+- `labels`: When provide a `genofile` and `groups` argument is `TRUE`, please provide a dataframe with genotypes/individuals in the first column and groups/treatment data in the second column.
+- `gds`: A Genomic Data Structures (GDS) file (a reformated VCF file with the `snpgdsVCF2GDS` function from `vcfR` package).
 - `vcf`: A Variant Call Format (VCF) file containing DNA polymorphism data such as SNPs, insertions, deletions and structural variants, together with rich annotations.
-- `PC.retain`: Boolean value indicating whether to analyze how many PCs retain (default = F). If `TRUE` is selected then the second column of the `phenofile` must be the groups/treatments.
+- `PC.retain`: Boolean value indicating whether to analyze how many PCs retain (default = F).
 
 4. For DAPC:
 - `my_genind`: An object of class genind (vcf file read with the `vcfR2genind` function from `vcfR` package).
 
 ### Details
 
-*In progress*
+This series of functions retrieves the required pacakges and data to perform four multivariate methods, potentially used to study population structure and select covariable for next analyses. Especifically, this script includes the functions for Non-Metric Multidimensional Scaling (NDMS), Multidimensional Scaling (MDS), Principal Component Analysis (PCA), and Discriminant Analysis of Principal Components (DAPC). The first two functions are built only for phenotypic data while the PCA can handle both data type (phenotypic or genotypic), and the DAPC only uses genotypic data. For all functions interactive plots (made using `plotly` package) in html format. The DAPC part is not built as a function give the nature of the functions used in which prompts are necessary to continue. Please run this methods line by line.
 
 ### Examples
 
@@ -142,31 +147,35 @@ This R script runs a Genome-Wide Association Study (GWAS) analysis using the GAP
 ### Usage
 
 ```R
+
 GAPIT3(phenofile, genofile, wdir, trait_list = NULL)
+
 ```
 
 ### Arguments
 
-- `phenofile`: Measurements or BLUPs of the traits. Rows are individuals, and columns are traits/variables.
+- `phenofile`: A database of genotypes/individuals (rows) and the trait's measurements or BLUPs (columns).
 - `genofile`: Genotype data in hapmap format.
 - `wdir`: A working directory where the function will create the folders for each trait.
 - `trait_list`: A vector with the trait's name. The default is `NULL`, which will use the full phenotype dataset.
 
 ### Details
 
-This function loads the required packages and data, then performs a GWAS analysis using the `GAPIT` function from the GAPIT3 package. It loops through each trait in `trait_list`, creating a new folder for each trait in the working directory and saving the results of the GWAS analysis for that trait in that folder.
+This function loads the required packages and data, then performs a GWAS analysis using the `GAPIT` function from the `GAPIT3` package. It loops through each trait in `trait_list`, creating a new folder for each trait in the working directory and saving the results of the GWAS analysis for that trait in that folder.
 
 ### Examples
 
 ```R
+
 GAPIT3(phenofile = "my_phenotypes.csv", genofile = "my_genotypes.hmp", wdir = "my_results_folder", trait_list = c("Trait1", "Trait2", "Trait3"))
+
 ```
 
 This will perform a GWAS analysis using the phenotype data in `my_phenotypes.csv` and the genotype data in `my_genotypes.hmp`. It will create a new folder for each trait in the `trait_list` vector in the `my_results_folder` directory.
 
 ### Output
 
-The function will create a folder for each trait in the trait_list vector in the working directory. In each folder, it will save the results of the GWAS analysis for that trait. For more information about GAPIT outputs, please check the official GAPIT documentation.
+The function will create a folder for each trait in the `trait_list` vector in the working directory. In each folder, it will save the results of the GWAS analysis for that trait. For more information about `GAPIT` function outputs, please check the official `GAPIT3` package documentation.
 
 ### Dependencies
 
@@ -175,20 +184,26 @@ The function will create a folder for each trait in the trait_list vector in the
 
 ## 6. Annotation of results
 
-This code annotates the gen containing the significat SNPs from the GAPIT results. Additional, it retrieves the closest genes downstream and upstream.
+This code annotates the gen containing the significat SNPs from the `GAPIT3` results. Additional, it retrieves the closest genes downstream and upstream.
 
-### Arguments:
+### Usage
+
+```R
+
+```
+
+### Arguments
 
 - `pat`: Location path of the files.
 - `wdyw`: Gene feature to annotate.
-- `Mdir`: Name of the directory that contains the GAPIT results.
-- `mod`: Names of the models to filter.
+- `Mdir`: Name of the directory that contains the `GAPIT3` results.
+- `mod`: Names of the models to filter (options: )
 - `gff3`: gff3 file from the genome version used for alignment
-- `annotationFile`: annotation details of the genes. txt file from the genome version used for alignment. 
+- `annotationFile`: Annotation details of the genes. txt file from the genome version used for alignment.
 
 ### Output
 
-A single CSV file containing relevant gene information plus SNPs' P-value, trait, model and effect. 
+A single CSV file containing relevant gene information plus SNPs' P-values, traits, models, and effects.
 
 ### Dependencies
 
@@ -201,7 +216,9 @@ This R function generates a boxplot for a given SNP. The function takes as input
 ### Usage
 
 ```R
+
 GWAS_Boxplot(outputname, dir, phenofile, genofile, snp_list_file, labelfile = NULL)
+
 ```
 
 ### Arguments
@@ -216,7 +233,6 @@ GWAS_Boxplot(outputname, dir, phenofile, genofile, snp_list_file, labelfile = NU
 - `labelfile`: (optional) character string with the name of the CSV file with two columns:
     - Column 01 - name: Taxa, sample names.
     - Column 02 - name: label, label or category to add to the plot.
-
 
 ### Details
 
@@ -235,9 +251,11 @@ GWAS_Boxplot("outputname", ".path/to/save/plots/", "phenotype.csv", "genotype.hm
 ```
 
 ### Output
-A single PDF file containing the boxplot of the SNPs. 
+
+A single PDF file containing the boxplot of the SNPs.
 
 ### Dependencies
+
 - `tidyverse`
 - `tibble`
 - `dplyr`
@@ -281,4 +299,5 @@ A single PDF file containing the boxplot of the SNPs.
 - R Core Team (2021). R: A language and environment for statistical computing. R Foundation for Statistical Computing, Vienna, Austria. URL https://www.R-project.org/.
 
 ## Contact
+
 For questions or feedback about this pipeline, please contact Vianey Barrera-Enriquez at v.barrera@cgiar.org.
