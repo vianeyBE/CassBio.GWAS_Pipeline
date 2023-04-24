@@ -67,16 +67,20 @@ vcftools --gzvcf ${inputFile} --hardy --out ${prefix}.hwe
 
 ## 4. Population structure and covariable selection
 
-This script contains the necesssary codes to perform four different multivariate methods: (1) Non-Metric Multidimensional scaling (NDMS) (2) Multidimensional scaling (MDS), (3) Principal Component Analysis (PCA), and (4) Discriminant analysis of principal components (DAPC).
+This script contains the customized functions to perform four different multivariate methods: (1) Non-Metric Multidimensional Scaling (NDMS), (2) Multidimensional Scaling (MDS), (3) Principal Component Analysis (PCA), and (4) Discriminant Analysis of Principal Components (DAPC).
 
 ### Usage
 
 ```R
+# NDMS, MDS, and PCA
 NDMS(dir, phenofile, dist = "bray", groups = F)
-
 MDS(dir, phenofile, dist = "gower", groups = F)
+PCA(dir, type, groups = F, phenofile = NULL, labels = NULL, genofile = NULL, vcf = NULL, gds = NULL, PC.retain = F)
 
-PCA(dir, type, groups = F, phenofile = NULL, genofile = NULL, vcf = NULL, gds = NULL, PC.retain = F)
+# DAPC
+library(adegenet)
+grp <- find.clusters(my_genind)
+dapc <- dapc(my_genind, grp$grp)
 ```
 
 ### Arguments
@@ -97,14 +101,14 @@ PCA(dir, type, groups = F, phenofile = NULL, genofile = NULL, vcf = NULL, gds = 
 - `dir`: Directory where data is located.
 - `type`: A character string indicating wheter data is genotypic ("geno") of phenotypic ("pheno")
 - `groups`: Boolean value indicating whether the data includes different treatments/groups (default = F).
-- `phenofile`: A database of genotypes/individuals (rows) and their traits (columns).
-- `genofile`: An object of class SNPGDSFileClass ().
-- `vcf`: A vcf file containing ...
-- `gds`: A gds file containing ...
-- `PC.retain`: Boolean value indicating whether to analyze how many PCs retain (default = F).
+- `phenofile`: A database of genotypes/individuals (rows) and their traits (columns). First column must be genotypes/individuals names.
+- `genofile`: An object of class SNPGDSFileClass (GDS file read with the `snpgdsOpen` function from `SNPRelate` package).
+- `gds`: A Genomic Data Structures (GDS) file (a reformated VCF file with the `snpgdsVCF2GDS` function from `vcfR` package)
+- `vcf`: A Variant Call Format (VCF) file containing DNA polymorphism data such as SNPs, insertions, deletions and structural variants, together with rich annotations.
+- `PC.retain`: Boolean value indicating whether to analyze how many PCs retain (default = F). If `TRUE` is selected then the second column of the `phenofile` must be the groups/treatments.
 
 4. For DAPC:
-- `my_genind`: An object of class genind.
+- `my_genind`: An object of class genind (vcf file read with the `vcfR2genind` function from `vcfR` package).
 
 ### Details
 
@@ -143,10 +147,10 @@ GAPIT3(phenofile, genofile, wdir, trait_list = NULL)
 
 ### Arguments
 
-- `phenofile`: measurements or BLUPs of the traits. Rows are individuals, and columns are traits/variables.
-- `genofile`: genotype data in hapmap format.
-- `wdir`: working directory. Here, it will create the folders for each trait.
-- `trait_list`: a vector with the trait's name to do GWAS. The default is `NULL`, which will use the full phenotype dataset.
+- `phenofile`: Measurements or BLUPs of the traits. Rows are individuals, and columns are traits/variables.
+- `genofile`: Genotype data in hapmap format.
+- `wdir`: A working directory where the function will create the folders for each trait.
+- `trait_list`: A vector with the trait's name. The default is `NULL`, which will use the full phenotype dataset.
 
 ### Details
 
@@ -158,11 +162,11 @@ This function loads the required packages and data, then performs a GWAS analysi
 GAPIT3(phenofile = "my_phenotypes.csv", genofile = "my_genotypes.hmp", wdir = "my_results_folder", trait_list = c("Trait1", "Trait2", "Trait3"))
 ```
 
-This will perform a GWAS analysis using the phenotype data in ; my_phenotypes.csv and the genotype data in my_genotypes.hmp. It will create a new folder for each trait in the trait_list vector in the my_results_folder directory.
+This will perform a GWAS analysis using the phenotype data in `my_phenotypes.csv` and the genotype data in `my_genotypes.hmp`. It will create a new folder for each trait in the `trait_list` vector in the `my_results_folder` directory.
 
 ### Output
 
-The function will create a folder for each trait in the trait_list vector in the working directory. In each folder, it will save the results of the GWAS analysis for that trait. For more information about GAPIT outputs, please check the official GAPIT documentation. 
+The function will create a folder for each trait in the trait_list vector in the working directory. In each folder, it will save the results of the GWAS analysis for that trait. For more information about GAPIT outputs, please check the official GAPIT documentation.
 
 ### Dependencies
 
