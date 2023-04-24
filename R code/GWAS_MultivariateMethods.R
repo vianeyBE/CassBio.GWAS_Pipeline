@@ -28,15 +28,15 @@
 #        vcf: 
 #        gds: 
 #        PC.retain: Boolean value indicating whether to analyze how many PCs retain
-#        
 # 4. For DAPC:
 #
 
 
 
 ####### To do ####### 
-# 1: Add color part in the PCA function
-# 2: Finish head description
+# 1: Finish head description
+# 2: Add labels part
+# 3: GDS/VCF file selection
 
 # Test arguments
 dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
@@ -54,6 +54,10 @@ setwd(dir)
 labels <- read.csv('GWAS_PPD.labels.csv') ######################
 vcf <- 'GWAS_PPD.snps.filter_info.missing_0.10.imputation.vcf.gz'
 gds <- 'GWAS_PPD.gds'
+
+dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/01_ACWP_F2_Phenotype/01_Population_Structure"
+setwd(dir)
+vcf <- "AM1588_MAP.miss0.05.recode.vcf"
 
 
 
@@ -201,8 +205,8 @@ MDS(dir, phenofile, dist, groups)
 
 # 3: Principal component analysis (PCA) ----------------------------------------
 
-PCA <- function(dir, type, groups = T, phenofile = NULL, genofile = NULL, vcf = NULL, gds = NULL,
-                PC.retain = F){
+PCA <- function(dir, type, groups = T, phenofile = NULL, genofile = NULL, labels = NULL, gds = NULL,
+                vcf = NULL, PC.retain = F){
   
   # Set working directory
   setwd(dir)
@@ -340,18 +344,30 @@ PCA <- function(dir, type, groups = T, phenofile = NULL, genofile = NULL, vcf = 
     message("Selected data option: Genotypic")
     
     # Conditional within genotypic part to determine if genofile is empty or necessary to read from dir
-    if (is.null(genofile)) {
+    if (is.null(genofile) & is.null(gds)) {
       
-      message("Genofile is NULL\n\nReading vcf and gds files\n\nCreating genofile")
+      message("VCF file provided...\n\n", "Reading VCF file...\n\n",
+              "Reformatting it to a GDS file and then transforming it to a SNPGDSFileClass file")
       
       snpgdsVCF2GDS(vcf, gds, ignore.chr.prefix = "chromosome")
       genofile <- snpgdsOpen(gds)
       sample_id <- read.gdsn(index.gdsn(genofile, "sample.id"))
       
-    } else { 
-      
-      message("Genofile is not NULL\n\nPCA function continues regularly")
-      
+      if (is.null(genofile) & is.null(vcf)) {
+        
+        message("GDS file provided...\n\n", "Reading CDS file...\n\n",
+                "Transforming it to a SNPGDSFileClass file")
+        
+        genofile <- snpgdsOpen(gds)
+        sample_id <- read.gdsn(index.gdsn(genofile, "sample.id"))
+        
+        else {
+          
+          message("Genofile (SNPGDSFileClass file) is provided...\n\n",
+                  "PCA function continues regularly")
+          
+        }
+      }
     }
     
     # Function continues to the PCA calculation itself
