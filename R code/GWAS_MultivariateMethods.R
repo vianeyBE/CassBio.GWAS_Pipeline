@@ -38,7 +38,7 @@
 
 
 ####### To do ####### 
-# 1. 
+# 1. Change gds/vcf part
 
 
 
@@ -373,7 +373,6 @@ PCA <- function(dir, type, groups = T, phenofile = NULL, genofile = NULL, labels
       }
     }
     
-    
     # Function continues to the PCA calculation itself
     # Performs the SNPRelate's PCA
     PCA <- snpgdsPCA(genofile, autosome.only = T, remove.monosnp = T, need.genmat = T,
@@ -440,16 +439,30 @@ PCA <- function(dir, type, groups = T, phenofile = NULL, genofile = NULL, labels
     # Table to plot the PCA
     tab <- data.frame(sample.id = PCA$sample.id, stringsAsFactors = F,
                       PC1 = PCA$eigenvect[,1], PC2 = PCA$eigenvect[,2])
-    labels <- labels %>% dplyr::rename(sample.id = 1, groups = 2)
-    dt <- tab %>% inner_join(labels, by = "sample.id")
     
-    # Plot the PCA
-    fig <- plot_ly(data = dt, x = ~ PC1, y = ~ PC2, color = ~ as.factor(groups), type = "scatter",
-                   mode = "markers", symbol = ~ as.factor(groups), symbols = c("circle", "x"),
-                   text = ~ sample.id, marker = list(size = 6)) %>%
-      layout(legend = list(title = list(text = "<b> Groups </b>"), orientation = "h"),
-             xaxis = list(title = paste("Dimension 1 - ", round(PC$var)[1], "%")),
-             yaxis = list(title = paste("Dimension 2 - ", round(PC$var)[2], "%")))
+    if (groups == T){
+      
+      # Adding groups to the table for plotting
+      labels <- labels %>% dplyr::rename(sample.id = 1, groups = 2)
+      dt <- tab %>% inner_join(labels, by = "sample.id")
+      
+      # Plot the PCA
+      fig <- plot_ly(data = dt, x = ~ PC1, y = ~ PC2, color = ~ as.factor(groups), type = "scatter",
+                     mode = "markers", symbol = ~ as.factor(groups), symbols = c("circle", "x"),
+                     text = ~ sample.id, marker = list(size = 6)) %>%
+        layout(legend = list(title = list(text = "<b> Groups </b>"), orientation = "h"),
+               xaxis = list(title = paste("Dimension 1 - ", round(PC$var)[1], "%")),
+               yaxis = list(title = paste("Dimension 2 - ", round(PC$var)[2], "%")))
+      
+    } else {
+      
+      # Plot the PCA
+      fig <- plot_ly(data = dt, x = ~ PC1, y = ~ PC2, type = "scatter", mode = "markers",
+                     text = ~ sample.id, marker = list(size = 6)) %>%
+        layout(xaxis = list(title = paste("Dimension 1 - ", round(PC$var)[1], "%")),
+               yaxis = list(title = paste("Dimension 2 - ", round(PC$var)[2], "%")))
+      
+    }
     
     # Save the plot
     saveWidget(fig, "GWAS_PCA.html", selfcontained = F, libdir = "lib")
