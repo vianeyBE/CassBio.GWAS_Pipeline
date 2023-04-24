@@ -208,9 +208,7 @@ This code annotates the gen containing the significat SNPs from the `GAPIT3` res
 
 ### Usage
 
-```R
-
-```
+*In progress*
 
 ### Arguments
 
@@ -220,6 +218,14 @@ This code annotates the gen containing the significat SNPs from the `GAPIT3` res
 - `mod`: Names of the models to filter (options: )
 - `gff3`: gff3 file from the genome version used for alignment
 - `annotationFile`: Annotation details of the genes. txt file from the genome version used for alignment.
+
+### Details
+
+*In progress*
+
+### Examples
+
+*In progress*
 
 ### Output
 
@@ -290,6 +296,31 @@ A single PDF file containing the boxplot of the SNPs.
 ## 8. Manhattan plots
 
 *In progress*
+
+### Usage
+
+*In progress*
+
+### Arguments
+
+*In progress*
+
+### Details
+
+*In progress*
+
+### Examples
+
+*In progress*
+
+### Output
+
+*In progress*
+
+### Dependencies
+
+- `tidyverse`
+- `ggtext`
 
 ---
 ## Citation
