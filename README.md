@@ -128,7 +128,7 @@ dapc <- dapc(my_genind, grp$grp)
 - `phenofile`: A database of genotypes/individuals (rows) and their traits (columns). First column must be genotypes/individuals names.
 - `genofile`: An object of class SNPGDSFileClass (GDS file read with the `snpgdsOpen` function from `SNPRelate` package).
 - `labels`: When provide a `genofile` and `groups` argument is `TRUE`, please provide a dataframe with genotypes/individuals in the first column and groups/treatment data in the second column.
-- `gds`: A Genomic Data Structures (GDS) file (a reformated VCF file with the `snpgdsVCF2GDS` function from `vcfR` package).
+- `gds`: A Genomic Data Structures (GDS) file (a reformatted VCF file with the `snpgdsVCF2GDS` function from `vcfR` package).
 - `vcf`: A Variant Call Format (VCF) file containing DNA polymorphism data such as SNPs, insertions, deletions and structural variants, together with rich annotations.
 - `PC.retain`: Boolean value indicating whether to analyze how many PCs retain (default = F).
 

@@ -10,33 +10,37 @@
 #
 # Arguments: 
 # 1. For NDMS:
-#        dir: Name of the directory that contains the data
-#        phenofile: A matrix/database of genotypes/individuals in rows and their traits in in columns
-#        dist: Dissimilarity index/measure to use. The default is bray.
-#        groups: Boolean value indicating whether the data includes different treatments
-# 2. For MDS:
-#        dir: Name of the directory that contains the data
-#        phenofile: A matrix/database of genotypes/individuals in rows and their traits in in columns
-#        dist: Dissimilarity index/measure to use. The default is bray.
-#        groups: Boolean value indicating whether the data includes different treatments
-# 3. For PCA:
-#        dir: Name of the directory that contains the data
-#        type: A character string indicating wheter data is genotypic ("geno") of phenotypic ("pheno")
-#        groups: Boolean value indicating whether the data includes different treatments
-#        genofile: An object of class SNPGDSFileClass. A SNP - GDS file
-#        phenofile: A matrix/database of genotypes/individuals in rows and their traits in columns
-#        vcf: 
-#        gds: 
-#        PC.retain: Boolean value indicating whether to analyze how many PCs retain
-# 4. For DAPC:
+# dir: Directory where data is located.
+# phenofile: A database of genotypes/individuals (rows) and their traits (columns). First column must be genotypes/individuals names.
+# dist: Dissimilarity index/measure to use (default = "bray").
+# groups: Boolean value indicating whether the data includes different treatments/groups (default = F). If `TRUE` is selected then the second column of the `phenofile` must be the groups/treatments.
 #
+# 2. For MDS:
+# dir: Directory where data is located.
+# phenofile: A database of genotypes/individuals (rows) and their traits (columns). First column must be genotypes/individuals names.
+# dist: Dissimilarity index/measure to use (default = "gower").
+# groups: Boolean value indicating whether the data includes different treatments/groups (default = F). If `TRUE` is selected then the second column of the `phenofile` must be the groups/treatments.
+#
+# 3. For PCA:
+# dir: Directory where data is located.
+# type: A character string indicating wheter data is genotypic ("geno") of phenotypic ("pheno").
+# groups: Boolean value indicating whether the data includes different treatments/groups (default = F). If `TRUE` is selected then the second column of the `phenofile` must be the groups/treatments.
+# phenofile: A database of genotypes/individuals (rows) and their traits (columns). First column must be genotypes/individuals names.
+# genofile: An object of class SNPGDSFileClass (GDS file read with the `snpgdsOpen` function from `SNPRelate` package).
+# labels: When provide a `genofile` and `groups` argument is `TRUE`, please provide a dataframe with genotypes/individuals in the first column and groups/treatment data in the second column.
+# gds: A Genomic Data Structures (GDS) file (a reformatted VCF file with the `snpgdsVCF2GDS` function from `vcfR` package).
+# vcf: A Variant Call Format (VCF) file containing DNA polymorphism data such as SNPs, insertions, deletions and structural variants, together with rich annotations.
+# PC.retain: Boolean value indicating whether to analyze how many PCs retain (default = F).
+#
+# 4. For DAPC:
+# my_genind: An object of class genind (vcf file read with the `vcfR2genind` function from `vcfR` package).
 
 
 
 ####### To do ####### 
-# 1: Finish head description
-# 2: Add labels part
-# 3: GDS/VCF file selection
+# 1. 
+
+
 
 # Test arguments
 dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
@@ -51,7 +55,7 @@ phenofile <- phenofile[-2] # No color
 
 # Genotypic test data
 setwd(dir)
-labels <- read.csv('GWAS_PPD.labels.csv') ######################
+labels <- read.csv('GWAS_PPD.labels.csv')
 vcf <- 'GWAS_PPD.snps.filter_info.missing_0.10.imputation.vcf.gz'
 gds <- 'GWAS_PPD.gds'
 
@@ -343,13 +347,13 @@ PCA <- function(dir, type, groups = T, phenofile = NULL, genofile = NULL, labels
     
     message("Selected data option: Genotypic")
     
-    # Conditional within genotypic part to determine if genofile is empty or necessary to read from dir
+    # Conditional to determine how to proceed with the files
     if (is.null(genofile) & is.null(gds)) {
       
       message("VCF file provided...\n\n", "Reading VCF file...\n\n",
               "Reformatting it to a GDS file and then transforming it to a SNPGDSFileClass file")
       
-      snpgdsVCF2GDS(vcf, gds, ignore.chr.prefix = "chromosome")
+      snpgdsVCF2GDS(vcf, paste0(substring(vcf, 1, nchar(vcf)-7), ".gds"), ignore.chr.prefix = "chromosome")
       genofile <- snpgdsOpen(gds)
       sample_id <- read.gdsn(index.gdsn(genofile, "sample.id"))
       
@@ -361,14 +365,14 @@ PCA <- function(dir, type, groups = T, phenofile = NULL, genofile = NULL, labels
         genofile <- snpgdsOpen(gds)
         sample_id <- read.gdsn(index.gdsn(genofile, "sample.id"))
         
-        else {
+      } else {
           
           message("Genofile (SNPGDSFileClass file) is provided...\n\n",
                   "PCA function continues regularly")
-          
-        }
+        
       }
     }
+    
     
     # Function continues to the PCA calculation itself
     # Performs the SNPRelate's PCA
@@ -435,13 +439,14 @@ PCA <- function(dir, type, groups = T, phenofile = NULL, genofile = NULL, labels
     
     # Table to plot the PCA
     tab <- data.frame(sample.id = PCA$sample.id, stringsAsFactors = F,
-                      EV1 = PCA$eigenvect[,1], EV2 = PCA$eigenvect[,2])
-    dt <- merge(tab, labels, by.x = "sample.id", by.y = "Taxa")
+                      PC1 = PCA$eigenvect[,1], PC2 = PCA$eigenvect[,2])
+    labels <- labels %>% dplyr::rename(sample.id = 1, groups = 2)
+    dt <- tab %>% inner_join(labels, by = "sample.id")
     
     # Plot the PCA
-    fig <- plot_ly(data = dt, x = ~ EV1, y = ~ EV2, color = ~ label, type = "scatter", mode = "markers",
-                   symbol = ~ label, symbols = c("circle", "x"), text = ~ sample.id,
-                   marker = list(size = 6)) %>%
+    fig <- plot_ly(data = dt, x = ~ PC1, y = ~ PC2, color = ~ as.factor(groups), type = "scatter",
+                   mode = "markers", symbol = ~ as.factor(groups), symbols = c("circle", "x"),
+                   text = ~ sample.id, marker = list(size = 6)) %>%
       layout(legend = list(title = list(text = "<b> Groups </b>"), orientation = "h"),
              xaxis = list(title = paste("Dimension 1 - ", round(PC$var)[1], "%")),
              yaxis = list(title = paste("Dimension 2 - ", round(PC$var)[2], "%")))
@@ -451,8 +456,8 @@ PCA <- function(dir, type, groups = T, phenofile = NULL, genofile = NULL, labels
     saveWidget(as_widget(fig), "GWAS_PCA.html")
     
   }
-  
 }
+
 
 PCA(dir, type, groups = T, phenofile, genofile = NULL, vcf, gds, PC.retain = F)
 
