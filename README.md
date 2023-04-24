@@ -19,6 +19,18 @@ The pipeline has six main steps:
 
 *In progress*
 
+### Usage
+
+*In progress*
+
+### Arguments
+
+*In progress*
+
+### Details
+
+*In progress*
+
 ### Examples
 
 ```sh
@@ -58,6 +70,14 @@ vcftools --gzvcf ${inputFile} --het --out ${prefix}.heterozygosity
 vcftools --gzvcf ${inputFile} --hardy --out ${prefix}.hwe
 
 ```
+
+### Output
+
+*In progress*
+
+### Dependencies
+
+*In progress*
 
 ## 2. Imputation
 
@@ -117,7 +137,7 @@ dapc <- dapc(my_genind, grp$grp)
 
 ### Details
 
-This series of functions retrieves the required pacakges and data to perform four multivariate methods, potentially used to study population structure and select covariable for next analyses. Especifically, this script includes the functions for Non-Metric Multidimensional Scaling (NDMS), Multidimensional Scaling (MDS), Principal Component Analysis (PCA), and Discriminant Analysis of Principal Components (DAPC). The first two functions are built only for phenotypic data while the PCA can handle both data type (phenotypic or genotypic), and the DAPC only uses genotypic data. For all functions interactive plots (made using `plotly` package) in html format. The DAPC part is not built as a function give the nature of the functions used in which prompts are necessary to continue. Please run this methods line by line.
+This series of functions retrieves the required pacakges and data to perform four multivariate methods, potentially used to study population structure and select covariable for next analyses. Especifically, this script includes the functions for Non-Metric Multidimensional Scaling (`NDMS`), Multidimensional Scaling (`MDS`), Principal Component Analysis (`PCA`), and Discriminant Analysis of Principal Components (`DAPC`). The first two functions are built only for phenotypic data while the PCA can handle both data type (phenotypic or genotypic), and the DAPC only uses genotypic data. For all functions interactive plots (made using `plotly` package) in html format. The DAPC part is not built as a function give the nature of the functions used in which prompts are necessary to continue. Please run this methods line by line.
 
 ### Examples
 
@@ -125,7 +145,7 @@ This series of functions retrieves the required pacakges and data to perform fou
 
 ### Output
 
-*In progress*
+Interactive plots (made using `plotly` package) in html format.
 
 ### Dependencies
 
