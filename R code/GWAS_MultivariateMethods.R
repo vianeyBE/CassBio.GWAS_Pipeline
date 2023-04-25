@@ -348,16 +348,20 @@ PCA <- function(dir, type, groups = T, phenofile = NULL, genofile = NULL, labels
     message("Selected data option: Genotypic")
     
     # Conditional to determine how to proceed with the files
-    if (is.null(genofile) & is.null(gds)) {
+    if (!is.null(vcf)){
       
       message("VCF file provided...\n\n", "Reading VCF file...\n\n",
               "Reformatting it to a GDS file and then transforming it to a SNPGDSFileClass file")
       
-      snpgdsVCF2GDS(vcf, paste0(substring(vcf, 1, nchar(vcf)-7), ".gds"), ignore.chr.prefix = "chromosome")
+      gds <- paste0(substring(vcf, 1, nchar(vcf)-7), ".gds")
+      
+      snpgdsVCF2GDS(vcf, gds, ignore.chr.prefix = "chromosome")
       genofile <- snpgdsOpen(gds)
       sample_id <- read.gdsn(index.gdsn(genofile, "sample.id"))
       
-      if (is.null(genofile) & is.null(vcf)) {
+    } else {
+      
+      if (!is.null(gds)){
         
         message("GDS file provided...\n\n", "Reading CDS file...\n\n",
                 "Transforming it to a SNPGDSFileClass file")
@@ -366,13 +370,16 @@ PCA <- function(dir, type, groups = T, phenofile = NULL, genofile = NULL, labels
         sample_id <- read.gdsn(index.gdsn(genofile, "sample.id"))
         
       } else {
+        
+        if (!is.null(genofile)){
           
           message("Genofile (SNPGDSFileClass file) is provided...\n\n",
                   "PCA function continues regularly")
         
+        }
       }
     }
-    
+
     # Function continues to the PCA calculation itself
     # Performs the SNPRelate's PCA
     PCA <- snpgdsPCA(genofile, autosome.only = T, remove.monosnp = T, need.genmat = T,
