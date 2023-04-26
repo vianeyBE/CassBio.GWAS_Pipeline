@@ -1,4 +1,4 @@
-# Cassava Bioinformatics Platform: GWAS Pipeline\
+# Cassava Bioinformatics Platform: GWAS Pipeline
 
 Pipeline for Genome-wide Association Studies in Cassava
 
