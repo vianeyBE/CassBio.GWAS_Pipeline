@@ -4,55 +4,44 @@
 #
 # Authors: Camilo E. Sanchez (c.e.sanchez@cgiar.org) and Vianey Barrera-Enriquez (vpbarrera@gmail.com)
 #
-# Arguments: 
-# pat: The location path of the files
-# mod: Names of the models to filter
-# Mdir: Name of the directory that contains the GAPIT results
+# Arguments:
+# Mdir: Name of the directory that contains the GAPIT results. For example: home/user/folder.
+# pat: Enter the path of file names to look for. For example: QTL_LOD_Intervals. The path must finish with a point (.).
+# mod: Enter the model(s) of interest. Options: BLINK, GLM, MLM, FarmCPU.
+# wtd: How many traits do you want to plot. Options: One, Several, All.
+# colors: (Optional) Colors of the chromosomes in Manhattan plots. If you want to change the colors, provide 2 or more. It can be color names o hex codes (Default: grey and skyblue).
 
 
 
-# 1: # Configure the initial requirements --------------------------------------
-# Manually using the console
-message("Enter the path of file names to looking for\n\n",
-        "For example: QTL_LOD_Intervals. The path must finish with a point (.)\n\n",
-        "Finish with two tabs")
-pat <- scan(what = character(), n = 1)
-
-message("Enter the model(s) of interest\n\n",
-        "Options: BLINK, GLM, MLM, FarmCPU\n\n",
-        "Finish with two tabs")
-mod <- scan(what = character(), n = 4)
-
-message("Enter the working directory\n\n",
-        "For example: home/user/folder\n\n",
-        "Finish with two tabs")
-Mdir <- scan(what = character(), n = 1)
-
-# Set as default
-if (rlang::is_empty(pat)) {
-  pat <- "GAPIT.Association.GWAS_Results."
-  } 
-if (rlang::is_empty(mod)) {
-  mod <- c("BLINK", "FarmCPU", "MLM")
-  }
-if (rlang::is_empty(Mdir)) {
-  Mdir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/01_ACWP_F1_Metabolomics/07_GWAS"
-  }
+###### TO DO ######
+# 1. Transform the script into a function
 
 
 
-# 2: Load all the directories, info, and data ----------------------------------
-
-# Load packages
-if (!require(tidyverse)) install.packages(tidyverse)
-if (!require(ggtext)) install.packages(ggtext)
-
-library(tidyverse)
-library(ggtext)
+###### Examples ######
+Mdir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/01_ACWP_F1_Metabolomics/07_GWAS"
+pat <- "GAPIT.Association.GWAS_Results."
+mod <- c("BLINK", "FarmCPU", "MLM")
+wtd <- "One"
 
 
 
-# 3: Find all the CSVs with the results and organize them ----------------------
+Manhattan <- function(Mdir, pat, mod, wtd, colors = c("grey", "skyblue")){
+  
+  # 1: Load packages -----------------------------------------------------------
+
+  if (!require(tidyverse)) install.packages(tidyverse)
+  if (!require(ggtext)) install.packages(ggtext)
+
+  library(tidyverse)
+  library(ggtext)
+
+}
+
+# Run with the example
+Manhattan(Mdir, pat, mod)
+
+# 2: Find all the CSVs with the results and organize them ----------------------
 
 message("Getting list of CSV files...")
 
@@ -96,6 +85,7 @@ for (i in 1:length(names)){
 
   # Progress bar
   cat('\r', i, ' files processed |', rep('=', i / 4), ifelse(i == length(names), '|\n', '>'), sep = '')
+  
 }
 
 # Merge the data frames of the list in a single data frame
@@ -115,21 +105,9 @@ rm(i, p, name.F, name.T, dframe)
 
 
 
-# 4: Preparing the data and plot -----------------------------------------------
+# 3: Preparing the data and plot -----------------------------------------------
 
-wtd <- readline(prompt = message("How many traits do you want to plot (One/Several/All)?:"))
-
-message("The color of the chromosomes in the Manhattan plots are default to 'grey' and 'skyblue'\n\n",
-        "If you want to change the colors, provide 2 or more. (It can be color names o hex codes)\n\n",
-        "Finish with two tabs")
-
-colors <- scan(what = character())
-
-if (rlang::is_empty(colors)) {
-  colors <- c("grey", "skyblue")
-  } 
-
-if (wtd == "One") {
+if (wtd == "One"){
   
   tr <- readline(prompt = message(paste(unique(GWAS$trait), collapse = "\n"), "\n\n",
                                   "Choose a trait from the list above and paste its name (exact match): "))
@@ -180,6 +158,7 @@ if (wtd == "One") {
           axis.title.x = element_text(margin = margin(t = 10)))
   
   } else {
+    
     if (wtd == "Several") {
     
     message(paste(unique(GWAS$trait), collapse = "\n"), "\n\n",
@@ -235,6 +214,7 @@ if (wtd == "One") {
             strip.background = element_rect(color = "black", fill = "white"))
     
     } else {
+      
       if (wtd == "All") {
       
       data <- GWAS
@@ -281,7 +261,9 @@ if (wtd == "One") {
               axis.title.x = element_text(margin = margin(t = 10)))
       
       } else {
+        
       message("You can only choose the following options: 'One', 'Several', or 'All' (exact match)")
+        
     }
   } 
 }
