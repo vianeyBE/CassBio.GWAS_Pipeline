@@ -6,61 +6,38 @@
 # Authors: Camilo E. Sanchez (c.e.sanchez@cgiar.org) and Vianey Barrera-Enriquez (vpbarrera@gmail.com)
 #
 # Arguments:
-# pat: The location path of the files
-# wdyw: What do you want to filter? (Gen, exon)
-# mod: Names of the models to filter
-# Mdir: Name of the directory that contains the GAPIT results
+# Mdir: Name of the directory that contains the GAPIT results. For example: home/user/folder.
+# pat: Enter the path of file names to look for. For example: QTL_LOD_Intervals. The path must finish with a point (.).
+# mod: Enter the model(s) of interest. Options: BLINK, GLM, MLM, FarmCPU.
+# wdyw: Enter what are you looking for to annotate. Options: CDS, five_prime_UTR, gene, mRNA, three_prime_UTR.
 
 
 
-#### TO DO ####
+###### To do ######
 # 1: Convert to function
 # 2: Add choosing which version of reference genome
 
 
-# 1: Configure the initial requirements ----------------------------------------
-# Manually using the console
-message("Enter the path of file names to looking for\n\n",
-        "For example: QTL_LOD_Intervals. The path must finish with a point (.)\n\n",
-        "Finish with two tabs")
-pat <- scan(what = character(), n = 1)
 
-message("Enter what are you looking for to anotate\n\n",
-        "Options: CDS, five_prime_UTR, gene, mRNA, three_prime_UTR\n\n",
-        "Finish with two tabs")
-wdyw <- scan(what = character(), n = 5)
+###### Examples ######
+Mdir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/03_GWAS_PPD_Populations/04_GWAS/GAPIT_Results"
+pat <- "GAPIT.Association.GWAS_Results."
+mod <- c("BLINK", "FarmCPU", "MLM")
+wdyw <- "gene"
 
-message("Enter the model(s) of interest\n\n",
-        "Options: BLINK, GLM, MLM, FarmCPU\n\n",
-        "Finish with two tabs")
-mod <- scan(what = character(), n = 4)
 
-message("Enter the working directory\n\n",
-        "For example: home/user/folder\n\n",
-        "Finish with two tabs")
-Mdir <- scan(what = character(), n = 1)
 
-# Set as default
-if (rlang::is_empty(pat)) {
-  pat <- "GAPIT.Association.GWAS_Results."
+# 0: Function init -------------------------------------------------------------
+
+GWAS_Annotation <- function(Mdir, pat, mod, wdyw){
+  
+  # 1: Load all the directories, info, and data --------------------------------
+  
+  # Load packages
+  if (!require(tidyverse)) install.packages(tidyverse)
+  library(tidyverse)
+  
 }
-if (rlang::is_empty(wdyw)) {
-  mod <- c("gene")
-}
-if (rlang::is_empty(mod)) {
-  mod <- c("BLINK", "FarmCPU", "MLM")
-}
-if (rlang::is_empty(Mdir)) {
-  Mdir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/03_GWAS_PPD_Populations/04_GWAS/GAPIT_Results"
-}
-
-
-
-# 2: Load all the directories, info, and data ----------------------------------
-
-# Load packages
-if (!require(tidyverse)) install.packages(tidyverse)
-library(tidyverse)
 
 # Load data and re-organize it
 setwd("D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/00_Data/Mesculenta_305_v6.1")
@@ -88,7 +65,7 @@ GFF <- read.delim("Mesculenta_305_v6.1.gene.gff3", header = F, comment.char = "#
 
 
 
-# 3: Find all the CSVs with the results and filter them ------------------------
+# 2: Find all the CSVs with the results and filter them ------------------------
 # Get the names of the files
 message("Getting list of CSV files...")
 setwd(Mdir)
@@ -132,7 +109,7 @@ rm(csv.l, i, p, name.F, name.T)
 
 
 
-# 4: Match the results with the gene annotation database -----------------------
+# 3: Match the results with the gene annotation database -----------------------
 
 # Creates a conditional
 # If there is at least one result of the GWAS models, the annotation is done
@@ -213,7 +190,7 @@ if (dim(GWAS)[1] > 0){
   
   
   
-  # 5: Formatting dataframe ----------------------------------------------------
+  # 4: Formatting dataframe ----------------------------------------------------
   
   message("Obtaining gene information...")
     
@@ -253,7 +230,7 @@ if (dim(GWAS)[1] > 0){
     
     
     
-    # 6: Save output -----------------------------------------------------------
+    # 5: Save output -----------------------------------------------------------
     
     message("Saving output file: 'GWAS_Annotation.csv' in working directory")
     
@@ -262,5 +239,7 @@ if (dim(GWAS)[1] > 0){
     message("Done! ")
     
   } else {
+    
     message("No SNPs to annotate")
+    
     }
