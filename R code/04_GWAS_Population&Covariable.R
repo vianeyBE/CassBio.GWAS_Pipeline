@@ -23,13 +23,13 @@
 #
 # 3. For PCA:
 # dir: Directory where data is located.
-# type: A character string indicating wheter data is genotypic ("geno") of phenotypic ("pheno").
-# groups: Boolean value indicating whether the data includes different treatments/groups (default = F). If `TRUE` is selected then the second column of the `phenofile` must be the groups/treatments.
 # phenofile: A database of genotypes/individuals (rows) and their traits (columns). First column must be genotypes/individuals names.
 # genofile: An object of class SNPGDSFileClass (GDS file read with the `snpgdsOpen` function from `SNPRelate` package).
 # labels: When provide a `genofile` and `groups` argument is `TRUE`, please provide a dataframe with genotypes/individuals in the first column and groups/treatment data in the second column.
 # gds: A Genomic Data Structures (GDS) file (a reformatted VCF file with the `snpgdsVCF2GDS` function from `vcfR` package).
 # vcf: A Variant Call Format (VCF) file containing DNA polymorphism data such as SNPs, insertions, deletions and structural variants, together with rich annotations.
+# type: A character string indicating wheter data is phenotypic ("pheno") or genotypic ("geno") (default = Pheno).
+# groups: Boolean value indicating whether the data includes different treatments/groups (default = F). If `TRUE` is selected then the second column of the `phenofile` must be the groups/treatments.
 # PC.retain: Boolean value indicating whether to analyze how many PCs retain (default = F).
 #
 # 4. For DAPC:
@@ -37,38 +37,32 @@
 
 
 
-####### To do ####### 
+##### To do ##### 
 # 1. Change gds/vcf part
 
 
 
-# Test arguments
+##### Examples ##### 
+# Phenotypic
 dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
-dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/03_GWAS_PPD_Populations/02_PCA/"
-dist <- c("gower")
-type <- "Geno"
-
-# Phenotypic test data
-setwd(dir)
-phenofile <- read.csv("Prueba.csv", header = T) # Add colors
+phenofile <- read.csv(paste0(dir, "Prueba.csv"), header = T) # Add colors
 phenofile <- phenofile[-2] # No color
 
 # Genotypic test data
-setwd(dir)
-labels <- read.csv('GWAS_PPD.labels.csv')
-vcf <- 'GWAS_PPD.snps.filter_info.missing_0.10.imputation.vcf.gz'
-gds <- 'GWAS_PPD.gds'
+dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/03_GWAS_PPD_Populations/02_PCA/"
+labels <- read.csv(paste0(dir, "GWAS_PPD.labels.csv"))
+vcf <- "GWAS_PPD.snps.filter_info.missing_0.10.imputation.vcf.gz"
+gds <- "GWAS_PPD.gds"
 
-dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/01_ACWP_F2_Phenotype/01_Population_Structure"
-setwd(dir)
+dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/01_ACWP_F2_Phenotype/01_Population_Structure/"
+labels <- read.csv(paste0(dir, "AM1588_labels.csv"))
 vcf <- "AM1588_MAP.miss0.05.recode.vcf"
-
 
 
 
 # 1: Non-metric multidimensional scaling (NDMS) --------------------------------
 
-NDMS <- function(dir, phenophile, dist, groups = F){
+NDMS <- function(dir, phenophile, dist = "bray", groups = F){
   
   # Set working directory
   setwd(dir)
@@ -135,7 +129,7 @@ NDMS(dir, phenofile, dist, groups)
 
 # 2: Multidimensional scaling (MDS) --------------------------------------------
 
-MDS <- function(dir, phenofile, dist, groups = F){
+MDS <- function(dir, phenofile, dist = "gower", groups = F){
   
   # Set working directory
   setwd(dir)
@@ -209,8 +203,8 @@ MDS(dir, phenofile, dist, groups)
 
 # 3: Principal component analysis (PCA) ----------------------------------------
 
-PCA <- function(dir, type, groups = T, phenofile = NULL, genofile = NULL, labels = NULL, gds = NULL,
-                vcf = NULL, PC.retain = F){
+PCA <- function(dir, phenofile = NULL, genofile = NULL, labels = NULL, gds = NULL, vcf = NULL,
+                type = "Pheno", groups = F, PC.retain = F){
   
   # Set working directory
   setwd(dir)
@@ -353,7 +347,7 @@ PCA <- function(dir, type, groups = T, phenofile = NULL, genofile = NULL, labels
       message("VCF file provided...\n\n", "Reading VCF file...\n\n",
               "Reformatting it to a GDS file and then transforming it to a SNPGDSFileClass file")
       
-      gds <- paste0(substring(vcf, 1, nchar(vcf)-7), ".gds")
+      gds <- paste0(substring(vcf, 1, nchar(vcf)-4), ".gds")
       
       snpgdsVCF2GDS(vcf, gds, ignore.chr.prefix = "chromosome")
       genofile <- snpgdsOpen(gds)
@@ -479,14 +473,17 @@ PCA <- function(dir, type, groups = T, phenofile = NULL, genofile = NULL, labels
 }
 
 
-PCA(dir, type, groups = T, phenofile, genofile = NULL, vcf, gds, PC.retain = F)
+PCA(dir, phenofile, genofile, gds, vcf, type = "Geno", groups = T, PC.retain = F)
 
 
   
 # 4: Discriminant analysis of principal components (DAPC) ----------------------
 
 # Load data
-vcf <- read.vcfR('GWAS_PPD.snps.filter_info.missing_0.10.imputation.vcf.gz', verbose = T)
+setwd(dir)
+vcf <- read.vcfR("AM1588_MAP.miss0.05.recode.vcf", verbose = T)
+
+vcf <- read.vcfR(paste0(dir, 'GWAS_PPD.snps.filter_info.missing_0.10.imputation.vcf.gz', verbose = T))
 my_genind <- vcfR2genind(vcf)
 my_genind
 
@@ -504,12 +501,59 @@ library(htmlwidgets)
 # The second graph shows the elbow at k = 3 (Number of clusters)
 grp <- find.clusters(my_genind)
 
-# Transform the data using PCA and then performs a discriminant Analysis.
+# Transform the data using PCA and then performs a discriminant Analysis
 # DAPC actually benefit from less PC. Here 80 will be selected
 dapc <- dapc(my_genind, grp$grp)
 
+# Table to plotly plot
+names <- as.data.frame(dapc[["grp"]])
+names <- tibble::rownames_to_column(names)
+names <- names %>% dplyr::select(1) %>% dplyr::select(Taxa = 1)
+dt <- names %>% inner_join(labels, by = "Taxa")
+ploidy <- read.csv(paste0(dir, "AM1588_labels_ploidy.csv"))
+
+# For DAPC
+DAPC <- as.data.frame(dapc[["ind.coord"]])
+DAPC <- tibble::rownames_to_column(DAPC)
+DAPC <- DAPC %>% dplyr::rename(Taxa = 1)
+
+tab_DAPC <- DAPC %>% inner_join(dt, by = "Taxa") %>%
+  dplyr::rename(Label = "label") %>%
+  select(Taxa, Label, LD1, LD2) %>%
+  inner_join(ploidy, by = "Taxa")
+
+plot_ly(data = tab_DAPC, x = ~ LD1, y = ~ LD2, color = ~ as.factor(Ploidy), type = 'scatter',
+        mode = 'markers', symbol = ~ as.factor(Ploidy), text = ~ Taxa)
+
+tab_DAPC_f <- as.data.frame(dapc[["grp"]])
+tab_DAPC_f <- tibble::rownames_to_column(tab_DAPC_f)
+tab_DAPC_f <- tab_DAPC_f %>% dplyr::rename(Taxa = "rowname", G_DAPC = "dapc[[\"grp\"]]")
+
+# For PCA
+GAPIT <- read.csv(paste0(dir, "GAPIT.PCA.csv"))
+GAPIT <- GAPIT %>% dplyr::rename(Taxa = 1)
+
+tab_PCA <- GAPIT %>% inner_join(dt, by = "Taxa") %>%
+  dplyr::rename(Label = "label") %>%
+  select(Taxa, Label, PC1, PC2) %>%
+  inner_join(ploidy, by = "Taxa")
+
+plot_ly(data = tab_PCA, x = ~ PC1, y = ~ PC2, color = ~ as.factor(Ploidy), type = 'scatter',
+        mode = 'markers', symbol = ~ as.factor(Ploidy), text = ~ Taxa)
+
+tab_PCA <- tab_PCA %>% mutate(G_PCA = if_else(.$PC1 < -10, "1", if_else(.$PC1 > 12, "3", "2")))
+
+
+
+final <- tab_PCA %>% select(Taxa, Label, G_PCA) %>% inner_join(tab_DAPC_f, by = "Taxa")
+
+
+
+
+
+
 # Plot the DAPC
-pdf("GWAS_DAPC_scatter.pdf", width = 10, height = 8) 
+pdf("GWAS_DAPC_scatter.pdf", width = 10, height = 8)
 scatter(dapc, scree.pca = F, ratio.pca = 0.3, pch = 20, cell = 1, solid = 0.6, cex = 2.5, clab = 0,
         scree.da = F, leg = T, txt.leg = paste("Cluster", 1:3))
 dev.off()
