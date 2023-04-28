@@ -15,14 +15,7 @@
 
 ###### To do ######
 # 1. Modify messages and conditional for plotting
-
-
-
-###### Examples ######
-Mdir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/01_ACWP_F1_Metabolomics/07_GWAS"
-pat <- "GAPIT.Association.GWAS_Results."
-mod <- c("BLINK", "FarmCPU", "MLM")
-wtd <- "One"
+# 2. Plotly plots
 
 
 
@@ -31,10 +24,10 @@ wtd <- "One"
 Manhattan <- function(Mdir, pat, mod, wtd, colors = c("grey", "skyblue")){
   
   # 1: Load packages -----------------------------------------------------------
-
+  
   if (!require(tidyverse)) install.packages(tidyverse)
   if (!require(ggtext)) install.packages(ggtext)
-
+  
   library(tidyverse)
   library(ggtext)
   
@@ -269,5 +262,14 @@ Manhattan <- function(Mdir, pat, mod, wtd, colors = c("grey", "skyblue")){
   }
 }
 
-# Run with the example
-Manhattan(Mdir, pat, mod)
+
+
+###### Example(s) ######
+# Set arguments
+Mdir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/01_ACWP_F1_Metabolomics/07_GWAS"
+pat <- "GAPIT.Association.GWAS_Results."
+mod <- c("BLINK", "FarmCPU", "MLM")
+wtd <- "One"
+
+# Run function
+Manhattan(Mdir, pat, mod, wtd)
