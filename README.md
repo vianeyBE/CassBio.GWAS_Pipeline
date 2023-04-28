@@ -303,7 +303,11 @@ This code annotates the gen containing the significat SNPs from the `GAPIT3` res
 
 ### Usage
 
-*In progress*
+```R
+
+GWAS_Annotation(Mdir, pat, mod, wdyw, annot, GFF)
+
+```
 
 ### Arguments
 
@@ -311,8 +315,9 @@ This code annotates the gen containing the significat SNPs from the `GAPIT3` res
 - `wdyw`: Gene feature to annotate.
 - `Mdir`: Name of the directory that contains the `GAPIT3` results.
 - `mod`: Names of the models to filter (options: )
-- `gff3`: gff3 file from the genome version used for alignment
+- `gff3`: gff3 file from the genome version used for alignment.
 - `annotationFile`: Annotation details of the genes. txt file from the genome version used for alignment.
+- `version`: (Options: 6.1 or 8.1. Default = 6.1).
 
 ### Details
 
@@ -390,7 +395,7 @@ A single PDF file containing the boxplot of the SNPs.
 
 ## 8. Manhattan plots
 
-This R function generates a Manhattan plot(s) for a given set of GWAS results. The function takes scans whithin directories and takes as inputs the CSV file that contain the results of previous GWAS analyses. The function can also receive an optional CSV file to add extra information about the samples to the plot (categories, family, ect.) The output of the function is a PDF file with the plot.
+This R function generates a Manhattan plot(s) for a given set of GWAS results. The function scans whithin directories and takes as inputs the CSV file that contain the results of previous GWAS analyses. The output of the function is a plot in html format made using `plotly` package.
 
 ### Usage
 
@@ -403,7 +408,7 @@ Manhattan(Mdir, pat, mod, wtd)
 ### Arguments
 
 - `Mdir`: Name of the directory that contains the GAPIT results. For example: home/user/folder.
-- `pat`: Enter the path of file names to look for. For example: QTL_LOD_Intervals. The path must finish with a point (.).
+- `pat`: Enter the path of file names to look for whithin directories. For example: QTL_LOD_Intervals. The path must finish with a point (.).
 - `mod`: Enter the model(s) of interest. Options: BLINK, GLM, MLM, FarmCPU.
 - `wtd`: How many traits do you want to plot. Options: One, Several, All.
 - `colors`: (Optional) Colors of the chromosomes in Manhattan plots. If you want to change the colors, provide 2 or more. It can be color names o hex codes (Default: grey and skyblue).
@@ -435,6 +440,7 @@ Manhattan plots for the traits(s) selected.
 
 - `tidyverse`
 - `ggtext`
+- `plotly`
 
 ---
 ## Citation
