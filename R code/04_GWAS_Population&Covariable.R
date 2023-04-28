@@ -38,25 +38,8 @@
 
 
 ##### To do ##### 
-# 1. Change gds/vcf part
-
-
-
-##### Examples ##### 
-# Phenotypic
-dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
-phenofile <- read.csv(paste0(dir, "Prueba.csv"), header = T) # Add colors
-phenofile <- phenofile[-2] # No color
-
-# Genotypic test data
-dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/03_GWAS_PPD_Populations/02_PCA/"
-labels <- read.csv(paste0(dir, "GWAS_PPD.labels.csv"))
-vcf <- "GWAS_PPD.snps.filter_info.missing_0.10.imputation.vcf.gz"
-gds <- "GWAS_PPD.gds"
-
-dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/01_ACWP_F2_Phenotype/01_Population_Structure/"
-labels <- read.csv(paste0(dir, "AM1588_labels.csv"))
-vcf <- "AM1588_MAP.miss0.05.recode.vcf"
+# 1. Update gds/vcf part
+# 2. DAPC plotly plot
 
 
 
@@ -123,6 +106,20 @@ NDMS <- function(dir, phenophile, dist = "bray", groups = F){
     }
 }
 
+
+
+##### 1.1: NDMS example(s) #####
+# Phenotypic with groups
+dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
+phenofile <- read.csv(paste0(dir, "Prueba.csv"), header = T)
+groups <- T
+
+# Phenotypic without groups
+dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
+phenofile <- read.csv(paste0(dir, "Prueba.csv"), header = T)
+phenofile <- phenofile[-2]
+
+# Run function
 NDMS(dir, phenofile, dist, groups)
 
 
@@ -197,6 +194,19 @@ MDS <- function(dir, phenofile, dist = "gower", groups = F){
   
 }
 
+
+##### 2.1: MDS example(s) #####
+# Phenotypic with groups
+dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
+phenofile <- read.csv(paste0(dir, "Prueba.csv"), header = T)
+groups <- T
+
+# Phenotypic without groups
+dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
+phenofile <- read.csv(paste0(dir, "Prueba.csv"), header = T)
+phenofile <- phenofile[-2]
+
+# Run function
 MDS(dir, phenofile, dist, groups)
 
 
@@ -308,7 +318,7 @@ PCA <- function(dir, phenofile = NULL, genofile = NULL, labels = NULL, gds = NUL
         dplyr::rename(sample.id = 1, label = 2) %>%
         select(sample.id, label, PC1, PC2)
       
-      # Plot the PCA ###################
+      # Plot the PCA
       fig <- plot_ly(data = dt, x = ~ PC1, y = ~ PC2, color = ~ as.factor(label), type = "scatter",
                      mode = "markers", symbol = ~ label, symbols = c("circle", "x"), text = ~ sample.id,
                      marker = list(size = 6)) %>%
@@ -473,19 +483,46 @@ PCA <- function(dir, phenofile = NULL, genofile = NULL, labels = NULL, gds = NUL
 }
 
 
+
+##### 3.1: PCA example(s) #####
+# Phenotypic with groups
+dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
+phenofile <- read.csv(paste0(dir, "Prueba.csv"), header = T)
+groups <- T
+
+# Phenotypic without groups
+dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
+phenofile <- read.csv(paste0(dir, "Prueba.csv"), header = T)
+phenofile <- phenofile[-2]
+
+# Genotypic with groups
+dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/03_GWAS_PPD_Populations/02_PCA/"
+labels <- read.csv(paste0(dir, "GWAS_PPD.labels.csv"))
+vcf <- "GWAS_PPD.snps.filter_info.missing_0.10.imputation.vcf.gz"
+type <- "Geno"
+groups <- T
+
+dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/01_ACWP_F2_Phenotype/01_Population_Structure/"
+labels <- read.csv(paste0(dir, "AM1588_labels.csv"))
+vcf <- "AM1588_MAP.miss0.05.recode.vcf"
+type <- "Geno"
+groups <- T
+
+# Run function
 PCA(dir, phenofile, genofile, gds, vcf, type = "Geno", groups = T, PC.retain = F)
 
 
   
 # 4: Discriminant analysis of principal components (DAPC) ----------------------
 
-# Load data
-setwd(dir)
-vcf <- read.vcfR("AM1588_MAP.miss0.05.recode.vcf", verbose = T)
+##### 4.1: DAPC example(s) #####
+dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/01_ACWP_F2_Phenotype/01_Population_Structure/"
+vcf <- "AM1588_MAP.miss0.05.recode.vcf"
 
-vcf <- read.vcfR(paste0(dir, 'GWAS_PPD.snps.filter_info.missing_0.10.imputation.vcf.gz', verbose = T))
-my_genind <- vcfR2genind(vcf)
-my_genind
+dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/03_GWAS_PPD_Populations/02_PCA/"
+vcf <- "GWAS_PPD.snps.filter_info.missing_0.10.imputation.vcf.gz"
+
+
 
 # Load libraries
 library(adegenet)
@@ -495,14 +532,17 @@ library(tidyverse)
 library(plotly)
 library(htmlwidgets)
 
+# Load VCF files and convert them into a genind object
+setwd(dir)
+vcf <- read.vcfR(vcf, verbose = T)
+my_genind <- vcfR2genind(vcf)
+my_genind
+
 # Identify clusters
 # Shows a graph with the accumulated variance explained by the eigenvalues of the PCA
-# All PC were retained (200, actually there is less, about 150)
-# The second graph shows the elbow at k = 3 (Number of clusters)
 grp <- find.clusters(my_genind)
 
-# Transform the data using PCA and then performs a discriminant Analysis
-# DAPC actually benefit from less PC. Here 80 will be selected
+# Performs the DAPC
 dapc <- dapc(my_genind, grp$grp)
 
 # Table to plotly plot
@@ -522,7 +562,7 @@ tab_DAPC <- DAPC %>% inner_join(dt, by = "Taxa") %>%
   select(Taxa, Label, LD1, LD2) %>%
   inner_join(ploidy, by = "Taxa")
 
-plot_ly(data = tab_DAPC, x = ~ LD1, y = ~ LD2, color = ~ as.factor(Ploidy), type = 'scatter',
+fig <- plot_ly(data = tab_DAPC, x = ~ LD1, y = ~ LD2, color = ~ as.factor(Ploidy), type = 'scatter',
         mode = 'markers', symbol = ~ as.factor(Ploidy), text = ~ Taxa)
 
 tab_DAPC_f <- as.data.frame(dapc[["grp"]])
@@ -538,7 +578,7 @@ tab_PCA <- GAPIT %>% inner_join(dt, by = "Taxa") %>%
   select(Taxa, Label, PC1, PC2) %>%
   inner_join(ploidy, by = "Taxa")
 
-plot_ly(data = tab_PCA, x = ~ PC1, y = ~ PC2, color = ~ as.factor(Ploidy), type = 'scatter',
+fig <- plot_ly(data = tab_PCA, x = ~ PC1, y = ~ PC2, color = ~ as.factor(Ploidy), type = 'scatter',
         mode = 'markers', symbol = ~ as.factor(Ploidy), text = ~ Taxa)
 
 tab_PCA <- tab_PCA %>% mutate(G_PCA = if_else(.$PC1 < -10, "1", if_else(.$PC1 > 12, "3", "2")))
