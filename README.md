@@ -141,7 +141,102 @@ This series of functions retrieves the required pacakges and data to perform fou
 
 ### Examples
 
-*In progress*
+```R
+
+# NDMS example(s)
+# Set arguments
+# Phenotypic with groups
+dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
+phenofile <- read.csv(paste0(dir, "Prueba.csv"), header = T)
+groups <- T
+
+# Phenotypic without groups
+dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
+phenofile <- read.csv(paste0(dir, "Prueba.csv"), header = T)
+phenofile <- phenofile[-2]
+
+# Run function
+NDMS(dir, phenofile, dist, groups)
+
+
+
+# MDS example(s)
+# Set arguments
+# Phenotypic with groups
+dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
+phenofile <- read.csv(paste0(dir, "Prueba.csv"), header = T)
+groups <- T
+
+# Phenotypic without groups
+dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
+phenofile <- read.csv(paste0(dir, "Prueba.csv"), header = T)
+phenofile <- phenofile[-2]
+
+# Run function
+MDS(dir, phenofile, dist, groups)
+
+
+
+# PCA example(s)
+# Set arguments
+# Phenotypic with groups
+dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
+phenofile <- read.csv(paste0(dir, "Prueba.csv"), header = T)
+groups <- T
+
+# Phenotypic without groups
+dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
+phenofile <- read.csv(paste0(dir, "Prueba.csv"), header = T)
+phenofile <- phenofile[-2]
+
+# Genotypic with groups
+dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/03_GWAS_PPD_Populations/02_PCA/"
+labels <- read.csv(paste0(dir, "GWAS_PPD.labels.csv"))
+vcf <- "GWAS_PPD.snps.filter_info.missing_0.10.imputation.vcf.gz"
+type <- "Geno"
+groups <- T
+
+dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/01_ACWP_F2_Phenotype/01_Population_Structure/"
+labels <- read.csv(paste0(dir, "AM1588_labels.csv"))
+vcf <- "AM1588_MAP.miss0.05.recode.vcf"
+type <- "Geno"
+groups <- T
+
+# Run function
+PCA(dir, phenofile, genofile, gds, vcf, type = "Geno", groups = T, PC.retain = F)
+
+
+
+# DAPC example(s)
+# Set arguments
+dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/01_ACWP_F2_Phenotype/01_Population_Structure/"
+vcf <- "AM1588_MAP.miss0.05.recode.vcf"
+
+dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/03_GWAS_PPD_Populations/02_PCA/"
+vcf <- "GWAS_PPD.snps.filter_info.missing_0.10.imputation.vcf.gz"
+
+# Load libraries
+library(adegenet)
+library(grDevices)
+library(vcfR)
+library(tidyverse)
+library(plotly)
+library(htmlwidgets)
+
+# Load VCF files and convert them into a genind object
+setwd(dir)
+vcf <- read.vcfR(vcf, verbose = T)
+my_genind <- vcfR2genind(vcf)
+my_genind
+
+# Identify clusters
+# Shows a graph with the accumulated variance explained by the eigenvalues of the PCA
+grp <- find.clusters(my_genind)
+
+# Performs the DAPC
+dapc <- dapc(my_genind, grp$grp)
+
+```
 
 ### Output
 
@@ -245,7 +340,7 @@ This R function generates a boxplot for a given SNP. The function takes as input
 
 GWAS_Boxplot(outputname, dir, phenofile, genofile, snp_list_file, labelfile = NULL)
 
-```
+``` 
 
 ### Arguments
 - `outputname`: (required) character string with the base name for the output file.
@@ -253,16 +348,16 @@ GWAS_Boxplot(outputname, dir, phenofile, genofile, snp_list_file, labelfile = NU
 - `phenofile`: (required) character string with the name of the phenotype file in tabular format. The first column should contain the sample names, and the rest of the columns should contain the phenotypes.
 - `genofile`: (required) character string with the name of the genotype file in hapmap format.
 - `snp_list_file`: (required) character string with the name of the CSV file with three columns:
-    - Column 01 - name: SNPS, list of SNPS to plot, name should be the same as in the geno data.
-    - Column 02 - name: trait, name of the trait as in the pheno data.
-    - Column 03 - name: xlabel, name of the trait to be included as a label.
+    - Column 01 - Name: SNPS. List of SNPS to plot. The name should be the same as in the `genofile` data.
+    - Column 02 - Name: trait. Name of the trait as in the `phenofile` data.
+    - Column 03 - Name: xlabel. Name of the trait to be included as a label.
 - `labelfile`: (optional) character string with the name of the CSV file with two columns:
-    - Column 01 - name: Taxa, sample names.
-    - Column 02 - name: label, label or category to add to the plot.
+    - Column 01 - Name: Taxa. Sample names.
+    - Column 02 - Name: label. Label or category to add to the plot.
 
 ### Details
 
-The function loads all the necessary packages and data files. It then checks for the presence of an optional file with sample labels and prepares the data for the boxplot. The function generates a boxplot for each SNP specified in the input CSV file. It uses ggplot2 to generate the plot, with the genotypes on the x-axis and the phenotype on the y-axis. The function adds a label to the x-axis to indicate the trait being plotted. If a labelfile is provided, it adds extra information about the samples, coloring the data by the levels in the provided file.
+The function loads all the necessary packages and data files. It then checks for the presence of an optional file with sample labels and prepares the data for the boxplot. The function generates a boxplot for each SNP specified in the input CSV file. It uses `ggplot2` package to generate the plot, with the genotypes on the x-axis and the phenotype on the y-axis. The function adds a label to the x-axis to indicate the trait being plotted. If `labelfile` is provided, it adds extra information about the samples, coloring the data by the levels in the provided file.
 
 ### Example
 
@@ -295,15 +390,23 @@ A single PDF file containing the boxplot of the SNPs.
 
 ## 8. Manhattan plots
 
-*In progress*
+This R function generates a Manhattan plot(s) for a given set of GWAS results. The function takes scans whithin directories and takes as inputs the CSV file that contain the results of previous GWAS analyses. The function can also receive an optional CSV file to add extra information about the samples to the plot (categories, family, ect.) The output of the function is a PDF file with the plot.
 
 ### Usage
 
-*In progress*
+```R
+
+Manhattan(Mdir, pat, mod, wtd)
+
+```
 
 ### Arguments
 
-*In progress*
+- `Mdir`: Name of the directory that contains the GAPIT results. For example: home/user/folder.
+- `pat`: Enter the path of file names to look for. For example: QTL_LOD_Intervals. The path must finish with a point (.).
+- `mod`: Enter the model(s) of interest. Options: BLINK, GLM, MLM, FarmCPU.
+- `wtd`: How many traits do you want to plot. Options: One, Several, All.
+- `colors`: (Optional) Colors of the chromosomes in Manhattan plots. If you want to change the colors, provide 2 or more. It can be color names o hex codes (Default: grey and skyblue).
 
 ### Details
 
@@ -311,11 +414,22 @@ A single PDF file containing the boxplot of the SNPs.
 
 ### Examples
 
-*In progress*
+```R
+
+# Set arguments
+Mdir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/01_ACWP_F1_Metabolomics/07_GWAS"
+pat <- "GAPIT.Association.GWAS_Results."
+mod <- c("BLINK", "FarmCPU", "MLM")
+wtd <- "One"
+
+# Run function
+Manhattan(Mdir, pat, mod, wtd)
+
+```
 
 ### Output
 
-*In progress*
+Manhattan plots for the traits(s) selected.
 
 ### Dependencies
 
