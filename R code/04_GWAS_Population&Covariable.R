@@ -110,14 +110,14 @@ NDMS <- function(dir, phenophile, dist = "bray", groups = F){
 
 ##### 1.1: NDMS example(s) #####
 # Phenotypic with groups
-dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
-phenofile <- read.csv(paste0(dir, "Prueba.csv"), header = T)
-groups <- T
+#dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
+#phenofile <- read.csv(paste0(dir, "Prueba.csv"), header = T)
+#groups <- T
 
 # Phenotypic without groups
-dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
-phenofile <- read.csv(paste0(dir, "Prueba.csv"), header = T)
-phenofile <- phenofile[-2]
+#dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
+#phenofile <- read.csv(paste0(dir, "Prueba.csv"), header = T)
+#phenofile <- phenofile[-2]
 
 # Run function
 NDMS(dir, phenofile, dist, groups)
@@ -197,14 +197,14 @@ MDS <- function(dir, phenofile, dist = "gower", groups = F){
 
 ##### 2.1: MDS example(s) #####
 # Phenotypic with groups
-dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
-phenofile <- read.csv(paste0(dir, "Prueba.csv"), header = T)
-groups <- T
+#dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
+#phenofile <- read.csv(paste0(dir, "Prueba.csv"), header = T)
+#groups <- T
 
 # Phenotypic without groups
-dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
-phenofile <- read.csv(paste0(dir, "Prueba.csv"), header = T)
-phenofile <- phenofile[-2]
+#dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
+#phenofile <- read.csv(paste0(dir, "Prueba.csv"), header = T)
+#phenofile <- phenofile[-2]
 
 # Run function
 MDS(dir, phenofile, dist, groups)
@@ -486,27 +486,27 @@ PCA <- function(dir, phenofile = NULL, genofile = NULL, labels = NULL, gds = NUL
 
 ##### 3.1: PCA example(s) #####
 # Phenotypic with groups
-dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
-phenofile <- read.csv(paste0(dir, "Prueba.csv"), header = T)
-groups <- T
+#dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
+#phenofile <- read.csv(paste0(dir, "Prueba.csv"), header = T)
+#groups <- T
 
 # Phenotypic without groups
-dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
-phenofile <- read.csv(paste0(dir, "Prueba.csv"), header = T)
-phenofile <- phenofile[-2]
+#dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
+#phenofile <- read.csv(paste0(dir, "Prueba.csv"), header = T)
+#phenofile <- phenofile[-2]
 
 # Genotypic with groups
-dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/03_GWAS_PPD_Populations/02_PCA/"
-labels <- read.csv(paste0(dir, "GWAS_PPD.labels.csv"))
-vcf <- "GWAS_PPD.snps.filter_info.missing_0.10.imputation.vcf.gz"
-type <- "Geno"
-groups <- T
+#dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/03_GWAS_PPD_Populations/02_PCA/"
+#labels <- read.csv(paste0(dir, "GWAS_PPD.labels.csv"))
+#vcf <- "GWAS_PPD.snps.filter_info.missing_0.10.imputation.vcf.gz"
+#type <- "Geno"
+#groups <- T
 
-dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/01_ACWP_F2_Phenotype/01_Population_Structure/"
-labels <- read.csv(paste0(dir, "AM1588_labels.csv"))
-vcf <- "AM1588_MAP.miss0.05.recode.vcf"
-type <- "Geno"
-groups <- T
+#dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/01_ACWP_F2_Phenotype/01_Population_Structure/"
+#labels <- read.csv(paste0(dir, "AM1588_labels.csv"))
+#vcf <- "AM1588_MAP.miss0.05.recode.vcf"
+#type <- "Geno"
+#groups <- T
 
 # Run function
 PCA(dir, phenofile, genofile, gds, vcf, type = "Geno", groups = T, PC.retain = F)
@@ -516,11 +516,11 @@ PCA(dir, phenofile, genofile, gds, vcf, type = "Geno", groups = T, PC.retain = F
 # 4: Discriminant analysis of principal components (DAPC) ----------------------
 
 ##### 4.1: DAPC example(s) #####
-dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/01_ACWP_F2_Phenotype/01_Population_Structure/"
-vcf <- "AM1588_MAP.miss0.05.recode.vcf"
+#dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/01_ACWP_F2_Phenotype/01_Population_Structure/"
+#vcf <- "AM1588_MAP.miss0.05.recode.vcf"
 
-dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/03_GWAS_PPD_Populations/02_PCA/"
-vcf <- "GWAS_PPD.snps.filter_info.missing_0.10.imputation.vcf.gz"
+#dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/03_GWAS_PPD_Populations/02_PCA/"
+#vcf <- "GWAS_PPD.snps.filter_info.missing_0.10.imputation.vcf.gz"
 
 
 
