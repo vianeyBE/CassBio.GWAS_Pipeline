@@ -14,8 +14,7 @@
 
 
 ###### To do ######
-# 1. Modify messages and conditional for plotting
-# 2. Plotly plots
+# 1. Plotly plots
 
 
 
@@ -266,10 +265,10 @@ Manhattan <- function(Mdir, pat, mod, wtd, colors = c("grey", "skyblue")){
 
 ###### Example(s) ######
 # Set arguments
-Mdir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/01_ACWP_F1_Metabolomics/07_GWAS"
-pat <- "GAPIT.Association.GWAS_Results."
-mod <- c("BLINK", "FarmCPU", "MLM")
-wtd <- "One"
+# Mdir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/01_ACWP_F1_Metabolomics/07_GWAS"
+# pat <- "GAPIT.Association.GWAS_Results."
+# mod <- c("BLINK", "FarmCPU", "MLM")
+# wtd <- "One"
 
 # Run function
-Manhattan(Mdir, pat, mod, wtd)
+# Manhattan(Mdir, pat, mod, wtd)
