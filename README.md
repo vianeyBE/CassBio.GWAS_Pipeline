@@ -305,19 +305,20 @@ This code annotates the gen containing the significat SNPs from the `GAPIT3` res
 
 ```R
 
-GWAS_Annotation(Mdir, pat, mod, wdyw, annot, GFF)
+GWAS_Annotation(Mdir, pat, mod, wdyw)
 
 ```
 
 ### Arguments
 
-- `pat`: Location path of the files.
-- `wdyw`: Gene feature to annotate.
-- `Mdir`: Name of the directory that contains the `GAPIT3` results.
-- `mod`: Names of the models to filter (options: )
-- `gff3`: gff3 file from the genome version used for alignment.
-- `annotationFile`: Annotation details of the genes. txt file from the genome version used for alignment.
-- `version`: (Options: 6.1 or 8.1. Default = 6.1).
+- `Wdir`: Name of the directory that contains the GAPIT results. For example: home/user/folder.
+- `Ddir`: Directory where is located the annotation files (annot, GFF files).
+- `pat`: Enter the path of file names to look for. For example: QTL_LOD_Intervals. The path must finish with a point (.).
+- `mod`: Enter the model(s) of interest. Options: BLINK, GLM, MLM, FarmCPU.
+- `wdyw`: Enter what are you looking for to annotate. Options: CDS, five_prime_UTR, gene, mRNA, three_prime_UTR.
+- `annot`: Annotation details of the genes. txt file from the genome version used for alignment.
+- `GFF`: gff3 file from the genome version used for alignment.
+- `version`: (Optional) You can choose between the genome of reference version 6.1 or 8.1 (Options: 6.1 or 8.1. Default = 6.1).
 
 ### Details
 
@@ -325,7 +326,19 @@ GWAS_Annotation(Mdir, pat, mod, wdyw, annot, GFF)
 
 ### Examples
 
-*In progress*
+```R
+
+# Set arguments
+Wdir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/03_GWAS_PPD_Populations/04_GWAS/GAPIT_Results/"
+Ddir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/00_Data/"
+pat <- "GAPIT.Association.GWAS_Results."
+mod <- c("BLINK", "FarmCPU", "MLM")
+wdyw <- "gene"
+
+```
+
+# Run function
+GWAS_Annotation(Wdir, pat, mod, wdyw)
 
 ### Output
 
@@ -467,7 +480,7 @@ Manhattan plots for the traits(s) selected.
 
 - Goodstein, D. M., Shu, S., Howson, R., Neupane, R., Hayes, R. D., Fazo, J., Mitros, T., Dirks, W., Hellsten, U., Putnam, N., and Rokhsar, D. S. (2012). Phytozome: a comparative platform for green plant genomics. Nucleic Acids Research, 40(D1): D1178 - D1186. doi: 10.1093/nar/gkr944.
 
-- R Core Team (2021). R: A language and environment for statistical computing. R Foundation for Statistical Computing, Vienna, Austria. URL https://www.R-project.org/.
+- R Core Team. (2021). R: A language and environment for statistical computing. R Foundation for Statistical Computing, Vienna, Austria. URL: https://www.R-project.org/.
 
 ## Contact
 

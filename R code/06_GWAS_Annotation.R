@@ -13,7 +13,7 @@
 # wdyw: Enter what are you looking for to annotate. Options: CDS, five_prime_UTR, gene, mRNA, three_prime_UTR.
 # annot: Annotation details of the genes. txt file from the genome version used for alignment.
 # GFF: gff3 file from the genome version used for alignment.
-# version: (Options: 6.1 or 8.1. Default = 6.1).
+# version: (Optional) You can choose between the genome of reference version 6.1 or 8.1 (Options: 6.1 or 8.1. Default = 6.1).
 
 
 
@@ -280,6 +280,7 @@ GWAS_Annotation <- function(Wdir, pat, mod, wdyw, annot = NULL, GFF = NULL, vers
 
 
 ###### Example(s) ######
+# Set arguments
 # Wdir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/03_GWAS_PPD_Populations/04_GWAS/GAPIT_Results/"
 # Ddir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/00_Data/"
 # pat <- "GAPIT.Association.GWAS_Results."
