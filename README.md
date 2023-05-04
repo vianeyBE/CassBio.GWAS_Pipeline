@@ -443,29 +443,29 @@ Manhattan plots for the traits(s) selected.
 - `plotly`
 
 ---
-## Citation
+## References
 
-- Petr Danecek, James K Bonfield, Jennifer Liddle, John Marshall, Valeriu Ohan, Martin O Pollard, Andrew Whitwham, Thomas Keane, Shane A McCarthy, Robert M Davies, Heng Li, Twelve years of SAMtools and BCFtools, GigaScience, Volume 10, Issue 2, February 2021, giab008, https://doi.org/10.1093/gigascience/giab008
+- Danecek, P., Bonfield, J. K., Liddle, J., Marshall, J., Ohan, V., Pollard, M. O., Whitwham, A., Keane, T., McCarthy, S. A., Davies, R. M., and Li, H. (2021). Twelve years of SAMtools and BCFtools. GigaScience, 10(2): giab008. doi: 10.1093/gigascience/giab008.
 
-- Petr Danecek, Adam Auton, Goncalo Abecasis, Cornelis A. Albers, Eric Banks, Mark A. DePristo, Robert E. Handsaker, Gerton Lunter, Gabor T. Marth, Stephen T. Sherry, Gilean McVean, Richard Durbin, 1000 Genomes Project Analysis Group, The variant call format and VCFtools, Bioinformatics, Volume 27, Issue 15, August 2011, Pages 2156–2158, https://doi.org/10.1093/bioinformatics/btr330
+- Danecek, P., Auton, A., Abecasis, G., Albers, C. A., Banks, E., DePristo, M. A., Handsaker, R. E., Lunter, G., Marth, G. T., Stephen T. Sherry, McVean, G., Durbin, R., and 1000 Genomes Project Analysis Group. (2011). The variant call format and VCFtools. Bioinformatics, 27(15): 2156 - 2158. doi: 10.1093/bioinformatics/btr330.
 
-- B L Browning, X Tian, Y Zhou, and S R Browning (2021) Fast two-stage phasing of large-scale sequence data. Am J Hum Genet 108(10):1880-1890. doi:10.1016/j.ajhg.2021.08.005
+- Browning, B. L., Tian, X., Zhou, Y., and Browning, S. R. (2021) Fast two-stage phasing of large-scale sequence data. The American Journal of Human Genetics, 108(10): 1880 - 1890. doi: 10.1016/j.ajhg.2021.08.005.
 
-- B L Browning, Y Zhou, and S R Browning (2018). A one-penny imputed genome from next generation reference panels. Am J Hum Genet 103(3):338-348. doi:10.1016/j.ajhg.2018.07.015
+- Browning, B. L., Zhou, Y., and Browning, S. R. (2018). A one-penny imputed genome from next generation reference panels. The American Journal of Human Genetics, 103(3):338-348. doi: 10.1016/j.ajhg.2018.07.015.
 
-- Chi Zhang, Shan-Shan Dong, Jun-Yang Xu, Wei-Ming He, Tie-Lin Yang, PopLDdecay: a fast and effective tool for linkage disequilibrium decay analysis based on variant call format files, Bioinformatics, Volume 35, Issue 10, May 2019, Pages 1786–1788, https://doi.org/10.1093/bioinformatics/bty875
+- Zhang, C., Dong, S. S., Xu, J. Y., He, W. M., and Yang, T. L (2019). PopLDdecay: a fast and effective tool for linkage disequilibrium decay analysis based on variant call format files. Bioinformatics, 35(10): 1786 - 1788, doi: 10.1093/bioinformatics/bty875.
 
-- Thibaut Jombart, adegenet: a R package for the multivariate analysis of genetic markers, Bioinformatics, Volume 24, Issue 11, June 2008, Pages 1403–1405, https://doi.org/10.1093/bioinformatics/btn129
+- Jombart, T. (2008). adegenet: a R package for the multivariate analysis of genetic markers, Bioinformatics, 24(11): 1403 - 1405. doi: 10.1093/bioinformatics/btn129.
 
-- Xiuwen Zheng, David Levine, Jess Shen, Stephanie M. Gogarten, Cathy Laurie, Bruce S. Weir, A high-performance computing toolset for relatedness and principal component analysis of SNP data, Bioinformatics, Volume 28, Issue 24, December 2012, Pages 3326–3328, https://doi.org/10.1093/bioinformatics/bts606
+- Zheng, X., Levine, D., Shen, J., Gogarten, S. M., Laurie, C., and Weir, B. C. (2012). A high-performance computing toolset for relatedness and principal component analysis of SNP data. Bioinformatics, 28(24): 3326 - 3328. doi: 10.1093/bioinformatics/bts606.
 
-- Wang J., Zhang Z., GAPIT Version 3: Boosting Power and Accuracy for Genomic Association and Prediction, Genomics, Proteomics & Bioinformatics (2021), doi: https://doi.org/10.1016/j.gpb.2021.08.005.
+- Wang, J., and Zhang Z. (2021). GAPIT Version 3: Boosting power and accuracy for genomic association and prediction. Genomics Proteomics Bioinformatics, 19(4): 629 - 640. doi: 10.1016/j.gpb.2021.08.005.
 
-- Huang M, Liu X, Zhou Y, Summers RM, Zhang Z. BLINK: A package for the next level of genome-wide association studies with both individuals and markers in the millions. Gigascience. https://doi.org/10.1093/gigascience/giy154.
+- Huang, M., Liu, X., Zhou, Y., Summers, R. M., and Zhang, Z. BLINK: A package for the next level of genome-wide association studies with both individuals and markers in the millions. GigaScience, 8: 2018, 1 - 12.doi: 10.1093/gigascience/giy154.
 
-- Liu X., Huang M., Fan B., Buckler E. S., Zhang Z., 2016 Iterative Usage of Fixed and Random Effect Models for Powerful and Efficient Genome-Wide Association Studies. PLoS Genet. 12: e1005767. https://doi.org/10.1371/journal.pgen.1005767.
+- Liu X., Huang M., Fan B., Buckler E. S., and Zhang Z. (2016). Iterative usage of fixed and random effect models for powerful and efficient Genome-Wide Association Studies. PLoS Genetics, 12(3): e1005767. doi: 10.1371/journal.pgen.1005767.
 
-- David M. Goodstein, Shengqiang Shu, Russell Howson, Rochak Neupane, Richard D. Hayes, Joni Fazo, Therese Mitros, William Dirks, Uffe Hellsten, Nicholas Putnam, and Daniel S. Rokhsar, Phytozome: a comparative platform for green plant genomics, Nucleic Acids Res. 2012 40 (D1): D1178-D1186
+- Goodstein, D. M., Shu, S., Howson, R., Neupane, R., Hayes, R. D., Fazo, J., Mitros, T., Dirks, W., Hellsten, U., Putnam, N., and Rokhsar, D. S. (2012). Phytozome: a comparative platform for green plant genomics. Nucleic Acids Research, 40(D1): D1178 - D1186. doi: 10.1093/nar/gkr944.
 
 - R Core Team (2021). R: A language and environment for statistical computing. R Foundation for Statistical Computing, Vienna, Austria. URL https://www.R-project.org/.
 
