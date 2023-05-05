@@ -8,7 +8,7 @@
 # Arguments:
 # Wdir: Name of the directory that contains the GAPIT results. For example: home/user/folder.
 # Ddir: Directory where is located the annotation files (annot, GFF files).
-# pat: Enter the path of file names to look for. For example: GAPIT.Association.GWAS_Results. The path must finish with a point (.).
+# pat: Enter the path of file names to look for. For example: GAPIT.Association.GWAS_Results.
 # mod: Enter the model(s) of interest (Options: BLINK, GLM, MLM, FarmCPU).
 # wdyw: Enter what are you looking for to annotate (Options: CDS, five_prime_UTR, gene, mRNA, three_prime_UTR).
 # annot: Annotation details of the genes. txt file from the genome version used for alignment.
@@ -18,12 +18,13 @@
 
 
 ###### To do ######
+#
 
 
 
 # 0: Function init -------------------------------------------------------------
 
-GWAS_Annotation <- function(Wdir, pat, mod, wdyw, annot = NULL, GFF = NULL, version = 6.1){
+GWAS_Annotation <- function(Wdir, pat, mod, wdyw, annot, GFF, version){
   
   
   
@@ -42,11 +43,11 @@ GWAS_Annotation <- function(Wdir, pat, mod, wdyw, annot = NULL, GFF = NULL, vers
     # Set working directory where files are located
     setwd(Ddir)
     
-    annot <- read.delim("Mesculenta_305_v6.1/Mesculenta_305_v6.1.annotation_info.txt", header = F) %>%
+    annot <- read.delim(annot, header = F) %>%
       rename(ID = 1, Locus = 2, Trans = 3, Peptide = 4, GO = 10, AT.name = 12, AT.define = 13) %>%
       select(ID, Locus, Trans, Peptide, GO, AT.name, AT.define)
     
-    GFF <- read.delim("Mesculenta_305_v6.1/Mesculenta_305_v6.1.gene.gff3", header = F, comment.char = "#") %>%
+    GFF <- read.delim(GFF, header = F, comment.char = "#") %>%
       rename(Chr = V1, What = V3, Start = V4, End = V5) %>%
       tidyr::separate(col = V9, into = c("ID", "na"), sep = ";") %>%
       tidyr::separate(col = ID, into = c("na2", "na3"), sep = "=") %>%
@@ -65,11 +66,11 @@ GWAS_Annotation <- function(Wdir, pat, mod, wdyw, annot = NULL, GFF = NULL, vers
     # Set working directory where files are located
     setwd(Ddir)
     
-    annot_8 <- read.delim("Mesculenta_671_v8.1/Mesculenta_671_v8.1.annotation_info.txt", header = T) %>%
+    annot <- read.delim(annot, header = T) %>%
       rename(ID = 1, Locus = 2, Trans = 3, Peptide = 4, GO = 10, AT.name = 11, AT.define = 12) %>%
       select(ID, Locus, Trans, Peptide, GO, AT.name, AT.define)
     
-    GFF <- read.delim("Mesculenta_671_v8.1/Mesculenta_671_v8.1.gene.gff3.gz", header = F, comment.char = "#") %>%
+    GFF <- read.delim(GFF, header = F, comment.char = "#") %>%
       rename(Chr = V1, What = V3, Start = V4, End = V5) %>%
       tidyr::separate(col = V9, into = c("ID", "na"), sep = ";") %>%
       tidyr::separate(col = ID, into = c("na2", "na3"), sep = "=") %>%
@@ -93,7 +94,7 @@ GWAS_Annotation <- function(Wdir, pat, mod, wdyw, annot = NULL, GFF = NULL, vers
   
   # Get the names of the files
   setwd(Wdir)
-  names <- list.files(path = Wdir, pattern = pat, all.files = F, full.names = F, recursive = T)
+  names <- list.files(path = Wdir, pattern = paste0(pat, "."), all.files = F, full.names = F, recursive = T)
   
   message("Reading GWAS files...")
   message(paste("GWAS files found:", length(names)))
@@ -112,7 +113,7 @@ GWAS_Annotation <- function(Wdir, pat, mod, wdyw, annot = NULL, GFF = NULL, vers
     # Database handling
     csv.l[[i]] <- read.csv(paste0(Wdir, "/", names[p])) %>%
       mutate(traits = paste0("/", names[p]), Start = Pos - 10000, End = Pos + 10000) %>%
-      tidyr::separate(col = traits, into = c("na", "trait"), sep = paste(pat)) %>%
+      tidyr::separate(col = traits, into = c("na", "trait"), sep = paste0(pat, ".")) %>%
       tidyr::separate(col = trait, into = c("Model", "Trait", "na2"), sep = "\\.") %>%
       dplyr::rename(PValue = P.value, Nobs = nobs) %>%
       select(SNP, Chr, Pos, Start, End, PValue, MAF, Nobs, Effect, Model, Trait) %>%
@@ -204,7 +205,7 @@ GWAS_Annotation <- function(Wdir, pat, mod, wdyw, annot = NULL, GFF = NULL, vers
       gensL[[i]]$Distance <- as.character(gensL[[i]]$Distance)
       
       # Progress bar
-      cat('\r', i, ' files processed |', rep('=', i / 3), ifelse(i == nrow(GWAS), '|\n', '>'), sep = '')
+      cat('\r', i, ' files processed |', rep('=', i / 2), ifelse(i == nrow(GWAS), '|\n', '>'), sep = '')
       
     }
     
@@ -250,7 +251,7 @@ GWAS_Annotation <- function(Wdir, pat, mod, wdyw, annot = NULL, GFF = NULL, vers
                SNP.End = gensLD$SNP.End[p])
       
       # Progress bar
-      cat('\r', i, ' files processed |', rep('=', i / 4), ifelse(i == nrow(gensLD), '|\n', '>'), sep = '')
+      cat('\r', i, ' files processed |', rep('=', i / 10), ifelse(i == nrow(gensLD), '|\n', '>'), sep = '')
       
     }
     
@@ -283,9 +284,12 @@ GWAS_Annotation <- function(Wdir, pat, mod, wdyw, annot = NULL, GFF = NULL, vers
 # Set arguments
 # Wdir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/03_GWAS_PPD_Populations/04_GWAS/GAPIT_Results/"
 # Ddir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/00_Data/"
-# pat <- "GAPIT.Association.GWAS_Results."
+# pat <- "GAPIT.Association.GWAS_Results"
 # mod <- c("BLINK", "FarmCPU", "MLM")
 # wdyw <- "gene"
+# annot <- "Mesculenta_305_v6.1.annotation_info.txt"
+# GFF <- "Mesculenta_305_v6.1/Mesculenta_305_v6.1.gene.gff3"
+# version <- "6.1"
 
 # Run function
 # GWAS_Annotation(Wdir, pat, mod, wdyw)
