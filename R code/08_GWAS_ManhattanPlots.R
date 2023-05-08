@@ -6,7 +6,7 @@
 #
 # Arguments:
 # Mdir: Name of the directory that contains the GAPIT results. For example: home/user/folder.
-# pat: Enter the path of file names to look for. For example: QTL_LOD_Intervals. The path must finish with a point (.).
+# pat: Enter the path of file names to look for. For example: GAPIT.Association.GWAS_Results.
 # mod: Enter the model(s) of interest. Options: BLINK, GLM, MLM, FarmCPU.
 # wtd: How many traits do you want to plot. Options: One, Several, All.
 # colors: (Optional) Colors of the chromosomes in Manhattan plots. If you want to change the colors, provide 2 or more. It can be color names o hex codes (Default: grey and skyblue).
@@ -14,7 +14,7 @@
 
 
 ###### To do ######
-# 1. Plotly plots
+#
 
 
 
@@ -26,9 +26,13 @@ Manhattan <- function(Mdir, pat, mod, wtd, colors = c("grey", "skyblue")){
   
   if (!require(tidyverse)) install.packages(tidyverse)
   if (!require(ggtext)) install.packages(ggtext)
+  if (!require(plotly)) install.packages(plotly)
+  if (!require(htmlwidgets)) install.packages(htmlwidgets)
   
   library(tidyverse)
   library(ggtext)
+  library(plotly)
+  library(htmlwidgets)
   
   # 2: Find all the CSVs with the results and organize them --------------------
   
@@ -36,7 +40,7 @@ Manhattan <- function(Mdir, pat, mod, wtd, colors = c("grey", "skyblue")){
   
   # Get the names of the files
   setwd(Mdir)
-  names <- list.files(path = Mdir, pattern = pat, all.files = F, full.names = F, recursive = T)
+  names <- list.files(path = Mdir, pattern = paste0(pat, "."), all.files = F, full.names = F, recursive = T)
   
   message(paste("GWAS files found:", length(names)))
   
@@ -57,7 +61,7 @@ Manhattan <- function(Mdir, pat, mod, wtd, colors = c("grey", "skyblue")){
     # Read and modify each one of the csvs
     dframe <- read.csv(paste0(Mdir, "/", names[p])) %>%
       mutate(rename = paste0("/", names[p])) %>%
-      tidyr::separate(col = rename, into = c("batch", "data"), sep = paste(pat))
+      tidyr::separate(col = rename, into = c("batch", "data"), sep = paste0(pat, "."))
     
     # Conditional given the differences in FarmCPU models
     if (gdata::startsWith(dframe[1,10], "Far")){
@@ -128,8 +132,8 @@ Manhattan <- function(Mdir, pat, mod, wtd, colors = c("grey", "skyblue")){
     message("Making the plot. It can take a few seconds. Please be patient.")
     
     # Manhattan plot
-    ggplot(data, aes(bp_cum, -log10(P.value), color = as_factor(Chr),
-                     size = -log10(P.value), shape = model)) +
+    fig <- ggplot(data = data, aes(bp_cum, -log10(P.value), color = as_factor(Chr),
+                                      size = -log10(P.value), shape = model)) +
       geom_hline(yintercept = -log10(0.001/dim(data)[1]), color = "black", linetype = "dashed") +
       geom_point(alpha = 0.75) +
       scale_color_manual(values = rep(c("grey", "skyblue"), 18)) +
@@ -181,8 +185,8 @@ Manhattan <- function(Mdir, pat, mod, wtd, colors = c("grey", "skyblue")){
       message("Making the plots. It can take a few seconds. Please be patient.")
       
       # Manhattan plot
-      ggplot(data, aes(bp_cum, -log10(P.value), color = as_factor(Chr),
-                       size = -log10(P.value))) +
+      fig <- ggplot(data, aes(bp_cum, -log10(P.value), color = as_factor(Chr),
+                              size = -log10(P.value))) +
         geom_hline(yintercept = -log10(0.001/dim(data)[1]), color = "black", linetype = "dashed") +
         geom_point(alpha = 0.75) +
         scale_color_manual(values = rep(colors, 18)) +
@@ -231,8 +235,8 @@ Manhattan <- function(Mdir, pat, mod, wtd, colors = c("grey", "skyblue")){
         message("Making the plot. It can take a few seconds. Please be patient.")
         
         # Manhattan plot
-        ggplot(data, aes(bp_cum, -log10(P.value), color = as_factor(Chr),
-                         size = -log10(P.value), shape = model)) +
+        fig <- ggplot(data, aes(bp_cum, -log10(P.value), color = as_factor(Chr),
+                                size = -log10(P.value), shape = model)) +
           geom_hline(yintercept = -log10(0.001/dim(data)[1]), color = "black", linetype = "dashed") +
           geom_point(alpha = 0.75) +
           scale_color_manual(values = rep(c("grey", "skyblue"), 18)) +
@@ -259,6 +263,17 @@ Manhattan <- function(Mdir, pat, mod, wtd, colors = c("grey", "skyblue")){
       }
     } 
   }
+  
+  
+  
+  # 4: Saving the plots  -------------------------------------------------------
+  
+  # Save the plot
+  fig <- ggplotly(fig)
+  
+  saveWidget(fig, "GWAS_Manhattan.html", selfcontained = F, libdir = "lib")
+  saveWidget(as_widget(fig), "GWAS_Manhattan.html")
+  
 }
 
 
@@ -266,7 +281,7 @@ Manhattan <- function(Mdir, pat, mod, wtd, colors = c("grey", "skyblue")){
 ###### Example(s) ######
 # Set arguments
 # Mdir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/01_ACWP_F1_Metabolomics/07_GWAS"
-# pat <- "GAPIT.Association.GWAS_Results."
+# pat <- "GAPIT.Association.GWAS_Results"
 # mod <- c("BLINK", "FarmCPU", "MLM")
 # wtd <- "One"
 
