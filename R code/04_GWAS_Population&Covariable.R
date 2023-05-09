@@ -120,7 +120,7 @@ NDMS <- function(dir, phenophile, dist = "bray", groups = F){
 #phenofile <- phenofile[-2]
 
 # Run function
-NDMS(dir, phenofile, dist, groups)
+#NDMS(dir, phenofile, dist, groups)
 
 
 
@@ -207,14 +207,15 @@ MDS <- function(dir, phenofile, dist = "gower", groups = F){
 #phenofile <- phenofile[-2]
 
 # Run function
-MDS(dir, phenofile, dist, groups)
+#MDS(dir, phenofile, dist, groups)
 
 
 
 # 3: Principal component analysis (PCA) ----------------------------------------
 
-PCA <- function(dir, phenofile = NULL, genofile = NULL, labels = NULL, gds = NULL, vcf = NULL,
-                type = "Pheno", groups = F, PC.retain = F){
+PCA <- function(dir, phenofile = NULL, genofile = NULL, labelfile = NULL, 
+                gds = NULL, vcf = NULL, type = "Pheno", 
+                PC.retain = F, prefixVCF = "chr", output, num.thread=3){
   
   # Set working directory
   setwd(dir)
@@ -349,17 +350,21 @@ PCA <- function(dir, phenofile = NULL, genofile = NULL, labels = NULL, gds = NUL
     
   } else {
     
-    message("Selected data option: Genotypic")
+   # message(vcf)
     
-    # Conditional to determine how to proceed with the files
+   message("Selected data option: Genotypic")
+    
+    # Loading Files ------------------------------------------------------------
+    
     if (!is.null(vcf)){
       
-      message("VCF file provided...\n\n", "Reading VCF file...\n\n",
+      message("VCF file provided...\n\n", 
+              "Reading VCF file...\n\n",
               "Reformatting it to a GDS file and then transforming it to a SNPGDSFileClass file")
       
-      gds <- paste0(substring(vcf, 1, nchar(vcf)-4), ".gds")
+      gds <- paste0(output, ".gds")
       
-      snpgdsVCF2GDS(vcf, gds, ignore.chr.prefix = "chromosome")
+      snpgdsVCF2GDS(vcf, gds, ignore.chr.prefix = prefixVCF, verbose=F)
       genofile <- snpgdsOpen(gds)
       sample_id <- read.gdsn(index.gdsn(genofile, "sample.id"))
       
@@ -367,7 +372,8 @@ PCA <- function(dir, phenofile = NULL, genofile = NULL, labels = NULL, gds = NUL
       
       if (!is.null(gds)){
         
-        message("GDS file provided...\n\n", "Reading CDS file...\n\n",
+        message("GDS file provided...\n\n", 
+                "Reading CDS file...\n\n",
                 "Transforming it to a SNPGDSFileClass file")
         
         genofile <- snpgdsOpen(gds)
@@ -383,18 +389,39 @@ PCA <- function(dir, phenofile = NULL, genofile = NULL, labels = NULL, gds = NUL
         }
       }
     }
-
-    # Function continues to the PCA calculation itself
-    # Performs the SNPRelate's PCA
-    PCA <- snpgdsPCA(genofile, autosome.only = T, remove.monosnp = T, need.genmat = T,
-                     algorithm = "exact", eigen.method = "DSPEVX")
     
-    # Creates the table to draw scree plots and analyze the number of PCs to retain 
+    if ( !is.null(labelfile)){
+      
+      message("Label file provided by the user ")
+      groups <- T
+      labels <- read.csv(labelfile)
+       
+    } else {
+      
+      message("No labels provided ")
+      groups <- F
+    }
+    
+    
+    message("Files loaded successfully!")
+    
+
+    # PCA - SNPRelate ----------------------------------------------------------
+    
+    PCA <- snpgdsPCA(genofile, autosome.only = T, remove.monosnp = T, need.genmat = T,
+                     #algorithm = "exact", eigen.method = "DSPEVX", 
+                     num.thread = num.thread, verbose = F)
+    
+    # Saving PCs
     PC <- data.frame(PC = 1:length(PCA$varprop), id = PCA[["sample.id"]],
                      eigen = PCA[["eigenval"]], var = PCA$varprop * 100) %>%
       mutate(var.cum = cumsum(var))
     
-    # Conditional for PCs retaining analysis 
+    write.csv(PCA[["eigenval"]], paste0(output, '.PC_SNPrelated.csv'), quote = F)
+    
+
+    # PCs Retaining Analysis ---------------------------------------------------
+
     if (PC.retain == T) {
       
       message("Principal components retaining analyses in process")
@@ -431,53 +458,62 @@ PCA <- function(dir, phenofile = NULL, genofile = NULL, labels = NULL, gds = NUL
       
     } else {
       
-      message("NOT doing the PCs retaining analyses")
+      message("Not doing the PCs retaining analysis")
       
     }
     
-    # Function continues to the plots
-    # Scree plots
-    # Individual variance
-    plot_ly(data = PC, x = ~ PC, y = ~ var, type = "scatter", mode = "lines+markers", text = ~ round(var, 2),
-            line = list(color = "grey")) %>%
+
+    # Plots --------------------------------------------------------------------
+  
+    # Scree plot - Individual variance
+    ind_var <- plot_ly(data = PC, x = ~ PC, y = ~ var, type = "scatter", 
+                       mode = "lines+markers", text = ~ round(var, 2),
+                       line = list(color = "grey")) %>% 
       layout(xaxis = list(title = "PC"), yaxis = list(title = "Explained variance (%)"))
     
-    # Cumulative variance
-    plot_ly(data = PC, x = ~ PC, y = ~ var.cum, type = "scatter", mode = "lines+markers",
-            text = ~ round(var.cum, 2), line = list(color = "grey")) %>%
+    htmlwidgets::saveWidget(as_widget(ind_var), paste0(output, ".ind_variance.html"))
+    
+    # Scree plot -  Cumulative variance
+    cum_var <- plot_ly(data = PC, x = ~ PC, y = ~ var.cum, type = "scatter",
+                       mode = "lines+markers", text = ~ round(var.cum, 2), 
+                       line = list(color = "grey")) %>%
       layout(xaxis = list(title = "PC"), yaxis = list(title = "Cumulative variance (%)"))
+    
+    htmlwidgets::saveWidget(as_widget(cum_var), paste0(output, ".cum_variance.html"))
     
     # Table to plot the PCA
     tab <- data.frame(sample.id = PCA$sample.id, stringsAsFactors = F,
                       PC1 = PCA$eigenvect[,1], PC2 = PCA$eigenvect[,2])
     
+    # PCA - Scatter Plots PC1 vs PC2
+    # Adding Groups 
     if (groups == T){
       
-      # Adding groups to the table for plotting
+      
       labels <- labels %>% dplyr::rename(sample.id = 1, groups = 2)
       dt <- tab %>% inner_join(labels, by = "sample.id")
       
-      # Plot the PCA
-      fig <- plot_ly(data = dt, x = ~ PC1, y = ~ PC2, color = ~ as.factor(groups), type = "scatter",
-                     mode = "markers", symbol = ~ as.factor(groups), symbols = c("circle", "x"),
+ 
+      fig <- plot_ly(data = dt, x = ~ PC1, y = ~ PC2, 
+                     color = ~ as.factor(groups), #symbol = ~ as.factor(groups),
+                     type = "scatter", mode = "markers", 
                      text = ~ sample.id, marker = list(size = 6)) %>%
         layout(legend = list(title = list(text = "<b> Groups </b>"), orientation = "h"),
                xaxis = list(title = paste("Dimension 1 - ", round(PC$var)[1], "%")),
                yaxis = list(title = paste("Dimension 2 - ", round(PC$var)[2], "%")))
       
-    } else {
-      
-      # Plot the PCA
-      fig <- plot_ly(data = dt, x = ~ PC1, y = ~ PC2, type = "scatter", mode = "markers",
+    }
+    # Without Groups
+    else {
+
+      fig <- plot_ly(data = dt, x = ~ PC1, y = ~ PC2, 
+                     type = "scatter", mode = "markers", 
                      text = ~ sample.id, marker = list(size = 6)) %>%
         layout(xaxis = list(title = paste("Dimension 1 - ", round(PC$var)[1], "%")),
                yaxis = list(title = paste("Dimension 2 - ", round(PC$var)[2], "%")))
-      
-    }
+      }
     
-    # Save the plot
-    saveWidget(fig, "GWAS_PCA.html", selfcontained = F, libdir = "lib")
-    saveWidget(as_widget(fig), "GWAS_PCA.html")
+    htmlwidgets::saveWidget(as_widget(fig), paste0(output, ".PCA_SNPRelated.html"))
     
   }
 }
@@ -509,99 +545,8 @@ PCA <- function(dir, phenofile = NULL, genofile = NULL, labels = NULL, gds = NUL
 #groups <- T
 
 # Run function
-PCA(dir, phenofile, genofile, gds, vcf, type = "Geno", groups = T, PC.retain = F)
+# PCA(dir, phenofile, genofile, gds, vcf, type = "Geno", groups = T, PC.retain = F)
 
 
   
-# 4: Discriminant analysis of principal components (DAPC) ----------------------
 
-##### 4.1: DAPC example(s) #####
-#dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/01_ACWP_F2_Phenotype/01_Population_Structure/"
-#vcf <- "AM1588_MAP.miss0.05.recode.vcf"
-
-#dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/03_GWAS_PPD_Populations/02_PCA/"
-#vcf <- "GWAS_PPD.snps.filter_info.missing_0.10.imputation.vcf.gz"
-
-
-
-# Load libraries
-library(adegenet)
-library(grDevices)
-library(vcfR)
-library(tidyverse)
-library(plotly)
-library(htmlwidgets)
-
-# Load VCF files and convert them into a genind object
-setwd(dir)
-vcf <- read.vcfR(vcf, verbose = T)
-my_genind <- vcfR2genind(vcf)
-my_genind
-
-# Identify clusters
-# Shows a graph with the accumulated variance explained by the eigenvalues of the PCA
-grp <- find.clusters(my_genind)
-
-# Performs the DAPC
-dapc <- dapc(my_genind, grp$grp)
-
-# Table to plotly plot
-names <- as.data.frame(dapc[["grp"]])
-names <- tibble::rownames_to_column(names)
-names <- names %>% dplyr::select(1) %>% dplyr::select(Taxa = 1)
-dt <- names %>% inner_join(labels, by = "Taxa")
-ploidy <- read.csv(paste0(dir, "AM1588_labels_ploidy.csv"))
-
-# For DAPC
-DAPC <- as.data.frame(dapc[["ind.coord"]])
-DAPC <- tibble::rownames_to_column(DAPC)
-DAPC <- DAPC %>% dplyr::rename(Taxa = 1)
-
-tab_DAPC <- DAPC %>% inner_join(dt, by = "Taxa") %>%
-  dplyr::rename(Label = "label") %>%
-  select(Taxa, Label, LD1, LD2) %>%
-  inner_join(ploidy, by = "Taxa")
-
-fig <- plot_ly(data = tab_DAPC, x = ~ LD1, y = ~ LD2, color = ~ as.factor(Ploidy), type = 'scatter',
-        mode = 'markers', symbol = ~ as.factor(Ploidy), text = ~ Taxa)
-
-tab_DAPC_f <- as.data.frame(dapc[["grp"]])
-tab_DAPC_f <- tibble::rownames_to_column(tab_DAPC_f)
-tab_DAPC_f <- tab_DAPC_f %>% dplyr::rename(Taxa = "rowname", G_DAPC = "dapc[[\"grp\"]]")
-
-# For PCA
-GAPIT <- read.csv(paste0(dir, "GAPIT.PCA.csv"))
-GAPIT <- GAPIT %>% dplyr::rename(Taxa = 1)
-
-tab_PCA <- GAPIT %>% inner_join(dt, by = "Taxa") %>%
-  dplyr::rename(Label = "label") %>%
-  select(Taxa, Label, PC1, PC2) %>%
-  inner_join(ploidy, by = "Taxa")
-
-fig <- plot_ly(data = tab_PCA, x = ~ PC1, y = ~ PC2, color = ~ as.factor(Ploidy), type = 'scatter',
-        mode = 'markers', symbol = ~ as.factor(Ploidy), text = ~ Taxa)
-
-tab_PCA <- tab_PCA %>% mutate(G_PCA = if_else(.$PC1 < -10, "1", if_else(.$PC1 > 12, "3", "2")))
-
-
-
-final <- tab_PCA %>% select(Taxa, Label, G_PCA) %>% inner_join(tab_DAPC_f, by = "Taxa")
-
-
-
-
-
-
-# Plot the DAPC
-pdf("GWAS_DAPC_scatter.pdf", width = 10, height = 8)
-scatter(dapc, scree.pca = F, ratio.pca = 0.3, pch = 20, cell = 1, solid = 0.6, cex = 2.5, clab = 0,
-        scree.da = F, leg = T, txt.leg = paste("Cluster", 1:3))
-dev.off()
-
-set.seed(4)
-contrib <- loadingplot(dapc$var.contr, axis = 2, lab.jitter = 1)
-
-groups <- tibble::rownames_to_column(as.data.frame(dapc[["grp"]]), var = "Name")
-colnames(groups) <- c('Name','group_dapc')
-
-write.csv(groups, 'GWAS_PPD.dapc_groups.csv', row.names = F, col.names = T)
