@@ -38,8 +38,7 @@
 
 
 ##### To do ##### 
-# 1. Update gds/vcf part
-# 2. DAPC plotly plot
+# 1. DAPC plotly plot
 
 
 
@@ -110,17 +109,21 @@ NDMS <- function(dir, phenophile, dist = "bray", groups = F){
 
 ##### 1.1: NDMS example(s) #####
 # Phenotypic with groups
-#dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
-#phenofile <- read.csv(paste0(dir, "Prueba.csv"), header = T)
-#groups <- T
+# dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
+# phenofile <- read.csv(paste0(dir, "Prueba.csv"), header = T)
+# groups <- T
 
 # Phenotypic without groups
-#dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
-#phenofile <- read.csv(paste0(dir, "Prueba.csv"), header = T)
-#phenofile <- phenofile[-2]
+# dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
+# phenofile <- read.csv(paste0(dir, "Prueba.csv"), header = T)
+# phenofile <- phenofile[-2]
 
 # Run function
+<<<<<<< HEAD
 #NDMS(dir, phenofile, dist, groups)
+=======
+# NDMS(dir, phenofile, dist, groups)
+>>>>>>> e9fc4aa4915c58f04bf2180db3557aec2c4968b1
 
 
 
@@ -197,17 +200,21 @@ MDS <- function(dir, phenofile, dist = "gower", groups = F){
 
 ##### 2.1: MDS example(s) #####
 # Phenotypic with groups
-#dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
-#phenofile <- read.csv(paste0(dir, "Prueba.csv"), header = T)
-#groups <- T
+# dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
+# phenofile <- read.csv(paste0(dir, "Prueba.csv"), header = T)
+# groups <- T
 
 # Phenotypic without groups
-#dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
-#phenofile <- read.csv(paste0(dir, "Prueba.csv"), header = T)
-#phenofile <- phenofile[-2]
+# dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
+# phenofile <- read.csv(paste0(dir, "Prueba.csv"), header = T)
+# phenofile <- phenofile[-2]
 
 # Run function
+<<<<<<< HEAD
 #MDS(dir, phenofile, dist, groups)
+=======
+# MDS(dir, phenofile, dist, groups)
+>>>>>>> e9fc4aa4915c58f04bf2180db3557aec2c4968b1
 
 
 
@@ -522,27 +529,27 @@ PCA <- function(dir, phenofile = NULL, genofile = NULL, labelfile = NULL,
 
 ##### 3.1: PCA example(s) #####
 # Phenotypic with groups
-#dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
-#phenofile <- read.csv(paste0(dir, "Prueba.csv"), header = T)
-#groups <- T
+# dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
+# phenofile <- read.csv(paste0(dir, "Prueba.csv"), header = T)
+# groups <- T
 
 # Phenotypic without groups
-#dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
-#phenofile <- read.csv(paste0(dir, "Prueba.csv"), header = T)
-#phenofile <- phenofile[-2]
+# dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
+# phenofile <- read.csv(paste0(dir, "Prueba.csv"), header = T)
+# phenofile <- phenofile[-2]
 
 # Genotypic with groups
-#dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/03_GWAS_PPD_Populations/02_PCA/"
-#labels <- read.csv(paste0(dir, "GWAS_PPD.labels.csv"))
-#vcf <- "GWAS_PPD.snps.filter_info.missing_0.10.imputation.vcf.gz"
-#type <- "Geno"
-#groups <- T
+# dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/03_GWAS_PPD_Populations/02_PCA/"
+# labels <- read.csv(paste0(dir, "GWAS_PPD.labels.csv"))
+# vcf <- "GWAS_PPD.snps.filter_info.missing_0.10.imputation.vcf.gz"
+# type <- "Geno"
+# groups <- T
 
-#dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/01_ACWP_F2_Phenotype/01_Population_Structure/"
-#labels <- read.csv(paste0(dir, "AM1588_labels.csv"))
-#vcf <- "AM1588_MAP.miss0.05.recode.vcf"
-#type <- "Geno"
-#groups <- T
+# dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/01_ACWP_F2_Phenotype/01_Population_Structure/"
+# labels <- read.csv(paste0(dir, "AM1588_labels.csv"))
+# vcf <- "AM1588_MAP.miss0.05.recode.vcf"
+# type <- "Geno"
+# groups <- T
 
 # Run function
 # PCA(dir, phenofile, genofile, gds, vcf, type = "Geno", groups = T, PC.retain = F)
@@ -550,3 +557,94 @@ PCA <- function(dir, phenofile = NULL, genofile = NULL, labelfile = NULL,
 
   
 
+<<<<<<< HEAD
+=======
+##### 4.1: DAPC example(s) #####
+# dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/01_ACWP_F2_Phenotype/01_Population_Structure/"
+# vcf <- "AM1588_MAP.miss0.05.recode.vcf"
+
+# dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/03_GWAS_PPD_Populations/02_PCA/"
+# vcf <- "GWAS_PPD.snps.filter_info.missing_0.10.imputation.vcf.gz"
+
+# Load libraries
+library(adegenet)
+library(grDevices)
+library(vcfR)
+library(tidyverse)
+library(plotly)
+library(htmlwidgets)
+
+# Load VCF files and convert them into a genind object
+setwd(dir)
+vcf <- read.vcfR(vcf, verbose = T)
+my_genind <- vcfR2genind(vcf)
+my_genind
+
+# Identify clusters
+# Shows a graph with the accumulated variance explained by the eigenvalues of the PCA
+grp <- find.clusters(my_genind)
+
+# Performs the DAPC
+dapc <- dapc(my_genind, grp$grp)
+
+# Table to plotly plot
+names <- as.data.frame(dapc[["grp"]])
+names <- tibble::rownames_to_column(names)
+names <- names %>% dplyr::select(1) %>% dplyr::select(Taxa = 1)
+dt <- names %>% inner_join(labels, by = "Taxa")
+ploidy <- read.csv(paste0(dir, "AM1588_labels_ploidy.csv"))
+
+# For DAPC
+DAPC <- as.data.frame(dapc[["ind.coord"]])
+DAPC <- tibble::rownames_to_column(DAPC)
+DAPC <- DAPC %>% dplyr::rename(Taxa = 1)
+
+tab_DAPC <- DAPC %>% inner_join(dt, by = "Taxa") %>%
+  dplyr::rename(Label = "label") %>%
+  select(Taxa, Label, LD1, LD2) %>%
+  inner_join(ploidy, by = "Taxa")
+
+fig <- plot_ly(data = tab_DAPC, x = ~ LD1, y = ~ LD2, color = ~ as.factor(Ploidy), type = 'scatter',
+        mode = 'markers', symbol = ~ as.factor(Ploidy), text = ~ Taxa)
+
+tab_DAPC_f <- as.data.frame(dapc[["grp"]])
+tab_DAPC_f <- tibble::rownames_to_column(tab_DAPC_f)
+tab_DAPC_f <- tab_DAPC_f %>% dplyr::rename(Taxa = "rowname", G_DAPC = "dapc[[\"grp\"]]")
+
+# For PCA
+GAPIT <- read.csv(paste0(dir, "GAPIT.PCA.csv"))
+GAPIT <- GAPIT %>% dplyr::rename(Taxa = 1)
+
+tab_PCA <- GAPIT %>% inner_join(dt, by = "Taxa") %>%
+  dplyr::rename(Label = "label") %>%
+  select(Taxa, Label, PC1, PC2) %>%
+  inner_join(ploidy, by = "Taxa")
+
+fig <- plot_ly(data = tab_PCA, x = ~ PC1, y = ~ PC2, color = ~ as.factor(Ploidy), type = 'scatter',
+        mode = 'markers', symbol = ~ as.factor(Ploidy), text = ~ Taxa)
+
+tab_PCA <- tab_PCA %>% mutate(G_PCA = if_else(.$PC1 < -10, "1", if_else(.$PC1 > 12, "3", "2")))
+
+
+
+final <- tab_PCA %>% select(Taxa, Label, G_PCA) %>% inner_join(tab_DAPC_f, by = "Taxa")
+
+
+
+
+
+
+# Plot the DAPC
+pdf("GWAS_DAPC_scatter.pdf", width = 10, height = 8)
+scatter(dapc, scree.pca = F, ratio.pca = 0.3, pch = 20, cell = 1, solid = 0.6, cex = 2.5, clab = 0,
+        scree.da = F, leg = T, txt.leg = paste("Cluster", 1:3))
+dev.off()
+
+set.seed(4)
+contrib <- loadingplot(dapc$var.contr, axis = 2, lab.jitter = 1)
+
+groups <- tibble::rownames_to_column(as.data.frame(dapc[["grp"]]), var = "Name")
+colnames(groups) <- c('Name','group_dapc')
+
+write.csv(groups, 'GWAS_PPD.dapc_groups.csv', row.names = F, col.names = T)
+>>>>>>> e9fc4aa4915c58f04bf2180db3557aec2c4968b1
