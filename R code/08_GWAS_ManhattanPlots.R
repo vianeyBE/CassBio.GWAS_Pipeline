@@ -6,7 +6,7 @@
 #
 # Arguments:
 # Mdir: Name of the directory that contains the GAPIT results. For example: home/user/folder.
-# pat: Enter the path of file names to look for. For example: QTL_LOD_Intervals. The path must finish with a point (.).
+# pat: Enter the path of file names to look for. For example: GAPIT.Association.GWAS_Results.
 # mod: Enter the model(s) of interest. Options: BLINK, GLM, MLM, FarmCPU.
 # wtd: How many traits do you want to plot. Options: One, Several, All.
 # colors: (Optional) Colors of the chromosomes in Manhattan plots. If you want to change the colors, provide 2 or more. It can be color names o hex codes (Default: grey and skyblue).
@@ -14,8 +14,7 @@
 
 
 ###### To do ######
-# 1. Modify messages and conditional for plotting
-# 2. Plotly plots
+#
 
 
 
@@ -27,17 +26,23 @@ Manhattan <- function(Mdir, pat, mod, wtd, colors = c("grey", "skyblue")){
   
   if (!require(tidyverse)) install.packages(tidyverse)
   if (!require(ggtext)) install.packages(ggtext)
+  if (!require(plotly)) install.packages(plotly)
+  if (!require(htmlwidgets)) install.packages(htmlwidgets)
   
   library(tidyverse)
   library(ggtext)
+  library(plotly)
+  library(htmlwidgets)
+  
+  
   
   # 2: Find all the CSVs with the results and organize them --------------------
   
   message("Getting list of CSV files...")
   
-  # Get the names of the files
+  # Get the names of the files=
   setwd(Mdir)
-  names <- list.files(path = Mdir, pattern = pat, all.files = F, full.names = F, recursive = T)
+  names <- list.files(path = Mdir, pattern = paste0(pat, "."), all.files = F, full.names = F, recursive = T)
   
   message(paste("GWAS files found:", length(names)))
   
@@ -58,7 +63,7 @@ Manhattan <- function(Mdir, pat, mod, wtd, colors = c("grey", "skyblue")){
     # Read and modify each one of the csvs
     dframe <- read.csv(paste0(Mdir, "/", names[p])) %>%
       mutate(rename = paste0("/", names[p])) %>%
-      tidyr::separate(col = rename, into = c("batch", "data"), sep = paste(pat))
+      tidyr::separate(col = rename, into = c("batch", "data"), sep = paste0(pat, "."))
     
     # Conditional given the differences in FarmCPU models
     if (gdata::startsWith(dframe[1,10], "Far")){
@@ -129,6 +134,27 @@ Manhattan <- function(Mdir, pat, mod, wtd, colors = c("grey", "skyblue")){
     message("Making the plot. It can take a few seconds. Please be patient.")
     
     # Manhattan plot
+    fig <- ggplot(data, aes(bp_cum, -log10(P.value), color = as_factor(Chr),
+                            size = -log10(P.value), shape = model)) +
+      geom_hline(yintercept = -log10(0.001/dim(data)[1]), color = "black", linetype = "dashed") +
+      geom_point(alpha = 0.75) +
+      scale_color_manual(values = rep(c("grey", "skyblue"), 18)) +
+      scale_y_continuous(expand = c(0, 0), limits = c(0, br * 5.1),
+                         breaks = c(round(br, 2), round(br * 2, 2), round(br * 3, 2), round(br * 4, 2),
+                                    round(br * 5, 2))) +
+      scale_x_continuous(expand = c(0, 0), label = axis_set$Chr, breaks = axis_set$center) +
+      guides(color = "none", size = "none") +
+      labs(y = "-log<sub>10</sub>(p)", x = "Chromosome", title = paste("Trait: ", tr), shape = "Model") +
+      theme_classic() +
+      theme(legend.position = "bottom", axis.title.y = element_markdown(),
+            panel.grid.major.x = element_blank(), panel.grid.minor.x = element_blank(),
+            legend.title = element_text(colour = "black", size = 12),
+            legend.text = element_text(colour = "black", size = 12),
+            plot.title = element_text(size = 16, color = "black"),
+            axis.text = element_text(size = 12, color = "black"),
+            axis.title = element_text(size = 14, color = "black"),
+            axis.title.x = element_text(margin = margin(t = 10)))
+    
     ggplot(data, aes(bp_cum, -log10(P.value), color = as_factor(Chr),
                      size = -log10(P.value), shape = model)) +
       geom_hline(yintercept = -log10(0.001/dim(data)[1]), color = "black", linetype = "dashed") +
@@ -182,8 +208,8 @@ Manhattan <- function(Mdir, pat, mod, wtd, colors = c("grey", "skyblue")){
       message("Making the plots. It can take a few seconds. Please be patient.")
       
       # Manhattan plot
-      ggplot(data, aes(bp_cum, -log10(P.value), color = as_factor(Chr),
-                       size = -log10(P.value))) +
+      fig <- ggplot(data, aes(bp_cum, -log10(P.value), color = as_factor(Chr),
+                              size = -log10(P.value))) +
         geom_hline(yintercept = -log10(0.001/dim(data)[1]), color = "black", linetype = "dashed") +
         geom_point(alpha = 0.75) +
         scale_color_manual(values = rep(colors, 18)) +
@@ -232,8 +258,8 @@ Manhattan <- function(Mdir, pat, mod, wtd, colors = c("grey", "skyblue")){
         message("Making the plot. It can take a few seconds. Please be patient.")
         
         # Manhattan plot
-        ggplot(data, aes(bp_cum, -log10(P.value), color = as_factor(Chr),
-                         size = -log10(P.value), shape = model)) +
+        fig <- ggplot(data, aes(bp_cum, -log10(P.value), color = as_factor(Chr),
+                                size = -log10(P.value), shape = model)) +
           geom_hline(yintercept = -log10(0.001/dim(data)[1]), color = "black", linetype = "dashed") +
           geom_point(alpha = 0.75) +
           scale_color_manual(values = rep(c("grey", "skyblue"), 18)) +
@@ -258,8 +284,21 @@ Manhattan <- function(Mdir, pat, mod, wtd, colors = c("grey", "skyblue")){
         message("You can only choose the following options: 'One', 'Several', or 'All' (exact match)")
         
       }
-    } 
+    }
   }
+  
+  
+  
+  # 4: Saving the plots  -------------------------------------------------------
+  
+  # Save the plot
+  fig <- ggplotly(fig)
+  
+  saveWidget(fig, "GWAS_Manhattan.html", selfcontained = F, libdir = "lib")
+  saveWidget(as_widget(fig), "GWAS_Manhattan.html")
+  
+  
+  
 }
 
 
@@ -267,7 +306,7 @@ Manhattan <- function(Mdir, pat, mod, wtd, colors = c("grey", "skyblue")){
 ###### Example(s) ######
 # Set arguments
 # Mdir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/01_ACWP_F1_Metabolomics/07_GWAS"
-# pat <- "GAPIT.Association.GWAS_Results."
+# pat <- "GAPIT.Association.GWAS_Results"
 # mod <- c("BLINK", "FarmCPU", "MLM")
 # wtd <- "One"
 
