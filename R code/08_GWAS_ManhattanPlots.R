@@ -131,11 +131,11 @@ Manhattan <- function(Mdir, pat, mod, wtd, colors = c("grey", "skyblue")){
       inner_join(data_cum, by = "Chr") %>%
       mutate(center = ((max - min) /2) + bp_add)
     
-    message("Making the plot. It can take a few seconds. Please be patient.")
+    message("Making the plots. It can take a few seconds. Please be patient.")
     
     # Manhattan plot
-    fig <- ggplot(data, aes(bp_cum, -log10(P.value), color = as_factor(Chr),
-                            size = -log10(P.value), shape = model)) +
+    fig_man <- ggplot(data, aes(bp_cum, -log10(P.value), color = as_factor(Chr),
+                                size = -log10(P.value), shape = model)) +
       geom_hline(yintercept = -log10(0.001/dim(data)[1]), color = "black", linetype = "dashed") +
       geom_point(alpha = 0.75) +
       scale_color_manual(values = rep(c("grey", "skyblue"), 18)) +
@@ -155,17 +155,16 @@ Manhattan <- function(Mdir, pat, mod, wtd, colors = c("grey", "skyblue")){
             axis.title = element_text(size = 14, color = "black"),
             axis.title.x = element_text(margin = margin(t = 10)))
     
-    ggplot(data, aes(bp_cum, -log10(P.value), color = as_factor(Chr),
-                     size = -log10(P.value), shape = model)) +
-      geom_hline(yintercept = -log10(0.001/dim(data)[1]), color = "black", linetype = "dashed") +
+    # CM plot
+    fig_cm <- ggplot(data, aes(bp_cum, Effect, color = as_factor(Chr), size = Effect,
+                               shape = model)) +
       geom_point(alpha = 0.75) +
+      geom_hline(yintercept = 0, color = "black", linetype = "dashed") +
       scale_color_manual(values = rep(c("grey", "skyblue"), 18)) +
-      scale_y_continuous(expand = c(0, 0), limits = c(0, br * 5.1),
-                         breaks = c(round(br, 2), round(br * 2, 2), round(br * 3, 2), round(br * 4, 2),
-                                    round(br * 5, 2))) +
+      scale_y_continuous(expand = c(0.1, 0.1), limits = c(min(data$Effect), max(data$Effect))) +
       scale_x_continuous(expand = c(0, 0), label = axis_set$Chr, breaks = axis_set$center) +
       guides(color = "none", size = "none") +
-      labs(y = "-log<sub>10</sub>(p)", x = "Chromosome", title = paste("Trait: ", tr), shape = "Model") +
+      labs(y = "SNP effect", x = "Chromosome", title = paste("Trait: ", tr), shape = "Model") +
       theme_classic() +
       theme(legend.position = "bottom", axis.title.y = element_markdown(),
             panel.grid.major.x = element_blank(), panel.grid.minor.x = element_blank(),
@@ -208,7 +207,7 @@ Manhattan <- function(Mdir, pat, mod, wtd, colors = c("grey", "skyblue")){
       message("Making the plots. It can take a few seconds. Please be patient.")
       
       # Manhattan plot
-      fig <- ggplot(data, aes(bp_cum, -log10(P.value), color = as_factor(Chr),
+      fig_man <- ggplot(data, aes(bp_cum, -log10(P.value), color = as_factor(Chr),
                               size = -log10(P.value))) +
         geom_hline(yintercept = -log10(0.001/dim(data)[1]), color = "black", linetype = "dashed") +
         geom_point(alpha = 0.75) +
@@ -231,6 +230,27 @@ Manhattan <- function(Mdir, pat, mod, wtd, colors = c("grey", "skyblue")){
               axis.title.x = element_text(margin = margin(t = 10)),
               strip.text = element_text(size = 12, color = "black", face = "bold"),
               strip.background = element_rect(color = "black", fill = "white"))
+      
+      # CM plot
+      fig_cm <- ggplot(data, aes(bp_cum, Effect, color = as_factor(Chr), size = Effect,
+                                 shape = model)) +
+        geom_point(alpha = 0.75) +
+        geom_hline(yintercept = 0, color = "black", linetype = "dashed") +
+        scale_color_manual(values = rep(c("grey", "skyblue"), 18)) +
+        scale_y_continuous(expand = c(0.1, 0.1), limits = c(min(data$Effect), max(data$Effect))) +
+        scale_x_continuous(expand = c(0, 0), label = axis_set$Chr, breaks = axis_set$center) +
+        guides(color = "none", size = "none") +
+        labs(y = "SNP effect", x = "Chromosome", title = paste("Trait: ", tr), shape = "Model") +
+        theme_classic() +
+        facet_wrap(~ trait, ncol = 1) +
+        theme(legend.position = "bottom", axis.title.y = element_markdown(),
+              panel.grid.major.x = element_blank(), panel.grid.minor.x = element_blank(),
+              legend.title = element_text(colour = "black", size = 12),
+              legend.text = element_text(colour = "black", size = 12),
+              plot.title = element_text(size = 16, color = "black"),
+              axis.text = element_text(size = 12, color = "black"),
+              axis.title = element_text(size = 14, color = "black"),
+              axis.title.x = element_text(margin = margin(t = 10)))
       
     } else {
       
@@ -255,10 +275,10 @@ Manhattan <- function(Mdir, pat, mod, wtd, colors = c("grey", "skyblue")){
           inner_join(data_cum, by = "Chr") %>%
           mutate(center = ((max - min) /2) + bp_add)
         
-        message("Making the plot. It can take a few seconds. Please be patient.")
+        message("Making the plots. It can take a few seconds. Please be patient.")
         
         # Manhattan plot
-        fig <- ggplot(data, aes(bp_cum, -log10(P.value), color = as_factor(Chr),
+        fig_man <- ggplot(data, aes(bp_cum, -log10(P.value), color = as_factor(Chr),
                                 size = -log10(P.value), shape = model)) +
           geom_hline(yintercept = -log10(0.001/dim(data)[1]), color = "black", linetype = "dashed") +
           geom_point(alpha = 0.75) +
@@ -269,6 +289,26 @@ Manhattan <- function(Mdir, pat, mod, wtd, colors = c("grey", "skyblue")){
           scale_x_continuous(expand = c(0, 0), label = axis_set$Chr, breaks = axis_set$center) +
           guides(color = "none", size = "none") +
           labs(y = "-log<sub>10</sub>(p)", x = "Chromosome", title = "All traits", shape = "Model") +
+          theme_classic() +
+          theme(legend.position = "bottom", axis.title.y = element_markdown(),
+                panel.grid.major.x = element_blank(), panel.grid.minor.x = element_blank(),
+                legend.title = element_text(colour = "black", size = 12),
+                legend.text = element_text(colour = "black", size = 12),
+                plot.title = element_text(size = 16, color = "black"),
+                axis.text = element_text(size = 12, color = "black"),
+                axis.title = element_text(size = 14, color = "black"),
+                axis.title.x = element_text(margin = margin(t = 10)))
+        
+        # CM plot
+        fig_cm <- ggplot(data, aes(bp_cum, Effect, color = as_factor(Chr), size = Effect,
+                                   shape = model)) +
+          geom_point(alpha = 0.75) +
+          geom_hline(yintercept = 0, color = "black", linetype = "dashed") +
+          scale_color_manual(values = rep(c("grey", "skyblue"), 18)) +
+          scale_y_continuous(expand = c(0.1, 0.1), limits = c(min(data$Effect), max(data$Effect))) +
+          scale_x_continuous(expand = c(0, 0), label = axis_set$Chr, breaks = axis_set$center) +
+          guides(color = "none", size = "none") +
+          labs(y = "SNP effect", x = "Chromosome", title = paste("Trait: ", tr), shape = "Model") +
           theme_classic() +
           theme(legend.position = "bottom", axis.title.y = element_markdown(),
                 panel.grid.major.x = element_blank(), panel.grid.minor.x = element_blank(),
@@ -291,13 +331,17 @@ Manhattan <- function(Mdir, pat, mod, wtd, colors = c("grey", "skyblue")){
   
   # 4: Saving the plots  -------------------------------------------------------
   
-  # Save the plot
-  fig <- ggplotly(fig)
+  # Save plots
+  fig_man <- ggplotly(fig_man)
+  fig_cm <- ggplotly(fig_cm)
   
-  saveWidget(fig, "GWAS_Manhattan.html", selfcontained = F, libdir = "lib")
-  saveWidget(as_widget(fig), "GWAS_Manhattan.html")
+  saveWidget(fig_man, "GWAS_Manhattan.html", selfcontained = F, libdir = "lib_man")
+  saveWidget(as_widget(fig_man), "GWAS_Manhattan.html")
   
+  saveWidget(fig_cm, "GWAS_CM.html", selfcontained = F, libdir = "lib_cm")
+  saveWidget(as_widget(fig_cm), "GWAS_CM.html")
   
+  message("Done!")
   
 }
 
