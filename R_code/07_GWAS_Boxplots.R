@@ -19,9 +19,11 @@
 
 
 
+# 0: Function init -------------------------------------------------------------
+
 GWAS_Boxplot <- function(outputname, dir, phenofile, genofile, snp_list_file, labelfile = NULL){
 
-  # 1: Load all the directories, info, and data ----------------------------------
+  # 1: Load all the directories, info, and data --------------------------------
   
   # Load packages
   if (!require(tibble)) install.packages(tibble)
@@ -61,9 +63,11 @@ GWAS_Boxplot <- function(outputname, dir, phenofile, genofile, snp_list_file, la
   iupac["G"]<- "GG"
   iupac["T"]<- "TT"
   
+  # 2:     ---------------------------------------------------------------------
+  
   if (!is.null(labelfile)){
     
-    # 2.1: Labels ----------------------------------------------------------------
+    # 2.1: Labels --------------------------------------------------------------
     
     message("Labels were provided, they will be included in the boxplot")
     
@@ -76,13 +80,19 @@ GWAS_Boxplot <- function(outputname, dir, phenofile, genofile, snp_list_file, la
     palette <- brewer.pal(n = length(levels(label$Levels)), name = "Dark2")
     # palette <-  c( '#219ebc', '#023047', '#fb8500' )
     
-    # 2.2: Prepare Data for Boxplot with labels --------------------------------
     
-    matrix_GT = label
     
+    # 2.2: Prepare data for boxplot with labels --------------------------------
+    
+    matrix_GT <- label
+    
+    #
     pdf(paste(dir, outputname, ".SNPs_boxplot.pdf", sep = ''), onefile = T)
+    
+    #
     for (i in 1:dim(snp_list)[1]){
       
+      #
       snpname <- snp_list$SNPS[i]
       trait <- snp_list$trait[i]
       x_label <- snp_list$xlabel[i]
@@ -115,20 +125,27 @@ GWAS_Boxplot <- function(outputname, dir, phenofile, genofile, snp_list_file, la
         
       print(plot)
       
+      # Progress bar
       cat('\r', i, ' SNPs processed |', rep('=', i/2 ),
           ifelse(i == dim(snp_list)[1], '|\n',  '>'), sep = '')
       
     }
+    
     dev.off()
     
-  } 
-  else {
+  } else {
+    
     message("No labels provided")
     
-    # 3.1 Prepare Data without Labels ------------------------------------------
+    # 3.1 Prepare data without labels ------------------------------------------
+    
+    #
     pdf(paste(dir, outputname, ".SNPs_boxplot.pdf", sep = ''), onefile = T)
+    
+    #
     for (i in 1:dim(snp_list)[1]){
       
+      #
       snpname <- snp_list$SNPS[i]
       trait <- snp_list$trait[i]
       x_label <- snp_list$xlabel[i]
@@ -141,10 +158,13 @@ GWAS_Boxplot <- function(outputname, dir, phenofile, genofile, snp_list_file, la
       comp <- combn(unique(as.character(data$snp)), 2, simplify = F)
       
       
+      
       # 3.2 Boxplot ------------------------------------------------------------
       
+      #
       n <- length(levels(data$snp))
       
+      #
       plot <- data %>% ggplot(aes(x = snp, y = get(trait))) +
         geom_boxplot(fill = c("#FC9AA2", "#FFDAC1", "#B5EAD7")[1:length(levels(data$snp))],
                      alpha = 0.45) + # Boxplot
@@ -152,16 +172,28 @@ GWAS_Boxplot <- function(outputname, dir, phenofile, genofile, snp_list_file, la
         geom_signif(comparisons = comp, map_signif_level = T) + # Significance
         labs(x = snpname, y = x_label) + # Lab names
         theme_minimal() + theme(legend.position = "none") # Aesthetic  
-        
+      
       print(plot)
       
+      # Progress bar
       cat('\r', i, ' SNPs processed |', rep('=', i/2 ),
           ifelse(i == dim(snp_list)[1], '|\n',  '>'), sep = '')
       
     }
+    
     dev.off()
     
   }
   
   message("Done!")
+  
 }
+
+
+
+###### Example(s) ######
+# Set arguments
+# 
+
+# Run function
+# QTL_Annotation(Wdir, Ddir, name, wdyw, recursive)

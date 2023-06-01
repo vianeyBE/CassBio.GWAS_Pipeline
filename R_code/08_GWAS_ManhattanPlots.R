@@ -63,22 +63,25 @@ Manhattan <- function(Mdir, pat, mod, wtd, colors = c("grey", "skyblue")){
     # Read and modify each one of the csvs
     dframe <- read.csv(paste0(Mdir, "/", names[p])) %>%
       mutate(rename = paste0("/", names[p])) %>%
-      tidyr::separate(col = rename, into = c("batch", "data"), sep = paste0(pat, "."))
+      tidyr::separate(col = rename, into = c("batch", "data"), sep = paste0(pat, "."),
+                      extra = "drop")
     
     # Conditional given the differences in FarmCPU models
     if (gdata::startsWith(dframe[1,10], "Far")){
       
       # Modified the database to obtain the model and the trait
-      dframe <- dframe %>% tidyr::separate(col = data, into = c("na", "na2", "trait"), sep = ".m") %>%
-        tidyr::separate(col = trait, into = c("trait", "na3"), sep = ".csv") %>%
+      dframe <- dframe %>% tidyr::separate(col = data, into = c("na", "na2", "trait"),
+                                           sep = ".m", extra = "drop") %>%
+        tidyr::separate(col = trait, into = c("trait", "na3"), sep = ".csv", extra = "drop") %>%
         mutate(model = "FarmCPU") %>%
         select(SNP, Chr, Pos, P.value, MAF, nobs, Effect, model, trait)
       
     } else {
       
       # Modified the database to obtain the model and the trait
-      dframe <- dframe %>% tidyr::separate(col = data, into = c("model", "trait"), sep = ".m") %>%
-        tidyr::separate(col = trait, into = c("trait", "na"), sep = ".csv") %>%
+      dframe <- dframe %>% tidyr::separate(col = data, into = c("model", "trait"), 
+                                           sep = ".m", extra = "drop") %>%
+        tidyr::separate(col = trait, into = c("trait", "na"), sep = ".csv", extra = "drop") %>%
         select(SNP, Chr, Pos, P.value, MAF, nobs, Effect, model, trait)
       
     }
@@ -129,7 +132,7 @@ Manhattan <- function(Mdir, pat, mod, wtd, colors = c("grey", "skyblue")){
     axis_set <- data %>% group_by(Chr) %>%
       summarise(min = min(Pos), max = max(Pos)) %>%
       inner_join(data_cum, by = "Chr") %>%
-      mutate(center = ((max - min) /2) + bp_add)
+      mutate(center = ((max - min) / 2) + bp_add)
     
     message("Making the plots. It can take a few seconds. Please be patient.")
     

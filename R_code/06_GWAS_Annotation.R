@@ -51,9 +51,9 @@ annot <- read.delim("Mesculenta_305_v6.1.annotation_info.txt", header = F) %>%
 
 GFF <- read.delim("Mesculenta_305_v6.1.gene.gff3", header = F, comment.char = "#") %>%
   rename(chr = V1, phyto = V2, what = V3, start = V4, end = V5, na = V6, sign = V7, NPI = V8, sep = V9) %>%
-  tidyr::separate(col = sep, into = c("ID", "na"), sep = ";") %>%
-  separate(col = ID, into = c("na2", "na3"), sep = "=") %>%
-  separate(col = na3, into = c("name", "na4"), sep = ".v" ) %>%
+  tidyr::separate(col = sep, into = c("ID", "na"), sep = ";", extra = "drop") %>%
+  tidyr::separate(col = ID, into = c("na2", "na3"), sep = "=", extra = "drop") %>%
+  tidyr::separate(col = na3, into = c("name", "na4"), sep = ".v", extra = "drop") %>%
   select(chr, what, start, end, name) %>%
   mutate(chr = recode(chr, Chromosome01 = 1, Chromosome02 = 2, Chromosome03 = 3, Chromosome04 = 4,
                       Chromosome05 = 5, Chromosome06 =  6, Chromosome07 = 7, Chromosome08 = 8, 
@@ -89,8 +89,8 @@ for (i in 1:length(names)){
   
   csv.l[[i]] <- read.csv(name.F) %>%
     mutate(traits = name.T, start = Pos - 10000, end = Pos + 10000) %>%
-    tidyr::separate(col = traits, into = c("na", "trait"), sep = paste(pat)) %>%
-    tidyr::separate(col = trait, into = c("model", "trait", "na2"), sep = "\\.") %>%
+    tidyr::separate(col = traits, into = c("na", "trait"), sep = paste(pat), extra = "drop") %>%
+    tidyr::separate(col = trait, into = c("model", "trait", "na2"), sep = "\\.", extra = "drop") %>%
     select(SNP, Chr, Pos, start, end, P.value, MAF, nobs, Effect, model, trait) %>%
     filter(P.value <= (0.05/length(SNP)))
   
