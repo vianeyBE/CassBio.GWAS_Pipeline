@@ -1,6 +1,6 @@
-# Short name: 
+# Short name: GWAS boxplots
 # Description: Plot a boxplot for a SNP: x is genotype, y is phenotype. It is possible to add extra information about the samples using the labelfile
-# Output: output base name
+# Output: A single PDF file containing the boxplot of the SNPs
 #
 # Author: Vianey Barrera-Enriquez (vpbarrerae@gmail.com)
 #
@@ -19,10 +19,17 @@
 
 
 
+##### To do #####
+# 1:
+
+
+
 # 0: Function init -------------------------------------------------------------
 
 GWAS_Boxplot <- function(outputname, dir, phenofile, genofile, snp_list_file, labelfile = NULL){
-
+  
+  
+  
   # 1: Load all the directories, info, and data --------------------------------
   
   # Load packages
@@ -57,28 +64,35 @@ GWAS_Boxplot <- function(outputname, dir, phenofile, genofile, snp_list_file, la
   
   dir.create(dir, showWarnings = F)
   
+  # 
   iupac <- Biostrings::IUPAC_CODE_MAP
   iupac["A"]<- "AA"
   iupac["C"]<- "CC"
   iupac["G"]<- "GG"
   iupac["T"]<- "TT"
   
+  
+  
   # 2:     ---------------------------------------------------------------------
   
   if (!is.null(labelfile)){
+    
+    
     
     # 2.1: Labels --------------------------------------------------------------
     
     message("Labels were provided, they will be included in the boxplot")
     
+    # 
     label <- read.csv(labelfile, header = T,
                       col.names = c('Taxa', 'Levels'),
                       colClasses = c('character', 'factor'))
     
     message("Labels to colour data: ", paste(levels(label$Levels), collapse = ', '))
     
+    # 
     palette <- brewer.pal(n = length(levels(label$Levels)), name = "Dark2")
-    # palette <-  c( '#219ebc', '#023047', '#fb8500' )
+    # palette <-  c('#219ebc', '#023047', '#fb8500')
     
     
     
@@ -86,13 +100,13 @@ GWAS_Boxplot <- function(outputname, dir, phenofile, genofile, snp_list_file, la
     
     matrix_GT <- label
     
-    #
+    # 
     pdf(paste(dir, outputname, ".SNPs_boxplot.pdf", sep = ''), onefile = T)
     
-    #
+    # 
     for (i in 1:dim(snp_list)[1]){
       
-      #
+      # 
       snpname <- snp_list$SNPS[i]
       trait <- snp_list$trait[i]
       x_label <- snp_list$xlabel[i]
@@ -139,18 +153,18 @@ GWAS_Boxplot <- function(outputname, dir, phenofile, genofile, snp_list_file, la
     
     # 3.1 Prepare data without labels ------------------------------------------
     
-    #
+    # 
     pdf(paste(dir, outputname, ".SNPs_boxplot.pdf", sep = ''), onefile = T)
     
-    #
+    # 
     for (i in 1:dim(snp_list)[1]){
       
-      #
+      # 
       snpname <- snp_list$SNPS[i]
       trait <- snp_list$trait[i]
       x_label <- snp_list$xlabel[i]
       
-      # Join  pheno and genodata
+      # Join pheno and geno data
       data <- merge(pheno, t(geno[snpname, -c(1:10)]), by.x = 'Taxa', by.y = 'row.names')
       data$snp <- as.factor(Biostrings::IUPAC_CODE_MAP[data[, snpname]])
       
@@ -161,10 +175,10 @@ GWAS_Boxplot <- function(outputname, dir, phenofile, genofile, snp_list_file, la
       
       # 3.2 Boxplot ------------------------------------------------------------
       
-      #
+      # 
       n <- length(levels(data$snp))
       
-      #
+      # 
       plot <- data %>% ggplot(aes(x = snp, y = get(trait))) +
         geom_boxplot(fill = c("#FC9AA2", "#FFDAC1", "#B5EAD7")[1:length(levels(data$snp))],
                      alpha = 0.45) + # Boxplot
@@ -176,7 +190,7 @@ GWAS_Boxplot <- function(outputname, dir, phenofile, genofile, snp_list_file, la
       print(plot)
       
       # Progress bar
-      cat('\r', i, ' SNPs processed |', rep('=', i/2 ),
+      cat('\r', i, ' SNPs processed |', rep('=', i/2),
           ifelse(i == dim(snp_list)[1], '|\n',  '>'), sep = '')
       
     }
@@ -193,7 +207,12 @@ GWAS_Boxplot <- function(outputname, dir, phenofile, genofile, snp_list_file, la
 
 ###### Example(s) ######
 # Set arguments
-# 
+# outputname <- 
+# dir <- 
+# phenofile <- 
+# genofile <- 
+# snp_list_file <-  
+# labelfile <- 
 
 # Run function
-# QTL_Annotation(Wdir, Ddir, name, wdyw, recursive)
+# GWAS_Boxplot(outputname, dir, phenofile, genofile, snp_list_file, labelfile)
