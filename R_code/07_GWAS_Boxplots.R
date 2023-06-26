@@ -20,7 +20,8 @@
 
 
 ##### To do #####
-# 1:
+# 1: Change order and color of labels
+# 2: Add significance for pairs
 
 
 
