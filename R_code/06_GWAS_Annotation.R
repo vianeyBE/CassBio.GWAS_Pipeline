@@ -6,23 +6,25 @@
 # Authors: Camilo E. Sanchez (c.e.sanchez@cgiar.org) and Vianey Barrera-Enriquez (vpbarrera@gmail.com)
 #
 # Arguments:
-# Mdir: Name of the directory that contains the GAPIT results. For example: home/user/folder.
-# Ddir: 
-# version: 
-# pat: Enter the path of file names to look for. For example: QTL_LOD_Intervals
+# Ddir: Directory where is located the annotation files (annot, GFF files).
+# annot: Annotation details of the genes. txt file from the genome version used for alignment.
+# gff: gff3 file from the genome version used for alignment.
+# version: You can choose between the genome of reference version 6.1 or 8.1 (Options: 6.1 or 8.1).
+# Wdir: Name of the directory that contains the GAPIT results. For example: home/user/folder.
+# name: Enter the path of file names to look for. For example: QTL_LOD_Intervals
 # mod: Enter the model(s) of interest. Options: BLINK, GLM, MLM, FarmCPU
 # wdyw: Enter what are you looking for to annotate. Options: CDS, five_prime_UTR, gene, mRNA, three_prime_UTR.
 
 
 
 ###### To do ######
-# 1: Convert to function
+# 1: Change the names of the final file
 
 
 
 # 0: Function init -------------------------------------------------------------
 
-GWAS_Annotation <- function(Mdir, Ddir, version, pat, mod, wdyw){
+GWAS_Annotation <- function(Ddir, annot, gff, version, Wdir, name, mod, wdyw){
   
   
   
@@ -132,135 +134,102 @@ GWAS_Annotation <- function(Mdir, Ddir, version, pat, mod, wdyw){
   message(paste("There are", dim(GWAS)[1], "SNPs after filtering"))
   
   
-}
-
-
-
-
-
-
-
-
-# 3: Match the results with the gene annotation database -----------------------
-
-# Creates a conditional
-# If there is at least one result of the GWAS models, the annotation is done
-if (dim(GWAS)[1] > 0){
   
-  message("Retriving annotation...")
-  
-  # Creates an empty list to store the data
-  gensL <- list()
-  
-  # Loop
-  for (i in 1:nrow(GWAS)){
+  # Conditional: If there is at least one result of the GWAS models, the annotation continues
+  if (dim(GWAS)[1] > 0){
     
-    # 
-    data <- dplyr::filter(GFF, GWAS$Chr[i] == chr)
-    data.der <- dplyr::filter(data, GWAS$Pos[i] <= start)
-    data.izq <- dplyr::filter(data, GWAS$Pos[i] >= end)
     
-    # 
-    gensL[[i]] <- rbind(
+    
+    # 3: Match the results with the gene annotation database -------------------
+    
+    message("Retriving annotation...")
+    
+    # Creates an empty list to store the data
+    gff_L <- list()
+    
+    # Filters and merges the gff3 data
+    for (i in 1:nrow(GWAS)){
       
-    # Genes in a 10.000 window 
-    dplyr::filter(data, GWAS$Pos[i] >= start & GWAS$Pos[i] <= end) %>%
-      mutate(SNP = GWAS$SNP[i],
-             SNP.pos = GWAS$Pos[i],
-             SNP.start = GWAS$start[i],
-             SNP.end = GWAS$end[i],
-             SNP.Location = "Inside",
-             Distance = "---",
-             p_value = GWAS$P.value[i],
-             MAF = GWAS$MAF[i],
-             effect = GWAS$Effect[i],
-             model = GWAS$model[i],
-             trait = GWAS$trait[i]),
-    
-    # Looking genes down stream 
-    data.der[which.min(abs(GWAS$Pos[i] - data.der$start)),] %>%
-      mutate(SNP = GWAS$SNP[i],
-             SNP.pos = GWAS$Pos[i],
-             SNP.start = GWAS$start[i],
-             SNP.end = GWAS$end[i],
-             SNP.Location = "Right",
-             Distance = min(abs(GWAS$Pos[i] - data.der$start)),
-             p_value = GWAS$P.value[i],
-             MAF = GWAS$MAF[i],
-             effect = GWAS$Effect[i],
-             model = GWAS$model[i],
-             trait = GWAS$trait[i]),
-             
-    # Looking genes up stream
-    data.izq[which.min(abs(GWAS$Pos[i] - data.izq$end)),] %>%
-      mutate(SNP = GWAS$SNP[i],
-             SNP.pos = GWAS$Pos[i],
-             SNP.start = GWAS$start[i],
-             SNP.end = GWAS$end[i],
-             SNP.Location = "Left",
-             Distance = min(abs(GWAS$Pos[i] - data.izq$end)),
-             p_value = GWAS$P.value[i],
-             MAF = GWAS$MAF[i],
-             effect = GWAS$Effect[i],
-             model = GWAS$model[i],
-             trait = GWAS$trait[i])
-    )
-    
-    # Convert the values of the column into characters to avoid issues
-    gensL[[i]]$Distance <- as.character(gensL[[i]]$Distance)
-    
-    # Progress bar
-    cat('\r', i, ' files processed |', rep('=', i / 3), ifelse(i == nrow(GWAS), '|\n', '>'), sep = '')
-    
+      # Filter the gff3 file per chromosome
+      data <- dplyr::filter(gff, GWAS$Chr[i] == Chr)
+      data.der <- dplyr::filter(data, GWAS$Pos[i] <= Start)
+      data.izq <- dplyr::filter(data, GWAS$Pos[i] >= End)
+      
+      # Combine the different filtered data
+      gff_L[[i]] <- rbind(
+        
+        # Genes in a 10.000 window 
+        dplyr::filter(data, GWAS$Pos[i] >= Start & GWAS$Pos[i] <= End) %>%
+          mutate(SNP = GWAS$SNP[i], SNP.Pos = GWAS$Pos[i], 
+                 SNP.Start = GWAS$Start[i], SNP.End = GWAS$End[i], 
+                 SNP.Location = "Inside", Distance = "---",
+                 Pvalue = GWAS$P.value[i], MAF = GWAS$MAF[i], Effect = GWAS$Effect[i],
+                 Model = GWAS$Model[i], Trait = GWAS$Trait[i]),
+        
+        # Looking genes down stream 
+        data.der[which.min(abs(GWAS$Pos[i] - data.der$Start)),] %>%
+          mutate(SNP = GWAS$SNP[i], SNP.Pos = GWAS$Pos[i], 
+                 SNP.Start = GWAS$Start[i], SNP.End = GWAS$End[i], 
+                 SNP.Location = "Right", Distance = min(abs(GWAS$Pos[i] - data.der$Start)),
+                 Pvalue = GWAS$P.value[i], MAF = GWAS$MAF[i], Effect = GWAS$Effect[i],
+                 Model = GWAS$Model[i], Trait = GWAS$Trait[i]),
+        
+        # Looking genes up stream
+        data.izq[which.min(abs(GWAS$Pos[i] - data.izq$End)),] %>%
+          mutate(SNP = GWAS$SNP[i], SNP.Pos = GWAS$Pos[i],
+                 SNP.Start = GWAS$Start[i], SNP.End = GWAS$End[i],
+                 SNP.Location = "Left", Distance = min(abs(GWAS$Pos[i] - data.izq$End)),
+                 Pvalue = GWAS$P.value[i], MAF = GWAS$MAF[i], Effect = GWAS$Effect[i],
+                 Model = GWAS$Model[i], Trait = GWAS$Trait[i])
+        
+      )
+      
+      # Convert the values of the column into characters to avoid issues
+      gff_L[[i]]$Distance <- as.character(gff_L[[i]]$Distance)
+      
+      # Progress bar
+      cat('\r', i, ' files processed |', rep('=', i / 3), ifelse(i == nrow(GWAS), '|\n', '>'), sep = '')
+      
     }
-  
-  # Merge the data frames of the list in a single data frame
-  gensLD <- bind_rows(gensL)
-  
-  message(paste("There are", dim(gensLD)[1], "genes to annotate"))
-  
-  
-  
-  # 4: Formatting dataframe ----------------------------------------------------
-  
-  message("Obtaining gene information...")
     
-  # Creates an empty list to store the data
-  gensLCc <- list()
-  
-  # Loop
-  for (i in 1:nrow(gensLD)){
+    # Merge the data frames of the list in a single data frame
+    gff_LM <- bind_rows(gff_L)
     
-    # 
-    gensLCc[[i]] <- filter(annot,
-                            annot$Gen1 == gensLD$name[i] | 
-                             annot$Gen2 == gensLD$name[i] | 
-                              annot$Gen3 == gensLD$name[i]) %>%
-      mutate(chr = gensLD$chr[i],
-             effect = gensLD$effect[i],
-             model = gensLD$model[i],
-             trait = gensLD$trait[i],
-             p_value = gensLD$p_value[i],
-             MAF = gensLD$MAF[i],
-             gen_start = gensLD$start[i],
-             gen_end = gensLD$end[i],
-             distance = gensLD$Distance[i],
-             SNP = gensLD$SNP[i],
-             SNP_pos = gensLD$SNP.pos[i],
-             SNP_location = gensLD$SNP.Location[i],
-             SNP_start = gensLD$start[i],
-             SNP_end = gensLD$SNP.end[i])
+    message(paste("There are", dim(gff_LM)[1], "genes to annotate"))
     
-    # Progress bar
-    cat('\r', i, ' files processed |', rep('=', i / 4), ifelse(i == nrow(gensLD), '|\n', '>'), sep = '')
     
+    
+    # 4: Formatting dataframe --------------------------------------------------
+    
+    message("Obtaining gene information...")
+    
+    # Creates an empty list to store the data
+    annot_L <- list()
+    
+    # Filters and merges the annot data
+    for (i in 1:nrow(gff_LM)){
+      
+      # Filter the annotation data and creates new columns based on previous data
+      annot_L[[i]] <- filter(annot, 
+                             Locus == gff_LM$Name[i] | 
+                               Trans == gff_LM$Name[i] | 
+                               Peptide == gff_LM$Name[i]) %>%
+        mutate(Chr = gff_LM$Chr[i], Effect = gff_LM$Effect[i], Pvalue = gff_LM$Pvalue[i],
+               MAF = gff_LM$MAF[i], Model = gff_LM$Model[i], Trait = gff_LM$Trait[i],
+               Gen.Start = gff_LM$Start[i], Gen.End = gff_LM$End[i], Distance = gff_LM$Distance[i],
+               SNP = gff_LM$SNP[i], SNP.Pos = gff_LM$SNP.Pos[i], SNP.Location = gff_LM$SNP.Location[i],
+               SNP.Start = gff_LM$SNP.Start[i], SNP.End = gff_LM$SNP.End[i])
+      
+      # Progress bar
+      cat('\r', i, ' files processed |', rep('=', i / 4), ifelse(i == nrow(gff_LM), '|\n', '>'), sep = '')
+      
     }
     
     # Merge the data frames of the list in a single data frame and modify it
-    SNP_annotation <- bind_rows(gensLCc) %>%
+    SNP_annotation <- bind_rows(annot_L) %>%
       select(SNP, chr, model, p_value, MAF, trait, Gen1, name, gen_start, gen_end, GO, NPI, effect,
              SNP_pos, SNP_start, SNP_end, SNP_location, distance) %>%
-      rename(gen_name = Gen1, gen_name_extend = name)
+      rename(gen_name = Gen1, gen_name_extend = name) ########## Change names
     
     
     
@@ -276,17 +245,22 @@ if (dim(GWAS)[1] > 0){
     
     message("No SNPs to annotate")
     
-    }
+  }
+  
+}
+
 
 
 ###### Example(s) ######
 # Set arguments
- Ddir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/00_Data/"
- Wdir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/03_GWAS_PPD_Populations/04_GWAS/GAPIT_Results/"
- version <- "6.1"
- name <- "GAPIT.Association.GWAS_Results"
- mod <- c("BLINK", "FarmCPU", "MLM")
- wdyw <- "gene"
+# Ddir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/00_Data/"
+# annot <- "Mesculenta_305_v6.1/Mesculenta_305_v6.1.annotation_info.txt"
+# gff <- "Mesculenta_305_v6.1/Mesculenta_305_v6.1.gene.gff3"
+# version <- "6.1"
+# Wdir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/03_GWAS_PPD_Populations/04_GWAS/GAPIT_Results/"
+# name <- "GAPIT.Association.GWAS_Results"
+# mod <- c("BLINK", "FarmCPU", "MLM")
+# wdyw <- "gene"
 
 # Run function
-# GWAS_Annotation(Mdir, Ddir, version, pat, mod, wdyw)
+# GWAS_Annotation(Ddir, annot, gff, version, Wdir, name, mod, wdyw)
