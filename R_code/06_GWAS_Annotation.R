@@ -6,14 +6,14 @@
 # Authors: Camilo E. Sanchez (c.e.sanchez@cgiar.org) and Vianey Barrera-Enriquez (vpbarrera@gmail.com)
 #
 # Arguments:
-# Ddir: Directory where is located the annotation files (annot, GFF files).
+# Ddir: Directory where are located annotation files (annot and gff files). For example: home/user/folder.
 # annot: Annotation details of the genes. txt file from the genome version used for alignment.
 # gff: gff3 file from the genome version used for alignment.
-# version: You can choose between the genome of reference version 6.1 or 8.1 (Options: 6.1 or 8.1).
-# Wdir: Name of the directory that contains the GAPIT results. For example: home/user/folder.
-# name: Enter the path of file names to look for. For example: QTL_LOD_Intervals
-# mod: Enter the model(s) of interest. Options: BLINK, GLM, MLM, FarmCPU
-# wdyw: Enter what are you looking for to annotate. Options: CDS, five_prime_UTR, gene, mRNA, three_prime_UTR.
+# version: You can choose between the different reference genome version (Options: 6.1 or 8.1).
+# Wdir: Directory that contains the GAPIT results. For example: home/user/folder.
+# name: Enter the path of file names to look for. For example: QTL_LOD_Intervals.
+# mod: Enter the model(s) of interest. (Options: BLINK, GLM, MLM, FarmCPU).
+# wdyw: Enter what are you looking for to annotate. (Options: CDS, five_prime_UTR, gene, mRNA, three_prime_UTR).
 
 
 
@@ -227,9 +227,8 @@ GWAS_Annotation <- function(Ddir, annot, gff, version, Wdir, name, mod, wdyw){
     
     # Merge the data frames of the list in a single data frame and modify it
     SNP_annotation <- bind_rows(annot_L) %>%
-      select(SNP, chr, model, p_value, MAF, trait, Gen1, name, gen_start, gen_end, GO, NPI, effect,
-             SNP_pos, SNP_start, SNP_end, SNP_location, distance) %>%
-      rename(gen_name = Gen1, gen_name_extend = name) ########## Change names
+      select(SNP, Chr, Model, Trait, Pvalue, Effect, MAF, Locus, Gen.Start, Gen.End, AT.define,
+             SNP.Pos, SNP.Location, Distance, SNP.Start, SNP.End)
     
     
     
