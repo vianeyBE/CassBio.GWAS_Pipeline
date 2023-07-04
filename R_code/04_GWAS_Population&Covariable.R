@@ -105,6 +105,8 @@ NDMS <- function(dir, phenophile, dist = "bray", groups = F){
     }
 }
 
+
+
 ##### 1.1: NDMS example(s) #####
 # Phenotypic with groups
 # dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
@@ -118,6 +120,7 @@ NDMS <- function(dir, phenophile, dist = "bray", groups = F){
 
 # Run function
 # NDMS(dir, phenofile, dist, groups)
+
 
 
 # 2: Multidimensional scaling (MDS) --------------------------------------------
@@ -190,6 +193,8 @@ MDS <- function(dir, phenofile, dist = "gower", groups = F){
   
 }
 
+
+
 ##### 2.1: MDS example(s) #####
 # Phenotypic with groups
 # dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
@@ -204,11 +209,13 @@ MDS <- function(dir, phenofile, dist = "gower", groups = F){
 # Run function
 # MDS(dir, phenofile, dist, groups)
 
+
+
 # 3: Principal component analysis (PCA) ----------------------------------------
 
 PCA <- function(dir, phenofile = NULL, genofile = NULL, labelfile = NULL, 
-                gds = NULL, vcf = NULL, type = "Pheno", 
-                PC.retain = F, prefixVCF = "chr", output, num.thread=3){
+                gds = NULL, vcf = NULL, type = "Pheno", PC.retain = F, 
+                prefixVCF = "chr", output, num.thread = 3){
   
   # Set working directory
   setwd(dir)
@@ -243,7 +250,6 @@ PCA <- function(dir, phenofile = NULL, genofile = NULL, labelfile = NULL,
     }
     
     # Function continues to the PCA calculation itself
-    
     # Performs a 'normal' PCA
     PCA <- prcomp(phenofile)
     
@@ -347,7 +353,7 @@ PCA <- function(dir, phenofile = NULL, genofile = NULL, labelfile = NULL,
     
    message("Selected data option: Genotypic")
     
-    # Loading Files ------------------------------------------------------------
+    # Loading files ------------------------------------------------------------
     
     if (!is.null(vcf)){
       
@@ -355,8 +361,10 @@ PCA <- function(dir, phenofile = NULL, genofile = NULL, labelfile = NULL,
               "Reading VCF file...\n\n",
               "Reformatting it to a GDS file and then transforming it to a SNPGDSFileClass file")
       
+      # 
       gds <- paste0(output, ".gds")
       
+      # 
       snpgdsVCF2GDS(vcf, gds, ignore.chr.prefix = prefixVCF, verbose=F)
       genofile <- snpgdsOpen(gds)
       sample_id <- read.gdsn(index.gdsn(genofile, "sample.id"))
@@ -395,12 +403,10 @@ PCA <- function(dir, phenofile = NULL, genofile = NULL, labelfile = NULL,
       groups <- F
     }
     
-    
     message("Files loaded successfully!")
     
 
     # PCA - SNPRelate ----------------------------------------------------------
-    
     PCA <- snpgdsPCA(genofile, autosome.only = T, remove.monosnp = T, need.genmat = T,
                      #algorithm = "exact", eigen.method = "DSPEVX", 
                      num.thread = num.thread, verbose = F)
@@ -413,7 +419,7 @@ PCA <- function(dir, phenofile = NULL, genofile = NULL, labelfile = NULL,
     write.csv(PCA[["eigenval"]], paste0(output, '.PC_SNPrelated.csv'), quote = F)
     
 
-    # PCs Retaining Analysis ---------------------------------------------------
+    # PCs retaining analysis ---------------------------------------------------
 
     if (PC.retain == T) {
       
@@ -482,11 +488,11 @@ PCA <- function(dir, phenofile = NULL, genofile = NULL, labelfile = NULL,
     # Adding Groups 
     if (groups == T){
       
-      
+      # 
       labels <- labels %>% dplyr::rename(sample.id = 1, groups = 2)
       dt <- tab %>% inner_join(labels, by = "sample.id")
       
- 
+      # 
       fig <- plot_ly(data = dt, x = ~ PC1, y = ~ PC2, 
                      color = ~ as.factor(groups), #symbol = ~ as.factor(groups),
                      type = "scatter", mode = "markers", 
@@ -495,9 +501,7 @@ PCA <- function(dir, phenofile = NULL, genofile = NULL, labelfile = NULL,
                xaxis = list(title = paste("Dimension 1 - ", round(PC$var)[1], "%")),
                yaxis = list(title = paste("Dimension 2 - ", round(PC$var)[2], "%")))
       
-    }
-    # Without Groups
-    else {
+    } else { # Without Groups
 
       fig <- plot_ly(data = dt, x = ~ PC1, y = ~ PC2, 
                      type = "scatter", mode = "markers", 
@@ -537,3 +541,4 @@ PCA <- function(dir, phenofile = NULL, genofile = NULL, labelfile = NULL,
 
 # Run function
 # PCA(dir, phenofile, genofile, gds, vcf, type = "Geno", groups = T, PC.retain = F)
+
