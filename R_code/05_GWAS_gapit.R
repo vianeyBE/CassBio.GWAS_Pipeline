@@ -1,4 +1,4 @@
-# Short name:
+# Short name: GWAS analysis.
 # Description: Run GWAS analysis using GAPIT3 R package.
 # Output: It saves the results of each trait in a individual folder.
 #
@@ -12,48 +12,72 @@
 
 
 
+##### To do #####
+# Everything is good!
+
+
+
+# 0: Function init -----------------------------------------------------------
 GAPIT3 <- function(phenofile, genofile, wdir, trait_list = NULL){
 
+  
+  
   # 1: Load packages and data --------------------------------------------------
   if (!require(devtools)) install.packages(devtools)
-  library(devtools)
   devtools::install_github("jiabowang/GAPIT3", force = T)
   
+  library(devtools)
   library(GAPIT3)
   
+  # 
   myY2  <- read.csv(phenofile) 
   myG <- read.delim(genofile, head = F)
-  
   taxacol <- names(myY2)[1] <- "Taxa"
   
-  
+  # 
   if (is.null(trait_list)){
+    
     message("Using full phenotype dataset")
+    
+    # 
     myY <- myY2
     trait_list <- names(myY)[-1]
-  }
-  else {
+    
+  } else {
+    
     message("Subsetting according provided list")
+    
+    # 
     myY <- myY2[, c(taxacol, selection)]
+    
   }
   
+  # Informative messages
   message("Number of Trait: ", dim(myY)[2]-1)
   message("Number of Samples: ", dim(myY)[1]-1)
   
+  
+  
   # 2: GAPIT -------------------------------------------------------------------
-
+  
+  #
   for (trait in trait_list){
+    
+    # 
     dir.create(wdir)
     setwd(wdir)
     dir.create(trait)
     setwd(paste(wdir, trait, sep = ""))
+    
+    # 
     message("Running GWAS on trait: ", trait)
     
+    # 
     myGAPIT <- GAPIT(
       Y = myY[, c(taxacol, trait)],
       G = myG,
       PCA.total = 10,
-      model = c("GLM","MLM","FarmCPU","Blink"),
+      model = c("GLM", "MLM", "FarmCPU", "Blink"),
       Multiple_analysis = T,
       # Geno.View.output = F,
       # Phenotype.View = F,
@@ -61,12 +85,15 @@ GAPIT3 <- function(phenofile, genofile, wdir, trait_list = NULL){
       Random.model = F,
       # kinship.cluster = "average", 
       # kinship.group = "Mean",
-      # Inter.Plot = FALSE
+      # Inter.Plot = F
     )
     
-    message("Finished GWAS on trait: ", trait )
+    # 
+    message("Finished GWAS on trait: ", trait)
     setwd(wdir)
+    
   }
   
   message("Done!")
+  
 }

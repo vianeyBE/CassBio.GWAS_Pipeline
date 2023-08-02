@@ -14,7 +14,7 @@
 
 
 ###### To do ######
-#
+# Everything is good!
 
 
 
@@ -177,8 +177,8 @@ Manhattan <- function(Mdir, pat, mod, wtd, colors = c("grey", "skyblue")){
             axis.text = element_text(size = 12, color = "black"),
             axis.title = element_text(size = 14, color = "black"),
             axis.title.x = element_text(margin = margin(t = 10)))
-    
-  } else {
+  
+  } else { 
     
     if (wtd == "Several"){
       

@@ -37,8 +37,9 @@
 
 
 
-##### To do ##### 
-# 1. DAPC plotly plot
+##### To do #####
+# 1: Finish arguments text
+# 2: DAPC plotly plot
 
 
 
