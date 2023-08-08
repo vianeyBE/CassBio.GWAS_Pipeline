@@ -6,19 +6,19 @@
 # Authors: Camilo E. Sanchez (c.e.sanchez@cgiar.org) and Vianey Barrera-Enriquez (vpbarrera@gmail.com)
 #
 # Arguments:
-# Ddir: Directory where are located annotation files (annot and gff files). For example: home/user/folder.
+# Ddir: Directory where are located annotation files (annot and gff files) (For example: home/user/folder).
 # annot: Annotation details of the genes. txt file from the genome version used for alignment.
 # gff: gff3 file from the genome version used for alignment.
-# version: You can choose between the different reference genome version (Options: 6.1 or 8.1).
-# Wdir: Directory that contains the GAPIT results. For example: home/user/folder.
-# name: Enter the path of file names to look for. For example: QTL_LOD_Intervals.
-# mod: Enter the model(s) of interest. (Options: BLINK, GLM, MLM, FarmCPU).
-# wdyw: Enter what are you looking for to annotate. (Options: CDS, five_prime_UTR, gene, mRNA, three_prime_UTR).
+# version: You can choose among the different reference genome versions (Options: 6.1 or 8.1).
+# Wdir: Directory that contains the GAPIT results (Example: home/user/folder).
+# name: The path of file names to look for. (Example: QTL_LOD_Intervals).
+# mod: The model(s) of interest (Options: BLINK, GLM, MLM, FarmCPU).
+# wdyw: What are you looking for to annotate (Options: CDS, five_prime_UTR, gene, mRNA, three_prime_UTR).
 
 
 
 ###### To do ######
-# 1: Change the names of the final file
+# Everything is good!
 
 
 
