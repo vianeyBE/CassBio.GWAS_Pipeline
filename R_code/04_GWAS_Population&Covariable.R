@@ -1,10 +1,9 @@
 # Short name: Multivariate methods for GWAS covariable selection
-# Description: It can perform several multivariate methods (MDS, PCA, DAPC) to identify covariates for GWAS 
+# Description: It can perform several multivariate methods (NDMS, MDS, PCA) to identify covariates for GWAS 
 # Output(s): It depends on the chosen method. For example:
 #            - NDMS: An interactive html plot
 #            - MDS: An interactive html plot
-#            - PCA:
-#            - DAPC:
+#            - PCA: An interactive html plot
 #
 # Authors: Camilo E. Sanchez (c.e.sanchez@cgiar.org) and Vianey Barrera-Enriquez (vpbarrera@gmail.com)
 #
@@ -31,15 +30,11 @@
 # type: A character string indicating wheter data is phenotypic ("pheno") or genotypic ("geno") (default = Pheno).
 # groups: Boolean value indicating whether the data includes different treatments/groups (default = F). If `TRUE` is selected then the second column of the `phenofile` must be the groups/treatments.
 # PC.retain: Boolean value indicating whether to analyze how many PCs retain (default = F).
-#
-# 4. For DAPC:
-# my_genind: An object of class genind (vcf file read with the `vcfR2genind` function from `vcfR` package).
 
 
 
 ##### To do #####
-# 1: Finish arguments text
-# 2: DAPC plotly plot
+# Everything is good!
 
 
 
@@ -104,6 +99,7 @@ NDMS <- function(dir, phenophile, dist = "bray", groups = F){
       saveWidget(as_widget(fig), "GWAS_NDMS.html")
       
     }
+  
 }
 
 
@@ -214,9 +210,8 @@ MDS <- function(dir, phenofile, dist = "gower", groups = F){
 
 # 3: Principal component analysis (PCA) ----------------------------------------
 
-PCA <- function(dir, phenofile = NULL, genofile = NULL, labelfile = NULL, 
-                gds = NULL, vcf = NULL, type = "Pheno", PC.retain = F, 
-                prefixVCF = "chr", output, num.thread = 3){
+PCA <- function(dir, phenofile = NULL, genofile = NULL, labelfile = NULL, gds = NULL, vcf = NULL, 
+                type = "Pheno", PC.retain = F, prefixVCF = "chr", output, num.thread = 3){
   
   # Set working directory
   setwd(dir)
@@ -350,39 +345,42 @@ PCA <- function(dir, phenofile = NULL, genofile = NULL, labelfile = NULL,
     
   } else {
     
-   # message(vcf)
-    
-   message("Selected data option: Genotypic")
+    # Informative message
+    message("Selected data option: Genotypic")
     
     # Loading files ------------------------------------------------------------
     
+    # If vcf is provided
     if (!is.null(vcf)){
       
       message("VCF file provided...\n\n", 
               "Reading VCF file...\n\n",
               "Reformatting it to a GDS file and then transforming it to a SNPGDSFileClass file")
       
-      # 
+      # Paste the path
       gds <- paste0(output, ".gds")
       
-      # 
-      snpgdsVCF2GDS(vcf, gds, ignore.chr.prefix = prefixVCF, verbose=F)
+      # Read and transform the files
+      snpgdsVCF2GDS(vcf, gds, ignore.chr.prefix = prefixVCF, verbose = F)
       genofile <- snpgdsOpen(gds)
       sample_id <- read.gdsn(index.gdsn(genofile, "sample.id"))
       
-    } else {
+      } else {
       
+      # If gds is provided
       if (!is.null(gds)){
         
         message("GDS file provided...\n\n", 
                 "Reading CDS file...\n\n",
                 "Transforming it to a SNPGDSFileClass file")
         
+        # Read and transform the files
         genofile <- snpgdsOpen(gds)
         sample_id <- read.gdsn(index.gdsn(genofile, "sample.id"))
         
       } else {
         
+        # If genofile is provided (in SNPGDSFileClass format)
         if (!is.null(genofile)){
           
           message("Genofile (SNPGDSFileClass file) is provided...\n\n",
@@ -402,6 +400,7 @@ PCA <- function(dir, phenofile = NULL, genofile = NULL, labelfile = NULL,
       
       message("No labels provided ")
       groups <- F
+      
     }
     
     message("Files loaded successfully!")
@@ -489,11 +488,11 @@ PCA <- function(dir, phenofile = NULL, genofile = NULL, labelfile = NULL,
     # Adding Groups 
     if (groups == T){
       
-      # 
+      # Labeling
       labels <- labels %>% dplyr::rename(sample.id = 1, groups = 2)
       dt <- tab %>% inner_join(labels, by = "sample.id")
       
-      # 
+      # Plotting
       fig <- plot_ly(data = dt, x = ~ PC1, y = ~ PC2, 
                      color = ~ as.factor(groups), #symbol = ~ as.factor(groups),
                      type = "scatter", mode = "markers", 
@@ -503,7 +502,8 @@ PCA <- function(dir, phenofile = NULL, genofile = NULL, labelfile = NULL,
                yaxis = list(title = paste("Dimension 2 - ", round(PC$var)[2], "%")))
       
     } else { # Without Groups
-
+      
+      # Plotting
       fig <- plot_ly(data = dt, x = ~ PC1, y = ~ PC2, 
                      type = "scatter", mode = "markers", 
                      text = ~ sample.id, marker = list(size = 6)) %>%
@@ -514,6 +514,7 @@ PCA <- function(dir, phenofile = NULL, genofile = NULL, labelfile = NULL,
     htmlwidgets::saveWidget(as_widget(fig), paste0(output, ".PCA_SNPRelated.html"))
     
   }
+  
 }
 
 ##### 3.1: PCA example(s) #####
