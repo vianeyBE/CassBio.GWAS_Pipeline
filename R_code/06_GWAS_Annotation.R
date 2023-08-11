@@ -250,7 +250,7 @@ GWAS_Annotation <- function(Ddir, annot, gff, version, Wdir, name, mod, wdyw){
 
 
 
-###### Example(s) ######
+# Example(s) -------------------------------------------------------------------
 # Set arguments
 # Ddir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/00_Data/"
 # annot <- "Mesculenta_305_v6.1/Mesculenta_305_v6.1.annotation_info.txt"
@@ -261,5 +261,7 @@ GWAS_Annotation <- function(Ddir, annot, gff, version, Wdir, name, mod, wdyw){
 # mod <- c("BLINK", "FarmCPU", "MLM")
 # wdyw <- "gene"
 
-# Run function
+
+
+# Run function -----------------------------------------------------------------
 # GWAS_Annotation(Ddir, annot, gff, version, Wdir, name, mod, wdyw)

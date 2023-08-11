@@ -1,9 +1,6 @@
 # Short name: Multivariate methods for GWAS covariable selection
 # Description: It can perform several multivariate methods (NDMS, MDS, PCA) to identify covariates for GWAS 
-# Output(s): It depends on the chosen method. For example:
-#            - NDMS: An interactive html plot
-#            - MDS: An interactive html plot
-#            - PCA: An interactive html plot
+# Output(s): Interactive html plots
 #
 # Authors: Camilo E. Sanchez (c.e.sanchez@cgiar.org) and Vianey Barrera-Enriquez (vpbarrera@gmail.com)
 #
@@ -104,7 +101,7 @@ NDMS <- function(dir, phenophile, dist = "bray", groups = F){
 
 
 
-##### 1.1: NDMS example(s) #####
+# 1.1: NDMS example(s) ---------------------------------------------------------
 # Phenotypic with groups
 # dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
 # phenofile <- read.csv(paste0(dir, "Prueba.csv"), header = T)
@@ -115,7 +112,9 @@ NDMS <- function(dir, phenophile, dist = "bray", groups = F){
 # phenofile <- read.csv(paste0(dir, "Prueba.csv"), header = T)
 # phenofile <- phenofile[-2]
 
-# Run function
+
+
+# Run function -----------------------------------------------------------------
 # NDMS(dir, phenofile, dist, groups)
 
 
@@ -192,7 +191,7 @@ MDS <- function(dir, phenofile, dist = "gower", groups = F){
 
 
 
-##### 2.1: MDS example(s) #####
+# 2.1: MDS example(s) ----------------------------------------------------------
 # Phenotypic with groups
 # dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
 # phenofile <- read.csv(paste0(dir, "Prueba.csv"), header = T)
@@ -203,7 +202,9 @@ MDS <- function(dir, phenofile, dist = "gower", groups = F){
 # phenofile <- read.csv(paste0(dir, "Prueba.csv"), header = T)
 # phenofile <- phenofile[-2]
 
-# Run function
+
+
+# 2.2: Run MDS function --------------------------------------------------------
 # MDS(dir, phenofile, dist, groups)
 
 
@@ -517,7 +518,9 @@ PCA <- function(dir, phenofile = NULL, genofile = NULL, labelfile = NULL, gds = 
   
 }
 
-##### 3.1: PCA example(s) #####
+
+
+# 3.1: PCA example(s) ----------------------------------------------------------
 # Phenotypic with groups
 # dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
 # phenofile <- read.csv(paste0(dir, "Prueba.csv"), header = T)
@@ -541,6 +544,7 @@ PCA <- function(dir, phenofile = NULL, genofile = NULL, labelfile = NULL, gds = 
 # type <- "Geno"
 # groups <- T
 
-# Run function
-# PCA(dir, phenofile, genofile, gds, vcf, type = "Geno", groups = T, PC.retain = F)
 
+
+# 3.2: Run PCA function --------------------------------------------------------
+# PCA(dir, phenofile, genofile, gds, vcf, type = "Geno", groups = T, PC.retain = F)

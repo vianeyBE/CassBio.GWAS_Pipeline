@@ -344,18 +344,24 @@ Manhattan <- function(Mdir, pat, mod, wtd, colors = c("grey", "skyblue")){
   saveWidget(fig_cm, "GWAS_CM.html", selfcontained = F, libdir = "lib_cm")
   saveWidget(as_widget(fig_cm), "GWAS_CM.html")
   
+  
+  
+  # 5: Function ends -----------------------------------------------------------
+  
   message("Done!")
   
 }
 
 
 
-###### Example(s) ######
+# Example(s) -------------------------------------------------------------------
 # Set arguments
 # Mdir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/01_ACWP_F1_Metabolomics/07_GWAS"
 # pat <- "GAPIT.Association.GWAS_Results"
 # mod <- c("BLINK", "FarmCPU", "MLM")
 # wtd <- "One"
 
-# Run function
+
+
+# Run function -----------------------------------------------------------------
 # Manhattan(Mdir, pat, mod, wtd)
