@@ -8,8 +8,10 @@
 # Mdir: Name of the directory that contains the GAPIT results. For example: home/user/folder.
 # pat: Enter the path of file names to look for. For example: GAPIT.Association.GWAS_Results.
 # mod: Enter the model(s) of interest. Options: BLINK, GLM, MLM, FarmCPU.
-# wtd: How many traits do you want to plot. Options: One, Several, All.
-# colors: (Optional) Colors of the chromosomes in Manhattan plots. If you want to change the colors, provide 2 or more. It can be color names o hex codes (Default: grey and skyblue).
+# wtd: How many traits do you want to plot (Options: One, Several, All).
+# colors: (Optional) Colors of the chromosomes in Manhattan plots.
+#         If you want to change the colors, provide 2 or more.
+#         It can be color names o hex codes (Default: grey and skyblue).
 
 
 
@@ -38,33 +40,26 @@ Manhattan <- function(Mdir, pat, mod, wtd, colors = c("grey", "skyblue")){
   
   # 2: Find all the CSVs with the results and organize them --------------------
   
+  # Informative message
   message("Getting list of CSV files...")
   
-  # Get the names of the files=
+  # Get the names of the files
   setwd(Mdir)
   names <- list.files(path = Mdir, pattern = paste0(pat, "."), all.files = F, full.names = F, recursive = T)
   
-  message(paste("GWAS files found:", length(names)))
+  # Informative messages
+  message(paste0("GWAS files found: ", length(names), "\n\nReading GWAS files..."))
   
-  # Create an empty list and the variable to iterate
-  # Read, rename, modify and save all the csv files in the list
-  message("Reading GWAS files...")
-  
-  # Creates the objects to perform the loop
+  # Create an empty list to store the data the variable to iterate
   csv.l <- list()
-  p <- 0
   
-  # Loop to find the files
+  # Loop to find, read, rename, modify and save all the csv files in the list
   for (i in 1:length(names)){
     
-    # Iterator
-    p <- p + 1
-    
     # Read and modify each one of the csvs
-    dframe <- read.csv(paste0(Mdir, "/", names[p])) %>%
-      mutate(rename = paste0("/", names[p])) %>%
-      tidyr::separate(col = rename, into = c("batch", "data"), sep = paste0(pat, "."),
-                      extra = "drop")
+    dframe <- read.csv(paste0(Mdir, "/", names[i])) %>%
+      mutate(rename = paste0("/", names[i])) %>%
+      tidyr::separate(col = rename, into = c("batch", "data"), sep = paste0(pat, "."), extra = "drop")
     
     # Conditional given the differences in FarmCPU models
     if (gdata::startsWith(dframe[1,10], "Far")){
@@ -94,31 +89,39 @@ Manhattan <- function(Mdir, pat, mod, wtd, colors = c("grey", "skyblue")){
     
   }
   
-  # Merge the data frames of the list in a single data frame
+  # Informative message
   message("All GWAS files were processed")
   
+  # Merge the data frames of the list in a single data frame
   GWAS <- bind_rows(csv.l)
   GWAS <- GWAS %>% na.omit() %>% dplyr::filter(model %in% mod)
   GWAS$Pos<- as.numeric(GWAS$Pos)
   
+  # Informative message
   message(paste("There are:\n",
                 dim(GWAS)[1], "SNPs to plot\n",
                 length(table(GWAS$trait)), "traits\n",
                 length(table(GWAS$model)), "different models (specified in the 'mod' object)"))
   
-  # 3: Preparing and plotting the data  ----------------------------------------
+  
+  
+  # 3: Preparing and plotting the data -----------------------------------------
   
   if (wtd == "One"){
     
+    # Prompt to receive the trait
     tr <- readline(prompt = message(paste(unique(GWAS$trait), collapse = "\n"), "\n\n",
                                     "Choose a trait from the list above and paste its name (exact match): "))
     
+    # Filter the data by trait
     data <- GWAS %>% dplyr::filter(trait == tr)
     
+    # Informative message
     message(paste("You chose the following trait:", tr, "\n\n",
                   "For that trait, there are:\n",
                   dim(data)[1], "SNPs to plot\n"))
     
+    # Prepare the data to plot
     data_cum <- data %>% group_by(Chr) %>%
       summarise(max_bp = max(Pos)) %>% 
       mutate(bp_add = lag(cumsum(max_bp), default = 0)) %>% 
@@ -134,6 +137,7 @@ Manhattan <- function(Mdir, pat, mod, wtd, colors = c("grey", "skyblue")){
       inner_join(data_cum, by = "Chr") %>%
       mutate(center = ((max - min) / 2) + bp_add)
     
+    # Informative message
     message("Making the plots. It can take a few seconds. Please be patient.")
     
     # Manhattan plot
@@ -182,16 +186,20 @@ Manhattan <- function(Mdir, pat, mod, wtd, colors = c("grey", "skyblue")){
     
     if (wtd == "Several"){
       
+      # Prompt to receive the traits
       message(paste(unique(GWAS$trait), collapse = "\n"), "\n\n",
               "Choose the traits from the list above and paste their names in the next function\n\n",
               "Finish with two tabs")
       
       tr <- scan(what = character())
       
+      # Filter the data by trait
       data <- GWAS %>% dplyr::filter(trait %in% tr)
       
+      # Informative message
       message(paste("You chose the following traits:", paste(tr, collapse = "  ")))
       
+      # Prepare the data to plot
       data_cum <- data %>% group_by(Chr) %>%
         summarise(max_bp = max(Pos)) %>% 
         mutate(bp_add = lag(cumsum(max_bp), default = 0)) %>% 
@@ -207,6 +215,7 @@ Manhattan <- function(Mdir, pat, mod, wtd, colors = c("grey", "skyblue")){
         inner_join(data_cum, by = "Chr") %>%
         mutate(center = ((max - min) /2) + bp_add)
       
+      # Informative message
       message("Making the plots. It can take a few seconds. Please be patient.")
       
       # Manhattan plot
@@ -259,10 +268,13 @@ Manhattan <- function(Mdir, pat, mod, wtd, colors = c("grey", "skyblue")){
       
       if (wtd == "All"){
         
+        # Copy the data
         data <- GWAS
         
+        # Informative message
         message(paste(dim(data)[1], "SNPs and", length(unique(data$trait)), "traits will be plotted"))
         
+        # Prepate the data to plot
         data_cum <- data %>% group_by(Chr) %>%
           summarise(max_bp = max(Pos)) %>% 
           mutate(bp_add = lag(cumsum(max_bp), default = 0)) %>% 
@@ -278,6 +290,7 @@ Manhattan <- function(Mdir, pat, mod, wtd, colors = c("grey", "skyblue")){
           inner_join(data_cum, by = "Chr") %>%
           mutate(center = ((max - min) /2) + bp_add)
         
+        # Informative message
         message("Making the plots. It can take a few seconds. Please be patient.")
         
         # Manhattan plot
@@ -324,6 +337,7 @@ Manhattan <- function(Mdir, pat, mod, wtd, colors = c("grey", "skyblue")){
         
       } else {
         
+        # Inform about an error in the argument
         message("You can only choose the following options: 'One', 'Several', or 'All' (exact match)")
         
       }
@@ -334,10 +348,11 @@ Manhattan <- function(Mdir, pat, mod, wtd, colors = c("grey", "skyblue")){
   
   # 4: Saving the plots  -------------------------------------------------------
   
-  # Save plots
+  # Transform the plots in plotly objects
   fig_man <- ggplotly(fig_man)
   fig_cm <- ggplotly(fig_cm)
   
+  # Save plots
   saveWidget(fig_man, "GWAS_Manhattan.html", selfcontained = F, libdir = "lib_man")
   saveWidget(as_widget(fig_man), "GWAS_Manhattan.html")
   
@@ -347,6 +362,8 @@ Manhattan <- function(Mdir, pat, mod, wtd, colors = c("grey", "skyblue")){
   
   
   # 5: Function ends -----------------------------------------------------------
+  
+  
   
   message("Done!")
   
