@@ -7,6 +7,7 @@
 # Arguments:
 # phenofile: Measurements or BLUPs of the traits. Row are individuals and columns are traits/variables
 # genofile: Genotype data on hapmap format
+# models: Vector with the model or models to evaluate
 # wdir: Working directory. Here it will create the folders for each trait
 # trait_list: Vector with the trait's name to do GWAS. Default NULL
 
@@ -80,7 +81,7 @@ GAPIT3 <- function(phenofile, genofile, wdir, trait_list = NULL){
       Y = myY[, c(taxacol, trait)],
       G = myG,
       PCA.total = 10,
-      model = c("GLM", "MLM", "FarmCPU", "Blink"),
+      model = models,
       Multiple_analysis = T,
       # Geno.View.output = F,
       # Phenotype.View = F,
@@ -111,6 +112,7 @@ GAPIT3 <- function(phenofile, genofile, wdir, trait_list = NULL){
 # Set arguments
 # phenofile <- "datos_morfo_blups_CTS_dummy_noparents.csv"
 # genofile <- "CTS1_Family.snps.filter_info_filtered_01.recode_noparents.hmp.txt"
+# models <- c("MLMM", "SUPER", "FarmCPU", "Blink")
 # dir <- "D:/OneDrive - CGIAR/00_CassavaBioinformaticsPlatform/02_CTS_Drought_Family/03_GWAS/"
 # trait_list <- NULL
 
