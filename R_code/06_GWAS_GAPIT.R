@@ -24,18 +24,17 @@ GAPIT3 <- function(phenofile, genofile, wdir, trait_list = NULL){
   
   
   # 1: Load packages and data --------------------------------------------------
-  
   if (!require(devtools)) install.packages(devtools)
   devtools::install_github("jiabowang/GAPIT3", force = T)
   
   library(devtools)
-  library(GAPIT3)
+  library(GAPIT)
 
-  myY2  <- read.csv(paste0(dir, phenofile))
+  myY2 <- read.csv(paste0(dir, phenofile))
   myG <- read.delim(paste0(dir, genofile), head = F)
   taxacol <- names(myY2)[1] <- "Taxa"
   
-  # 
+  # Determines if use complete dataset or not
   if (is.null(trait_list)){
     
     # Informative message
@@ -56,15 +55,15 @@ GAPIT3 <- function(phenofile, genofile, wdir, trait_list = NULL){
   }
   
   # Informative messages
-  message("Number of traits: ", dim(myY)[2] - 1)
-  message("Number of samples: ", dim(myY)[1])
-  message("Number of samples: ", dim(myG)[2] - 11)
+  message("Number of traits in phenofile: ", dim(myY)[2] - 1)
+  message("Number of samples in phenofile: ", dim(myY)[1])
+  message("Number of samples in genofile: ", dim(myG)[2] - 11)
   
   
   
   # 2: GAPIT -------------------------------------------------------------------
   
-  # 
+  # GWAS
   for (trait in trait_list){
     
     # Creation and setting working directories
@@ -110,10 +109,10 @@ GAPIT3 <- function(phenofile, genofile, wdir, trait_list = NULL){
 
 ###### Example(s) ######
 # Set arguments
-# phenofile <- "datos_morfo_blups_CTS_dummy_noparents.csv"
-# genofile <- "CTS1_Family.snps.filter_info_filtered_01.recode_noparents.hmp.txt"
-# models <- c("MLMM", "SUPER", "FarmCPU", "Blink")
-# dir <- "D:/OneDrive - CGIAR/00_CassavaBioinformaticsPlatform/02_CTS_Drought_Family/03_GWAS/"
+# phenofile <- "cbsv_pheno_filter.csv"
+# genofile <- "10000_50_0.8_03_group6_filter.hmp.txt"
+# models <- c("Blink", "FarmCPU")
+# dir <- "D:/OneDrive - CGIAR/00_CassavaBioinformaticsPlatform/04_CBSD_Group6/08_LD_Test/"
 # trait_list <- NULL
 
 # Run function

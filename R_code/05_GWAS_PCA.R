@@ -1,22 +1,3 @@
-# Short name: Multivariate methods for GWAS covariable selection
-# Description: It can perform several multivariate methods (NDMS, MDS, PCA) to identify covariates for GWAS 
-# Output(s): Interactive html plots
-#
-# Authors: Camilo E. Sanchez (c.e.sanchez@cgiar.org) and Vianey Barrera-Enriquez (vpbarrera@gmail.com)
-#
-# Arguments: 
-# 1. For NDMS:
-# dir: Directory where data is located.
-# phenofile: A database of genotypes/individuals (rows) and their traits (columns). First column must be genotypes/individuals names.
-# dist: Dissimilarity index/measure to use (default = "bray").
-# groups: Boolean value indicating whether the data includes different treatments/groups (default = F). If `TRUE` is selected then the second column of the `phenofile` must be the groups/treatments.
-#
-# 2. For MDS:
-# dir: Directory where data is located.
-# phenofile: A database of genotypes/individuals (rows) and their traits (columns). First column must be genotypes/individuals names.
-# dist: Dissimilarity index/measure to use (default = "gower").
-# groups: Boolean value indicating whether the data includes different treatments/groups (default = F). If `TRUE` is selected then the second column of the `phenofile` must be the groups/treatments.
-#
 # 3. For PCA:
 # dir: Directory where data is located.
 # phenofile: A database of genotypes/individuals (rows) and their traits (columns). First column must be genotypes/individuals names.
@@ -28,194 +9,20 @@
 # groups: Boolean value indicating whether the data includes different treatments/groups (default = F). If `TRUE` is selected then the second column of the `phenofile` must be the groups/treatments.
 # PC.retain: Boolean value indicating whether to analyze how many PCs retain (default = F).
 
-
-
-##### To do #####
-# Everything is good!
-
-
-
-# 1: Non-metric multidimensional scaling (NDMS) --------------------------------
-
-NDMS <- function(dir, phenophile, dist = "bray", groups = F){
-  
-  # Set working directory
-  setwd(dir)
-  
-  # Load libraries
-  library(vegan)
-  library(tidyverse)
-  library(plotly)
-  library(htmlwidgets)
-  
-  # Conditional for color case
-  if (groups == T){
-    
-    # Database handling
-    names <- phenofile[1]
-    tr <- phenofile[2]
-    phenofile <- phenofile[3:dim(phenofile)[2]]
-    
-    # Peform the NDMS
-    NDMS <- metaMDS(phenofile, distance = dist, binary = F, autotransform = T)
-    NDMS.pd <- as.data.frame(scores(MDS, display = c("sites")))
-    
-    # Merge MDS data with their names
-    NDMS.f <- cbind(names, tr, NDMS.pd) 
-    NDMS.f <- NDMS.f %>% rename(Label = 1, Treat = 2)
-    
-    # Plot MDS
-    fig <- plot_ly(data = NDMS.f, x = ~ NMDS1, y = ~ NMDS2, color = ~ as.factor(Treat), type = 'scatter',
-                   mode = 'markers', symbol = ~ as.factor(Treat), text = ~ Label) %>%
-      layout(legend = list(title = list(text = '<b> Groups </b>'), orientation = 'h'))
-    
-    # Save the plot
-    saveWidget(fig, "GWAS_NDMS.html", selfcontained = F, libdir = "lib")
-    saveWidget(as_widget(fig), "GWAS_NDMS.html")
-    
-    } else {
-      
-      # Database handling
-      names <- phenofile[1]
-      phenofile <- phenofile[-1]
-      
-      # Perform NDMS
-      NDMS <- metaMDS(phenofile, distance = dist, binary = F, autotransform = T)
-      NDMS.pd <- as.data.frame(scores(NDMS, display = c("sites")))
-      
-      # Merge MDS data with their names
-      NDMS.f <- cbind(names, NDMS.pd)
-      NDMS.f <- NDMS.f %>% rename(Label = 1)
-      
-      # Plot MDS
-      fig <- plot_ly(data = NDMS.f, x = ~ NMDS1, y = ~ NMDS2, type = 'scatter',
-                     mode = 'markers', text = ~ Label)
-      
-      # Save the plot
-      saveWidget(fig, "GWAS_NDMS.html", selfcontained = F, libdir = "lib")
-      saveWidget(as_widget(fig), "GWAS_NDMS.html")
-      
-    }
-  
-}
-
-
-
-# 1.1: NDMS example(s) ---------------------------------------------------------
-# Phenotypic with groups
-# dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
-# phenofile <- read.csv(paste0(dir, "Prueba.csv"), header = T)
-# groups <- T
-
-# Phenotypic without groups
-# dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
-# phenofile <- read.csv(paste0(dir, "Prueba.csv"), header = T)
-# phenofile <- phenofile[-2]
-
-
-
-# Run function -----------------------------------------------------------------
-# NDMS(dir, phenofile, dist, groups)
-
-
-
-# 2: Multidimensional scaling (MDS) --------------------------------------------
-
-MDS <- function(dir, phenofile, dist = "gower", groups = F){
-  
-  # Set working directory
-  setwd(dir)
-  
-  # Load libraries
-  library(vegan)
-  library(tidyverse)
-  library(plotly)
-  library(htmlwidgets)
-  
-  # Conditional for color case
-  if (groups == T){
-    
-    # Database handling
-    names <- phenofile[1]
-    tr <- phenofile[2]
-    phenofile <- phenofile[3:dim(phenofile)[2]]
-    
-    # Performs MDS, calculates cumulative variance
-    diss <- vegdist(phenofile, method = dist) # dist function can also be used
-    MDS <- cmdscale(diss, eig = T, x.ret = T)
-    MDS.var <- round(MDS$eig / (sum(MDS$eig) * 100), 3)
-    
-    # Merge NDMS data with their names
-    MDS.f <- cbind(names, tr, MDS$points)
-    MDS.f <- MDS.f %>% rename(Label = 1, Treat = 2, MDS1 = 3, MDS2 = 4)
-    
-    # Plot
-    fig <- plot_ly(data = MDS.f, x = ~ MDS1, y = ~ MDS2, color = ~ as.factor(Treat), type = 'scatter',
-                   mode = 'markers', symbol = ~ as.factor(Treat), text = ~ Label) %>%
-      layout(legend = list(title = list(text = '<b> Groups </b>'), orientation = 'h'),
-             xaxis = list(title = paste("MDS1 - ", MDS.var[1], "%", sep = "")), 
-             yaxis = list(title = paste("MDS2 - ", MDS.var[2], "%", sep = "")))
-    
-    # Save the plot
-    saveWidget(fig, "GWAS_MDS.html", selfcontained = F, libdir = "lib")
-    saveWidget(as_widget(fig), "GWAS_MDS.html")
-    
-  } else {
-    
-    # Database handling
-    names <- phenofile[1]
-    phenofile <- phenofile[2:dim(phenofile)[2]]
-    
-    # Performs MDS, calculates cumulative variance
-    diss <- vegdist(phenofile, method = dist) # dist function can also be used
-    MDS <- cmdscale(diss, eig = T, x.ret = T)
-    MDS.var <- round(MDS$eig / (sum(MDS$eig) * 100), 3)
-    
-    # Merge NDMS data with their names
-    MDS.f <- cbind(names, MDS$points)
-    MDS.f <- MDS.f %>% rename(Label = 1, MDS1 = 2, MDS2 = 3)
-    
-    # Plot
-    fig <- plot_ly(data = MDS.f, x = ~ MDS1, y = ~ MDS2, type = 'scatter',
-                   mode = 'markers', text = ~ Label) %>%
-      layout(xaxis = list(title = paste("MDS1 - ", MDS.var[1], "%", sep = "")), 
-             yaxis = list(title = paste("MDS2 - ", MDS.var[2], "%", sep = "")))
-    
-    # Save the plot
-    saveWidget(fig, "GWAS_MDS.html", selfcontained = F, libdir = "lib")
-    saveWidget(as_widget(fig), "GWAS_MDS.html")
-    
-  }
-  
-}
-
-
-
-# 2.1: MDS example(s) ----------------------------------------------------------
-# Phenotypic with groups
-# dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
-# phenofile <- read.csv(paste0(dir, "Prueba.csv"), header = T)
-# groups <- T
-
-# Phenotypic without groups
-# dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
-# phenofile <- read.csv(paste0(dir, "Prueba.csv"), header = T)
-# phenofile <- phenofile[-2]
-
-
-
-# 2.2: Run MDS function --------------------------------------------------------
-# MDS(dir, phenofile, dist, groups)
-
-
-
 # 3: Principal component analysis (PCA) ----------------------------------------
 
-PCA <- function(dir, phenofile = NULL, genofile = NULL, labelfile = NULL, gds = NULL, vcf = NULL, 
-                type = "Pheno", PC.retain = F, prefixVCF = "chr", output, num.thread = 3){
+PCA <- function(dir, phenofile, genofile, labelfile, gds, vcf, type, PC.retain, prefixVCF, output, num.thread){
   
   # Set working directory
   setwd(dir)
+  
+  #
+  if (!require(SNPRelate)) install.packages(SNPRelate)
+  if (!require(gdsfmt)) install.packages(gdsfmt)
+  if (!require(tidyverse)) install.packages(tidyverse)
+  if (!require(psych)) install.packages(psych)
+  if (!require(plotly)) install.packages(plotly)
+  if (!require(htmlwidgets)) install.packages(htmlwidgets)
   
   # Load libraries
   library(SNPRelate)
@@ -359,14 +166,14 @@ PCA <- function(dir, phenofile = NULL, genofile = NULL, labelfile = NULL, gds = 
               "Reformatting it to a GDS file and then transforming it to a SNPGDSFileClass file")
       
       # Paste the path
-      gds <- paste0(output, ".gds")
+      gds <- paste0(dir, output, ".gds")
       
       # Read and transform the files
       snpgdsVCF2GDS(vcf, gds, ignore.chr.prefix = prefixVCF, verbose = F)
       genofile <- snpgdsOpen(gds)
       sample_id <- read.gdsn(index.gdsn(genofile, "sample.id"))
       
-      } else {
+    } else {
       
       # If gds is provided
       if (!is.null(gds)){
@@ -386,7 +193,7 @@ PCA <- function(dir, phenofile = NULL, genofile = NULL, labelfile = NULL, gds = 
           
           message("Genofile (SNPGDSFileClass file) is provided...\n\n",
                   "PCA function continues regularly")
-        
+          
         }
       }
     }
@@ -396,7 +203,7 @@ PCA <- function(dir, phenofile = NULL, genofile = NULL, labelfile = NULL, gds = 
       message("Label file provided by the user ")
       groups <- T
       labels <- read.csv(labelfile)
-       
+      
     } else {
       
       message("No labels provided ")
@@ -406,10 +213,10 @@ PCA <- function(dir, phenofile = NULL, genofile = NULL, labelfile = NULL, gds = 
     
     message("Files loaded successfully!")
     
-
+    
     # PCA - SNPRelate ----------------------------------------------------------
     PCA <- snpgdsPCA(genofile, autosome.only = T, remove.monosnp = T, need.genmat = T,
-                     #algorithm = "exact", eigen.method = "DSPEVX", 
+                     algorithm = "exact", eigen.method = "DSPEVX", 
                      num.thread = num.thread, verbose = F)
     
     # Saving PCs
@@ -419,9 +226,9 @@ PCA <- function(dir, phenofile = NULL, genofile = NULL, labelfile = NULL, gds = 
     
     write.csv(PCA[["eigenval"]], paste0(output, '.PC_SNPrelated.csv'), quote = F)
     
-
+    
     # PCs retaining analysis ---------------------------------------------------
-
+    
     if (PC.retain == T) {
       
       message("Principal components retaining analyses in process")
@@ -462,9 +269,9 @@ PCA <- function(dir, phenofile = NULL, genofile = NULL, labelfile = NULL, gds = 
       
     }
     
-
+    
     # Plots --------------------------------------------------------------------
-  
+    
     # Scree plot - Individual variance
     ind_var <- plot_ly(data = PC, x = ~ PC, y = ~ var, type = "scatter", 
                        mode = "lines+markers", text = ~ round(var, 2),
@@ -505,12 +312,13 @@ PCA <- function(dir, phenofile = NULL, genofile = NULL, labelfile = NULL, gds = 
     } else { # Without Groups
       
       # Plotting
-      fig <- plot_ly(data = dt, x = ~ PC1, y = ~ PC2, 
+      fig <- plot_ly(data = tab, x = ~ PC1, y = ~ PC2, 
                      type = "scatter", mode = "markers", 
                      text = ~ sample.id, marker = list(size = 6)) %>%
         layout(xaxis = list(title = paste("Dimension 1 - ", round(PC$var)[1], "%")),
                yaxis = list(title = paste("Dimension 2 - ", round(PC$var)[2], "%")))
-      }
+      
+    }
     
     htmlwidgets::saveWidget(as_widget(fig), paste0(output, ".PCA_SNPRelated.html"))
     
@@ -521,29 +329,16 @@ PCA <- function(dir, phenofile = NULL, genofile = NULL, labelfile = NULL, gds = 
 
 
 # 3.1: PCA example(s) ----------------------------------------------------------
-# Phenotypic with groups
-# dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
-# phenofile <- read.csv(paste0(dir, "Prueba.csv"), header = T)
-# groups <- T
-
-# Phenotypic without groups
-# dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
-# phenofile <- read.csv(paste0(dir, "Prueba.csv"), header = T)
-# phenofile <- phenofile[-2]
-
-# Genotypic with groups
-# dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/03_GWAS_PPD_Populations/02_PCA/"
-# labels <- read.csv(paste0(dir, "GWAS_PPD.labels.csv"))
-# vcf <- "GWAS_PPD.snps.filter_info.missing_0.10.imputation.vcf.gz"
+# Genotypic without groups
+# dir <- "D:/OneDrive - CGIAR/00_CassavaBioinformaticsPlatform/03_PPD/00_Data/00_Geno/"
+# labelfile <- NULL
+# vcf <- "chrs_PPD_v6_filterGATK.vcf"
 # type <- "Geno"
-# groups <- T
-
-# dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/01_ACWP_F2_Phenotype/01_Population_Structure/"
-# labels <- read.csv(paste0(dir, "AM1588_labels.csv"))
-# vcf <- "AM1588_MAP.miss0.05.recode.vcf"
-# type <- "Geno"
-# groups <- T
-
+# groups <- F
+# output <- "chrs_PPD_v6_filterGATK"
+# PC.retain = F
+# prefixVCF = "Chromosome"
+# num.thread = 4
 
 
 # 3.2: Run PCA function --------------------------------------------------------
