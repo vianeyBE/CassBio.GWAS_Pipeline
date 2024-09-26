@@ -8,7 +8,7 @@
 # phenofile: Measurements or BLUPs of the traits. Row are individuals and columns are traits/variables
 # genofile: Genotype data on hapmap format
 # models: Vector with the model or models to evaluate
-# wdir: Working directory. Here it will create the folders for each trait
+# dir: Working directory. Here it will create the folders for each trait
 # trait_list: Vector with the trait's name to do GWAS. Default NULL
 
 
@@ -19,7 +19,7 @@
 
 
 # 0: Function init -------------------------------------------------------------
-GAPIT3 <- function(phenofile, genofile, wdir, trait_list = NULL){
+GAPIT3 <- function(phenofile, genofile, dir, trait_list = NULL){
   
   
   
@@ -27,9 +27,11 @@ GAPIT3 <- function(phenofile, genofile, wdir, trait_list = NULL){
   if (!require(devtools)) install.packages(devtools)
   devtools::install_github("jiabowang/GAPIT3", force = T)
   
+  #
   library(devtools)
   library(GAPIT)
-
+  
+  #
   myY2 <- read.csv(paste0(dir, phenofile))
   myG <- read.delim(paste0(dir, genofile), head = F)
   taxacol <- names(myY2)[1] <- "Taxa"
@@ -57,12 +59,13 @@ GAPIT3 <- function(phenofile, genofile, wdir, trait_list = NULL){
   # Informative messages
   message("Number of traits in phenofile: ", dim(myY)[2] - 1)
   message("Number of samples in phenofile: ", dim(myY)[1])
+  
   message("Number of samples in genofile: ", dim(myG)[2] - 11)
+  message("Number of SNPs in genofile: ", dim(myG)[1] - 1)
   
   
   
   # 2: GAPIT -------------------------------------------------------------------
-  
   # GWAS
   for (trait in trait_list){
     
@@ -77,18 +80,18 @@ GAPIT3 <- function(phenofile, genofile, wdir, trait_list = NULL){
     # Actually run the GAPIT function to GWAS
     myGAPIT <- GAPIT(
       
-      Y = myY[, c(taxacol, trait)],
-      G = myG,
-      PCA.total = 10,
-      model = models,
-      Multiple_analysis = T,
-      # Geno.View.output = F,
-      # Phenotype.View = F,
-      Model.selection = T,
-      Random.model = F,
-      # kinship.cluster = "average", 
-      # kinship.group = "Mean",
-      # Inter.Plot = F
+      Y = myY[, c(taxacol, trait)], # Phenotypic data
+      G = myG, # Genotypic data
+      PCA.total = 10, # Principal components to retain
+      model = models, # Model(s) to use
+      Multiple_analysis = T, # Allow multiple analyses
+      Geno.View.output = T, # Visualization of geno data
+      Phenotype.View = T, # Visualization of pheno data
+      Model.selection = T, # Select a model
+      Random.model = T, # Do not include random effects
+      kinship.cluster = "average", # Clustering method
+      kinship.group = "Mean", # Type of grouping of indvs
+      Inter.Plot = F # Interactive plots
       
     )
     
@@ -98,9 +101,7 @@ GAPIT3 <- function(phenofile, genofile, wdir, trait_list = NULL){
     
   }
   
-  
   # 3: Function ends -----------------------------------------------------------
-  
   message("Done!")
   
 }
@@ -109,10 +110,10 @@ GAPIT3 <- function(phenofile, genofile, wdir, trait_list = NULL){
 
 ###### Example(s) ######
 # Set arguments
-# phenofile <- "cbsv_pheno_filter.csv"
-# genofile <- "10000_50_0.8_03_group6_filter.hmp.txt"
-# models <- c("Blink", "FarmCPU")
-# dir <- "D:/OneDrive - CGIAR/00_CassavaBioinformaticsPlatform/04_CBSD_Group6/08_LD_Test/"
+# phenofile <- "cbsd_pheno_GAPIT.csv"
+# genofile <- "23_group6.hmp.txt"
+# models <- c("MLMM", "Blink", "FarmCPU")
+# dir <- "D:/OneDrive - CGIAR/00_CassavaBioinformaticsPlatform/04_CBSD_Group6/06_GWAS_Camilo/"
 # trait_list <- NULL
 
 # Run function
