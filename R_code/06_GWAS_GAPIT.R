@@ -19,19 +19,20 @@
 
 
 # 0: Function init -------------------------------------------------------------
-GAPIT3 <- function(phenofile, genofile, dir, trait_list = NULL){
+GAPIT3 <- function(phenofile, genofile, dir, models, trait_list = NULL){
   
   
   
   # 1: Load packages and data --------------------------------------------------
+  # Install packages if needed
   if (!require(devtools)) install.packages(devtools)
   devtools::install_github("jiabowang/GAPIT3", force = T)
   
-  #
+  # Load packages
   library(devtools)
   library(GAPIT)
   
-  #
+  # Load data
   myY2 <- read.csv(paste0(dir, phenofile))
   myG <- read.delim(paste0(dir, genofile), head = F)
   taxacol <- names(myY2)[1] <- "Taxa"
@@ -57,9 +58,11 @@ GAPIT3 <- function(phenofile, genofile, dir, trait_list = NULL){
   }
   
   # Informative messages
+  # About phenofile
   message("Number of traits in phenofile: ", dim(myY)[2] - 1)
   message("Number of samples in phenofile: ", dim(myY)[1])
   
+  # About genofile
   message("Number of samples in genofile: ", dim(myG)[2] - 11)
   message("Number of SNPs in genofile: ", dim(myG)[1] - 1)
   
@@ -107,13 +110,12 @@ GAPIT3 <- function(phenofile, genofile, dir, trait_list = NULL){
 }
 
 
-
 ###### Example(s) ######
 # Set arguments
-# phenofile <- "cbsd_pheno_GAPIT.csv"
+# phenofile <- "cbsd_pheno_filter.csv"
 # genofile <- "23_group6.hmp.txt"
 # models <- c("MLMM", "Blink", "FarmCPU")
-# dir <- "D:/OneDrive - CGIAR/00_CassavaBioinformaticsPlatform/04_CBSD_Group6/06_GWAS_Camilo/"
+# dir <- "D:/OneDrive - CGIAR/00_BioInf_Platform/04_CBSD_Group6/06_GWAS_Camilo/"
 # trait_list <- NULL
 
 # Run function
