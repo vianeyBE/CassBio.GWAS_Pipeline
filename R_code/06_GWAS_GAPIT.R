@@ -53,7 +53,7 @@ GAPIT3 <- function(phenofile, genofile, dir, models, trait_list = NULL){
     message("Subsetting according provided list")
     
     # 
-    myY <- myY2[, c(taxacol, selection)]
+    myY <- myY2[, c(taxacol, trait_list)]
     
   }
   
@@ -110,12 +110,13 @@ GAPIT3 <- function(phenofile, genofile, dir, models, trait_list = NULL){
 }
 
 
+
 ###### Example(s) ######
 # Set arguments
-# phenofile <- "cbsd_pheno_filter.csv"
-# genofile <- "23_group6.hmp.txt"
+# phenofile <- "Traits_noparents.csv"
+# genofile <- "GATK_noparents.hmp.txt"
 # models <- c("MLMM", "Blink", "FarmCPU")
-# dir <- "D:/OneDrive - CGIAR/00_BioInf_Platform/04_CBSD_Group6/06_GWAS_Camilo/"
+# dir <- "/datas3/Cassava/Cassava_Analysis/Cassava_BGI_VCF/2024-07-17_group7/GWAS/GAPIT/"
 # trait_list <- NULL
 
 # Run function
