@@ -1,40 +1,58 @@
-# 3. For PCA:
+# Short name: PCA.
+# Description: Principal component analysis for phenotypic and genotypic data.
+# Output: It saves the results of PCA and its plots in the working folder
+#
+# Author: Camilo E. Sánchez-Sarria (c.e.sanchez@cgiar.org)
+#
+# Arguments:
 # dir: Directory where data is located.
-# phenofile: A database of genotypes/individuals (rows) and their traits (columns). First column must be genotypes/individuals names.
-# genofile: An object of class SNPGDSFileClass (GDS file read with the `snpgdsOpen` function from `SNPRelate` package).
-# labels: When provide a `genofile` and `groups` argument is `TRUE`, please provide a dataframe with genotypes/individuals in the first column and groups/treatment data in the second column.
-# gds: A Genomic Data Structures (GDS) file (a reformatted VCF file with the `snpgdsVCF2GDS` function from `vcfR` package).
-# vcf: A Variant Call Format (VCF) file containing DNA polymorphism data such as SNPs, insertions, deletions and structural variants, together with rich annotations.
-# type: A character string indicating wheter data is phenotypic ("pheno") or genotypic ("geno") (default = Pheno).
-# groups: Boolean value indicating whether the data includes different treatments/groups (default = F). If `TRUE` is selected then the second column of the `phenofile` must be the groups/treatments.
+# data: If phenofile: A csv file of genotypes (rows) and their traits (columns). First column must be genotypes.
+#       If genofile: A Variant Call Format (VCF) file.
+# labels: Dataframe with genotypes in the first column and groups data in the second column.
 # PC.retain: Boolean value indicating whether to analyze how many PCs retain (default = F).
 
-# 3: Principal component analysis (PCA) ----------------------------------------
 
-PCA <- function(dir, phenofile, genofile, labelfile, gds, vcf, type, PC.retain, prefixVCF, output, num.thread){
+
+##### To do #####
+# Everything is good!
+
+
+
+# 0: Function init -------------------------------------------------------------
+PCA <- function(dir, data, labels, PC.retain){
   
-  # Set working directory
-  setwd(dir)
   
-  #
-  if (!require(SNPRelate)) install.packages(SNPRelate)
-  if (!require(gdsfmt)) install.packages(gdsfmt)
-  if (!require(tidyverse)) install.packages(tidyverse)
-  if (!require(psych)) install.packages(psych)
-  if (!require(plotly)) install.packages(plotly)
-  if (!require(htmlwidgets)) install.packages(htmlwidgets)
+  
+  # 1: Load packages and data --------------------------------------------------
+  # Install packages if needed
+  if (!require("BiocManager", quietly = T)) install.packages("BiocManager")
+  if (!require(SNPRelate)) BiocManager::install("SNPRelate")
+  if (!require(gdsfmt)) install.packages("gdsfmt")
+  if (!require(tidyverse)) install.packages("tidyverse")
+  if (!require(psych)) install.packages("psych")
+  if (!require(plotly)) install.packages("plotly")
+  if (!require(htmlwidgets)) install.packages("htmlwidgets")
+  if (!require(tools)) install.packages("tools")
   
   # Load libraries
   library(SNPRelate)
-  library(gdsfmt)
   library(tidyverse)
   library(psych)
-  library(plotly)
-  library(htmlwidgets)
+  library(tools)
+  
+  
+  
+  # 2: Determines which path continue in the analysis -------------------------- 
+  # Set working directory
+  setwd(dir)
+  
+  # Get extension for file name
+  ext <- file_ext(paste0(data))
   
   # Conditional to determine if the data is genotypic of phenotypic
-  if (type == "Pheno"){
+  if (ext == "csv"){
     
+    # Informative message
     message("Selected data option: Phenotypic")
     
     # Conditional for groups / no groups database handling
@@ -153,56 +171,43 @@ PCA <- function(dir, phenofile, genofile, labelfile, gds, vcf, type, PC.retain, 
     
   } else {
     
+    
+    
+    # 2.2: Genotypic PCA -------------------------------------------------------
+    
+    # 2.2.1: Read and transform the data ---------------------------------------
+    
     # Informative message
-    message("Selected data option: Genotypic")
+    message(paste0("Selected data option: Genotypic\n\n",
+                   "Reading VCF file: ", data, "\n"))
     
-    # Loading files ------------------------------------------------------------
+    # Reading VCF
+    prefixVCF <- readline("Please enter the chromosomes prefix in the VCF: ")
     
-    # If vcf is provided
-    if (!is.null(vcf)){
-      
-      message("VCF file provided...\n\n", 
-              "Reading VCF file...\n\n",
-              "Reformatting it to a GDS file and then transforming it to a SNPGDSFileClass file")
-      
-      # Paste the path
-      gds <- paste0(dir, output, ".gds")
-      
-      # Read and transform the files
-      snpgdsVCF2GDS(vcf, gds, ignore.chr.prefix = prefixVCF, verbose = F)
-      genofile <- snpgdsOpen(gds)
-      sample_id <- read.gdsn(index.gdsn(genofile, "sample.id"))
-      
-    } else {
-      
-      # If gds is provided
-      if (!is.null(gds)){
-        
-        message("GDS file provided...\n\n", 
-                "Reading CDS file...\n\n",
-                "Transforming it to a SNPGDSFileClass file")
-        
-        # Read and transform the files
-        genofile <- snpgdsOpen(gds)
-        sample_id <- read.gdsn(index.gdsn(genofile, "sample.id"))
-        
-      } else {
-        
-        # If genofile is provided (in SNPGDSFileClass format)
-        if (!is.null(genofile)){
-          
-          message("Genofile (SNPGDSFileClass file) is provided...\n\n",
-                  "PCA function continues regularly")
-          
-        }
-      }
-    }
+    # Informative message
+    message("Reformatting data to a GDS file and to a SNPGDSFileClass file...\n")
     
-    if ( !is.null(labelfile)){
+    # Extract the prefix
+    prefix <- file_path_sans_ext(data)
+    
+    # Generate a path to store the gds file
+    gds <- paste0(dir, prefix, ".gds")
+      
+    # Read and transform the files
+    snpgdsVCF2GDS(data, gds, ignore.chr.prefix = prefixVCF, verbose = F)
+    genofile <- snpgdsOpen(gds)
+    sample_id <- read.gdsn(index.gdsn(genofile, "sample.id"))
+    
+    
+    
+    # 2.2.2: Read (or not) labels for PCA --------------------------------------
+    
+    if (!is.null(labels)){
       
       message("Label file provided by the user ")
       groups <- T
-      labels <- read.csv(labelfile)
+      labels <- read.csv(labels)
+      message("Files loaded successfully!")
       
     } else {
       
@@ -211,23 +216,24 @@ PCA <- function(dir, phenofile, genofile, labelfile, gds, vcf, type, PC.retain, 
       
     }
     
-    message("Files loaded successfully!")
     
     
-    # PCA - SNPRelate ----------------------------------------------------------
-    PCA <- snpgdsPCA(genofile, autosome.only = T, remove.monosnp = T, need.genmat = T,
-                     algorithm = "exact", eigen.method = "DSPEVX", 
-                     num.thread = num.thread, verbose = F)
+    # 2.2.3: Perform the PCA ---------------------------------------------------
     
-    # Saving PCs
+    PCA <- snpgdsPCA(genofile, autosome.only = F, remove.monosnp = T, need.genmat = T,
+                     algorithm = "exact", eigen.method = "DSPEVX", num.thread = 4, 
+                     verbose = F)
+    
+    # Saving PCs data
     PC <- data.frame(PC = 1:length(PCA$varprop), id = PCA[["sample.id"]],
                      eigen = PCA[["eigenval"]], var = PCA$varprop * 100) %>%
       mutate(var.cum = cumsum(var))
     
-    write.csv(PCA[["eigenval"]], paste0(output, '.PC_SNPrelated.csv'), quote = F)
+    write.csv(PCA[["eigenval"]], paste0(prefix, '.PCA_SNPRelate.csv'), quote = F)
     
     
-    # PCs retaining analysis ---------------------------------------------------
+    
+    # 2.2.4: PCs retaining analysis --------------------------------------------
     
     if (PC.retain == T) {
       
@@ -270,27 +276,30 @@ PCA <- function(dir, phenofile, genofile, labelfile, gds, vcf, type, PC.retain, 
     }
     
     
-    # Plots --------------------------------------------------------------------
+    
+    # 2.2.5: Plots -------------------------------------------------------------
     
     # Scree plot - Individual variance
-    ind_var <- plot_ly(data = PC, x = ~ PC, y = ~ var, type = "scatter", 
-                       mode = "lines+markers", text = ~ round(var, 2),
-                       line = list(color = "grey")) %>% 
-      layout(xaxis = list(title = "PC"), yaxis = list(title = "Explained variance (%)"))
-    
-    htmlwidgets::saveWidget(as_widget(ind_var), paste0(output, ".ind_variance.html"))
+    ind_var <- filter(PC, var != "NaN") %>%
+      ggplot(aes(x = as.factor(PC), y = var)) +
+      geom_bar(stat = "identity", fill = "grey", color = "black") +
+      labs(x = "PCs", y = "Explained variance (%)") +
+      theme_classic() +
+      theme(axis.title = element_text(color = "black", size = 16),
+            axis.text = element_text(color = "black", size = 16))
     
     # Scree plot -  Cumulative variance
-    cum_var <- plot_ly(data = PC, x = ~ PC, y = ~ var.cum, type = "scatter",
-                       mode = "lines+markers", text = ~ round(var.cum, 2), 
-                       line = list(color = "grey")) %>%
-      layout(xaxis = list(title = "PC"), yaxis = list(title = "Cumulative variance (%)"))
-    
-    htmlwidgets::saveWidget(as_widget(cum_var), paste0(output, ".cum_variance.html"))
+    cum_var <- filter(PC, var != "NaN") %>%
+      ggplot(aes(x = as.factor(PC), y = var.cum)) +
+      geom_bar(stat = "identity", fill = "grey", color = "black") +
+      labs(x = "PCs", y = "Cumulative variance (%)") +
+      theme_classic() +
+      theme(axis.title = element_text(color = "black", size = 16),
+            axis.text = element_text(color = "black", size = 16))
     
     # Table to plot the PCA
     tab <- data.frame(sample.id = PCA$sample.id, stringsAsFactors = F,
-                      PC1 = PCA$eigenvect[,1], PC2 = PCA$eigenvect[,2])
+                      PC1 = PCA$eigenvect[, 1],PC2 = PCA$eigenvect[, 2])
     
     # PCA - Scatter Plots PC1 vs PC2
     # Adding Groups 
@@ -301,45 +310,57 @@ PCA <- function(dir, phenofile, genofile, labelfile, gds, vcf, type, PC.retain, 
       dt <- tab %>% inner_join(labels, by = "sample.id")
       
       # Plotting
-      fig <- plot_ly(data = dt, x = ~ PC1, y = ~ PC2, 
-                     color = ~ as.factor(groups), #symbol = ~ as.factor(groups),
-                     type = "scatter", mode = "markers", 
-                     text = ~ sample.id, marker = list(size = 6)) %>%
-        layout(legend = list(title = list(text = "<b> Groups </b>"), orientation = "h"),
-               xaxis = list(title = paste("Dimension 1 - ", round(PC$var)[1], "%")),
-               yaxis = list(title = paste("Dimension 2 - ", round(PC$var)[2], "%")))
+      fig <- ggplot(dt, aes(x = PC1, y = PC2, color = as.factor(groups), 
+                            label = sample.id)) +
+        geom_point(size = 1.5, shape = 16) +
+        labs(x = paste("PC1 (", round(PC$var[1], 2), "%)"),
+             y = paste("PC2 (", round(PC$var[2], 2), "%)")) +
+        geom_vline(xintercept = 0) +
+        geom_hline(yintercept = 0) +
+        theme_bw() +
+        theme(legend.title = element_blank(), legend.position = "bottom",
+              legend.text = element_text(color = "black", size = 12),
+              legend.direction = "horizontal", legend.box.just = "center",
+              axis.title = element_text(color = "black", size = 16),
+              axis.text = element_text(color = "black", size = 16),
+              panel.grid = element_blank())
       
     } else { # Without Groups
       
       # Plotting
-      fig <- plot_ly(data = tab, x = ~ PC1, y = ~ PC2, 
-                     type = "scatter", mode = "markers", 
-                     text = ~ sample.id, marker = list(size = 6)) %>%
-        layout(xaxis = list(title = paste("Dimension 1 - ", round(PC$var)[1], "%")),
-               yaxis = list(title = paste("Dimension 2 - ", round(PC$var)[2], "%")))
+      fig <- ggplot(tab, aes(x = PC1, y = PC2, label = sample.id)) +
+        geom_point(size = 1.5, color = "#91bfdb") +
+        labs(x = paste("PC1 (", round(PC$var[1], 2), "%)"),
+             y = paste("PC2 (", round(PC$var[2], 2), "%)")) +
+        geom_vline(xintercept = 0) +
+        geom_hline(yintercept = 0) +
+        theme_bw() +
+        theme(axis.title = element_text(color = "black", size = 16),
+              axis.text = element_text(color = "black", size = 16),
+              panel.grid = element_blank())
       
     }
     
-    htmlwidgets::saveWidget(as_widget(fig), paste0(output, ".PCA_SNPRelated.html"))
+    # 2.2.5: Save the plots ----------------------------------------------------
+    
+    # Guardar el gráfico con alta resolución (300 dpi)
+    ggsave("PCA_no_labels.jpg", plot = fig, width = 10, height = 6, dpi = 600)
+    dev.off()
     
   }
-  
 }
 
 
 
 # 3.1: PCA example(s) ----------------------------------------------------------
-# Genotypic without groups
-# dir <- "D:/OneDrive - CGIAR/00_CassavaBioinformaticsPlatform/03_PPD/00_Data/00_Geno/"
-# labelfile <- NULL
-# vcf <- "chrs_PPD_v6_filterGATK.vcf"
-# type <- "Geno"
-# groups <- F
-# output <- "chrs_PPD_v6_filterGATK"
-# PC.retain = F
-# prefixVCF = "Chromosome"
-# num.thread = 4
+# Examples
+ dir <- "D:/OneDrive - CGIAR/00_BioInf_Platform/09_DiversityPanel/03_GWAS_Camilo/"
+ data <- "Diversity.GATK.vcf"
+ labels <- "Labels.csv"
+ PC.retain <- F
+
 
 
 # 3.2: Run PCA function --------------------------------------------------------
-# PCA(dir, phenofile, genofile, gds, vcf, type = "Geno", groups = T, PC.retain = F)
+# PCA(dir, data, labels, PC.retain)
+ 
