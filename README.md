@@ -58,7 +58,7 @@ A simple Bash script for filtering Variant Call Format (VCF) files using VCFtool
 
 ```sh
 
-bash 01_QC.sh input_vcf output
+bash 01_QC.sh <input_vcf> <output>
 
 ```
 
@@ -72,7 +72,7 @@ bash 01_QC.sh raw_variants.vcf.gz filtered_variants
 
 ### Dependencies
 
-- `VCFtools`: (https://vcftools.github.io/)
+- `VCFtools`: https://vcftools.github.io/
 
 
 
@@ -85,25 +85,40 @@ bash 01_QC.sh raw_variants.vcf.gz filtered_variants
 
 ### Description
 
-*In progress*
+This script performs Linkage Disequilibrium (LD) Decay analysis using PopLDdecay. It supports two modes:
+- Whole genome: Calculates LD decay across the entire genome.
+- Per chromosome: Splits the VCF file by chromosome and calculates LD decay for each chromosome separately.
+
+### Arguments
+
+- `dirIn`: Directory containing the input VCF file.
+- `vcfFile`: Name of the input VCF file.
+- `dirOut`: Directory where output files will be saved.
+- `prefix`: Prefix for output files.
+- `dist`: Maximum distance (in base pairs) for pairwise LD calculation.
+- `mode`: Analysis mode — either ''whole_genome'' or ''by_chr''.
 
 ### Usage
 
 ```sh
 
-bash 02_LD_Decay.sh
+bash 02_LD_Decay.sh <dirIn> <vcfFile> <dirOut> <prefix> <dist> <mode>
 
 ```
 
-### Arguments
+### Example
 
-- `XXX`: 
-- `XXX`: 
+```sh
+
+bash 02_LD_Decay.sh /path/to/vcf gs.vcf /path/to/output gs_2023 10000 whole_genome
+
+```
 
 ### Dependencies
 
-- `XXX`
-- `XXX`
+- `PopLDdecay`: https://github.com/BGI-shenzhen/PopLDdecay
+- `vcftools`: https://vcftools.github.io/
+- `perl`: For the PopLDdecay plotting script
 
 
 
