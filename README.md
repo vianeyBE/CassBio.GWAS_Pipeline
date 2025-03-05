@@ -1,95 +1,130 @@
 # Cassava Bioinformatics Platform: GWAS Pipeline
 
-Pipeline for Genome-wide Association Studies in Cassava
+Pipeline for Genome-Wide Association Studies (GWAS) in Cassava (Manihot esculenta)
 
-**Authors**: Vianey Barrera-Enriquez and Camilo E. Sanchez
+## Description
 
-The pipeline has six main steps:
+This repository contains a modular pipeline for performing genome-wide association studies (GWAS) in cassava (Manihot esculenta). It covers the workflow from genotype quality control, linkage disequilibrium analysis, population structure analysis, and GWAS analysis, to functional annotation of significant markers.
 
-1. Quality control (*in progress*)
-2. Imputation (*in progress*)
-3. LD Decay
-4. Population structure and covariable selection (*in progress*)
-5. GWAS analysis using GAPIT3
-6. Annotation of results (*in progress*)
-7. Boxplot of significant markers: genotypes vs. phenotype
-8. Customizable Manhattan plots (*in progress*)
+## Authors
+
+- **Vianey Barrera-Enriquez** - [CGIAR]
+- **Camilo E. Sanchez** - [CGIAR]
+
+## Requirements
+
+### Technologies and tools
+
+- R (>= 4.1.0)
+- GAPIT3
+- VCFtools
+- BCFtools
+- PopLDdecay
+- adegenet, vegan, SNPRelate, plotly, tidyverse, etc.
+
+### Installation
+
+```bash
+
+git clone https://github.com/your-username/cassava-gwas-pipeline.git
+
+```
+
+## ⚙️ Workflow Overview
+| 1 | Quality control | ✅ Completed |
+| 2 | LD decay analysis | 🔧 In progress |
+| 3 | LD pruning | 🔧 In progress |
+| 4 | Population structure analysis | ✅ Completed |
+| 5 | GWAS - GAPIT3 | ✅ Completed |
+| 6 | GWAS - EMMAX | 🔧 In progress |
+| 7 | Functional annotation | 🔧 In progress |
+| 8 | Marker validation boxplots | ✅ Completed |
+
+
+
 
 ## 1. Quality control
+
+### Description
+
+A simple Bash script for filtering Variant Call Format (VCF) files using VCFtools. The script applies customizable quality control filters to genetic variant data. The script currently includes three different filtering strategies (commented and active), allowing users to select the most appropriate filter set for their project.
+
+### Arguments
+
+- `input_vcf`: Path to VCF file to filter.
+- `output`: Prefix to the output VCF filtered file.
+
+### Usage
+
+```sh
+
+bash 01_QC.sh input_vcf output
+
+```
+
+### Example
+
+```sh
+
+bash 01_QC.sh raw_variants.vcf.gz filtered_variants
+
+```
+
+### Dependencies
+
+- `VCFtools`: (https://vcftools.github.io/)
+
+
+
+
+
+
+
+
+## 2. LD decay
+
+### Description
 
 *In progress*
 
 ### Usage
 
-*In progress*
-
-### Arguments
-
-*In progress*
-
-### Details
-
-*In progress*
-
-### Examples
-
 ```sh
 
-# Initial requeriments
-inputFile <- "/path/to/inputFile.vcf.gz"
-prefix <- "gwas_results"
-
-# Get lisf of samples from VCF 
-bcftools query -l ${inputFile} > ${prefix}.list.samples.txt
-
-# Get stats
-bcftools stats ${inputFile} > ${prefix}.stats.txt
-
-# Calculate allele frequency 
-vcftools --gzvcf ${inputFile} --freq2 --out ${prefix}.frequency
-
-# Stats mean depth per individual
-vcftools --gzvcf ${inputFile} --depth --out ${prefix}.depth
-
-# Mean depth per site
-vcftools --gzvcf ${inputFile} --site-mean-depth --out ${prefix}.depth_site
-
-# Site quality
-vcftools --gzvcf ${inputFile} --site-quality --out ${prefix}.quality
-
-# Missing data per individual
-vcftools --gzvcf ${inputFile} --missing-indv --out ${prefix}.missing
-
-# Missing data per site
-vcftools --gzvcf ${inputFile} --missing-site --out ${prefix}.missing_site
-
-# Heterozygosity and inbreeding coefficients per individual 
-vcftools --gzvcf ${inputFile} --het --out ${prefix}.heterozygosity
-
-# Hardy-Weinberg p-value 
-vcftools --gzvcf ${inputFile} --hardy --out ${prefix}.hwe
+bash 02_LD_Decay.sh
 
 ```
 
-### Output
+### Arguments
 
-*In progress*
+- `XXX`: 
+- `XXX`: 
 
 ### Dependencies
 
+- `XXX`
+- `XXX`
+
+
+
+
+
+
+
+## 3. LD pruning
+
 *In progress*
 
-## 2. Imputation
 
-*In progress*
 
-## 3. LD Decay
 
-*In progress*
+
+
+
 
 ## 4. Population structure and covariable selection
 
-This script contains the customized functions to perform four different multivariate methods: (1) Non-Metric Multidimensional Scaling (NDMS), (2) Multidimensional Scaling (MDS), (3) Principal Component Analysis (PCA), and (4) Discriminant Analysis of Principal Components (DAPC).
+This script contains the customized functions to perform four different multivariate methods: (1) Non-Metric Multidimensional Scaling (NDMS), (2) Multidimensional Scaling (MDS), (3) Principal Component Analysis (PCA), and (4) Discriminant Analysis of Principal Components (DAPC). This series of functions retrieves the required pacakges and data to perform four multivariate methods, potentially used to study population structure and select covariable for next analyses. Especifically, this script includes the functions for Non-Metric Multidimensional Scaling (`NDMS`), Multidimensional Scaling (`MDS`), Principal Component Analysis (`PCA`), and Discriminant Analysis of Principal Components (`DAPC`). The first two functions are built only for phenotypic data while the PCA can handle both data type (phenotypic or genotypic), and the DAPC only uses genotypic data. For all functions interactive plots (made using `plotly` package) in html format. The DAPC part is not built as a function give the nature of the functions used in which prompts are necessary to continue. Please run this methods line by line.
 
 ### Usage
 
@@ -135,113 +170,6 @@ dapc <- dapc(my_genind, grp$grp)
 4. For DAPC:
 - `my_genind`: An object of class genind (vcf file read with the `vcfR2genind` function from `vcfR` package).
 
-### Details
-
-This series of functions retrieves the required pacakges and data to perform four multivariate methods, potentially used to study population structure and select covariable for next analyses. Especifically, this script includes the functions for Non-Metric Multidimensional Scaling (`NDMS`), Multidimensional Scaling (`MDS`), Principal Component Analysis (`PCA`), and Discriminant Analysis of Principal Components (`DAPC`). The first two functions are built only for phenotypic data while the PCA can handle both data type (phenotypic or genotypic), and the DAPC only uses genotypic data. For all functions interactive plots (made using `plotly` package) in html format. The DAPC part is not built as a function give the nature of the functions used in which prompts are necessary to continue. Please run this methods line by line.
-
-### Examples
-
-```R
-
-# NDMS example(s)
-# Set arguments
-# Phenotypic with groups
-dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
-phenofile <- read.csv(paste0(dir, "Prueba.csv"), header = T)
-groups <- T
-
-# Phenotypic without groups
-dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
-phenofile <- read.csv(paste0(dir, "Prueba.csv"), header = T)
-phenofile <- phenofile[-2]
-
-# Run function
-NDMS(dir, phenofile, dist, groups)
-
-
-
-# MDS example(s)
-# Set arguments
-# Phenotypic with groups
-dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
-phenofile <- read.csv(paste0(dir, "Prueba.csv"), header = T)
-groups <- T
-
-# Phenotypic without groups
-dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
-phenofile <- read.csv(paste0(dir, "Prueba.csv"), header = T)
-phenofile <- phenofile[-2]
-
-# Run function
-MDS(dir, phenofile, dist, groups)
-
-
-
-# PCA example(s)
-# Set arguments
-# Phenotypic with groups
-dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
-phenofile <- read.csv(paste0(dir, "Prueba.csv"), header = T)
-groups <- T
-
-# Phenotypic without groups
-dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/02_CTS_Drought_Family/01_Phenotype_Preliminar_Analysis/"
-phenofile <- read.csv(paste0(dir, "Prueba.csv"), header = T)
-phenofile <- phenofile[-2]
-
-# Genotypic with groups
-dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/03_GWAS_PPD_Populations/02_PCA/"
-labels <- read.csv(paste0(dir, "GWAS_PPD.labels.csv"))
-vcf <- "GWAS_PPD.snps.filter_info.missing_0.10.imputation.vcf.gz"
-type <- "Geno"
-groups <- T
-
-dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/01_ACWP_F2_Phenotype/01_Population_Structure/"
-labels <- read.csv(paste0(dir, "AM1588_labels.csv"))
-vcf <- "AM1588_MAP.miss0.05.recode.vcf"
-type <- "Geno"
-groups <- T
-
-# Run function
-PCA(dir, phenofile, genofile, gds, vcf, type = "Geno", groups = T, PC.retain = F)
-
-
-
-# DAPC example(s)
-# Set arguments
-dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/01_ACWP_F2_Phenotype/01_Population_Structure/"
-vcf <- "AM1588_MAP.miss0.05.recode.vcf"
-
-dir <- "D:/OneDrive - CGIAR/Cassava_Bioinformatics_Team/03_GWAS_PPD_Populations/02_PCA/"
-vcf <- "GWAS_PPD.snps.filter_info.missing_0.10.imputation.vcf.gz"
-
-# Load libraries
-library(adegenet)
-library(grDevices)
-library(vcfR)
-library(tidyverse)
-library(plotly)
-library(htmlwidgets)
-
-# Load VCF files and convert them into a genind object
-setwd(dir)
-vcf <- read.vcfR(vcf, verbose = T)
-my_genind <- vcfR2genind(vcf)
-my_genind
-
-# Identify clusters
-# Shows a graph with the accumulated variance explained by the eigenvalues of the PCA
-grp <- find.clusters(my_genind)
-
-# Performs the DAPC
-dapc <- dapc(my_genind, grp$grp)
-
-```
-
-### Output
-
-Interactive plots (made using `plotly` package) in html format.
-
 ### Dependencies
 
 - `vegan`
@@ -254,6 +182,14 @@ Interactive plots (made using `plotly` package) in html format.
 - `adegenet`
 - `grDevices`
 - `vcfR`
+
+
+
+
+
+
+
+
 
 ## 5. GWAS: GAPIT
 
@@ -431,10 +367,6 @@ wtd <- "One"
 Manhattan(Mdir, pat, mod, wtd)
 
 ```
-
-### Output
-
-Manhattan plots for the traits(s) selected.
 
 ### Dependencies
 
