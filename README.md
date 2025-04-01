@@ -20,14 +20,22 @@ For questions or feedback about this pipeline, please contact:
 
 
 ## Workflow overview 🚀
-| 1 | Quality control - Filters SNPs and samples based on quality metrics
-| 2 | Linkgae desequilibirum (LD) decay analysis - Estimates and visualizes LD decay across the genome
-| 3 | Linkgae desequilibirum (LD) pruning - Removes SNPs in high LD to reduce redundancy
-| 4 | Population structure analysis - Performs PCA to assess population stratification
-| 5 | GWAS - GAPIT3 - Runs GWAS using models from the GAPIT3 package
-| 6 | GWAS - EMMAX - Performs GWAS using the EMMAX mixed model
-| 7 | Functional annotation - Annotates significant SNPs with gene-level information
-| 8 | Marker validation boxplots - Generates boxplots to visualize genotype–phenotype effects
+| 1 | Quality control 🧹 Filters SNPs and samples based on quality metrics
+
+| 2 | Linkgae desequilibirum (LD) decay analysis 📉 Estimates and visualizes LD decay across the genome
+
+| 3 | Linkgae desequilibirum (LD) pruning ✂️ Removes SNPs in high LD to reduce redundancy
+
+| 4 | Population structure analysis 🧭 Performs PCA to assess population stratification
+
+| 5 | GWAS - GAPIT3 📊 Runs GWAS using models from the GAPIT3 package
+
+| 6 | GWAS - EMMAX 🧮 Performs GWAS using the EMMAX mixed model
+
+| 7 | Functional annotation 🧾 Annotates significant SNPs with gene-level information
+
+| 8 | Marker validation boxplots 📈 Generates boxplots to visualize genotype–phenotype effects
+
 
 
 
@@ -45,19 +53,13 @@ Each module contains a README.md describing:
 
 
 
-## Installation and dependencies 🔧
+## Installation and dependencies 🛠️
 
 ```bash
 
 git clone https://github.com/vianeyBE/cassava-gwas-pipeline.git
 
 ```
-
-
-
-
-
-## Technologies and tools 🔧
 
 - R (>= 4.1.0): GAPIT, adegenet, vegan, SNPRelate, plotly, tidyverse, etc.
 - Bash
@@ -72,7 +74,7 @@ git clone https://github.com/vianeyBE/cassava-gwas-pipeline.git
 
 
 
-## 1. Quality control
+## 1. Quality control 🧹
 
 ### Description
 
@@ -107,7 +109,7 @@ bash 01_QC.sh raw_variants.vcf.gz filtered_variants
 
 
 
-## 2. LD decay
+## 2. LD decay 📉
 
 ### Description
 
@@ -152,7 +154,7 @@ bash 02_LD_Decay.sh /path/to/vcf gs.vcf /path/to/output gs_2023 10000 whole_geno
 
 
 
-## 3. LD pruning
+## 3. LD pruning ✂️
 
 ### Description
 
@@ -189,7 +191,7 @@ bash
 
 
 
-## 4. Population structure and covariable selection
+## 4. Population structure 🧭
 
 XXXXX
 
@@ -231,7 +233,7 @@ PCA(dir = "/path/to/vcf/", data = "snps_filter.vcf", labels = "snps_filter_label
 
 
 
-## 5. GWAS: GAPIT
+## 5. GWAS: GAPIT 📊
 
 This R script runs a Genome-Wide Association Study (GWAS) analysis using the GAPIT3 R package. It saves the results of each trait in an individual folder. This function loads the required packages and data, then performs a GWAS analysis using the `GAPIT` function from the `GAPIT3` package. It loops through each trait in `trait_list`, creating a new folder for each trait in the working directory and saving the results of the GWAS analysis for that trait in that folder.
 
@@ -268,7 +270,7 @@ GAPIT3(phenofile = "my_phenotypes.csv", genofile = "my_genotypes.hmp", wdir = "m
 
 
 
-## 6. GWAS: EMMAX
+## 6. GWAS: EMMAX 🧮
 
 XXX
 
@@ -302,7 +304,7 @@ conda
 
 
 
-## 6. Annotation of results
+## 6. Functional annotation 🧾
 
 This code annotates the gen containing the significat SNPs from the `GAPIT3` results. Additional, it retrieves the closest genes downstream and upstream.
 
@@ -344,7 +346,7 @@ GWAS_Annotation(Mdir, pat, mod, wdyw, annot, GFF)
 
 
 
-## 7. Boxplot: Genotype vs Phenotype
+## 7. Boxplot: Genotype vs Phenotype 📈
 
 This R function generates a boxplot for a given SNP. The function takes as inputs a CSV file with the phenotype values and a list of SNPs. The function can also receive an optional CSV file to add extra information about the samples to the plot (categories, family, ect.) The output of the function is a PDF file with the plot. The function loads all the necessary packages and data files. It then checks for the presence of an optional file with sample labels and prepares the data for the boxplot. The function generates a boxplot for each SNP specified in the input CSV file. It uses `ggplot2` package to generate the plot, with the genotypes on the x-axis and the phenotype on the y-axis. The function adds a label to the x-axis to indicate the trait being plotted. If `labelfile` is provided, it adds extra information about the samples, coloring the data by the levels in the provided file.
 
