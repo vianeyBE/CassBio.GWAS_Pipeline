@@ -1,30 +1,51 @@
-# Cassava Bioinformatics Platform: GWAS Pipeline
+# Cassava Bioinformatics Platform: GWAS Pipeline 🧬
 
-Pipeline for Genome-Wide Association Studies (GWAS) in Cassava (Manihot esculenta)
+A modular and reproducible pipeline for performing genome-wide association studies (GWAS) in Manihot esculenta (cassava), covering the complete analysis workflow from genotype quality control to the functional annotation of significant markers.
 
-## Description
+This pipeline is designed to streamline complex GWAS analyses while ensuring flexibility and scalability for high-throughput plant breeding projects. Each module is independent and well-documented, enabling easy customization or integration into broader genomic workflows.
 
-This repository contains a modular pipeline for performing genome-wide association studies (GWAS) in cassava (Manihot esculenta). It covers the workflow from genotype quality control, linkage disequilibrium analysis, population structure analysis, and GWAS analysis, to functional annotation of significant markers.
 
-## Authors
+
+
+
+## Authors 🙋
 
 For questions or feedback about this pipeline, please contact:
 
 - **Vianey Barrera-Enriquez** - [CGIAR]: v.barrera@cgiar.org
 - **Camilo E. Sanchez** - [CGIAR]: c.e.sanchez@cgiar.org
 
-## Requirements
 
-### Technologies and tools
 
-- R (>= 4.1.0)
-- GAPIT3
-- VCFtools
-- BCFtools
-- PopLDdecay
-- adegenet, vegan, SNPRelate, plotly, tidyverse, etc.
 
-### Installation
+
+## Workflow overview 🚀
+| 1 | Quality control - Filters SNPs and samples based on quality metrics
+| 2 | Linkgae desequilibirum (LD) decay analysis - Estimates and visualizes LD decay across the genome
+| 3 | Linkgae desequilibirum (LD) pruning - Removes SNPs in high LD to reduce redundancy
+| 4 | Population structure analysis - Performs PCA to assess population stratification
+| 5 | GWAS - GAPIT3 - Runs GWAS using models from the GAPIT3 package
+| 6 | GWAS - EMMAX - Performs GWAS using the EMMAX mixed model
+| 7 | Functional annotation - Annotates significant SNPs with gene-level information
+| 8 | Marker validation boxplots - Generates boxplots to visualize genotype–phenotype effects
+
+
+
+
+
+## Module descriptions 🧩
+Each module contains a README.md describing:
+- Description: A brief explanation of what the module does.
+- Arguments: Parameters or flags used when running the module.
+- Usage: Command-line or script usage.
+- Example: Example invocation with test data.
+- Dependencies: Required packages, tools, or environments.
+
+
+
+
+
+## Installation and dependencies 🔧
 
 ```bash
 
@@ -32,22 +53,21 @@ git clone https://github.com/vianeyBE/cassava-gwas-pipeline.git
 
 ```
 
-## ⚙️ Workflow Overview
-| 1 | Quality control | ✅ Completed |
 
-| 2 | LD decay analysis | 🔧 In progress |
 
-| 3 | LD pruning | 🔧 In progress |
 
-| 4 | Population structure analysis | ✅ Completed |
 
-| 5 | GWAS - GAPIT3 | ✅ Completed |
+## Technologies and tools 🔧
 
-| 6 | GWAS - EMMAX | 🔧 In progress |
+- R (>= 4.1.0): GAPIT, adegenet, vegan, SNPRelate, plotly, tidyverse, etc.
+- Bash
+- Perl
+- VCFtools
+- BCFtools
+- PopLDdecay
+- Snakemake
+- EMMAX
 
-| 7 | Functional annotation | 🔧 In progress |
-
-| 8 | Marker validation boxplots | ✅ Completed |
 
 
 
@@ -82,9 +102,6 @@ bash 01_QC.sh raw_variants.vcf.gz filtered_variants
 ### Dependencies
 
 - `VCFtools`: https://vcftools.github.io/
-
-
-
 
 
 
@@ -174,49 +191,20 @@ bash
 
 ## 4. Population structure and covariable selection
 
-This script contains the customized functions to perform four different multivariate methods: (1) Non-Metric Multidimensional Scaling (NDMS), (2) Multidimensional Scaling (MDS), (3) Principal Component Analysis (PCA), and (4) Discriminant Analysis of Principal Components (DAPC). This series of functions retrieves the required pacakges and data to perform four multivariate methods, potentially used to study population structure and select covariable for next analyses. Especifically, this script includes the functions for Non-Metric Multidimensional Scaling (`NDMS`), Multidimensional Scaling (`MDS`), Principal Component Analysis (`PCA`), and Discriminant Analysis of Principal Components (`DAPC`). The first two functions are built only for phenotypic data while the PCA can handle both data type (phenotypic or genotypic), and the DAPC only uses genotypic data. For all functions interactive plots (made using `plotly` package) in html format. The DAPC part is not built as a function give the nature of the functions used in which prompts are necessary to continue. Please run this methods line by line.
+XXXXX
 
 ### Arguments
 
-1. For NDMS:
 - `dir`: Directory where data is located.
-- `phenofile`: A database of genotypes/individuals (rows) and their traits (columns). First column must be genotypes/individuals names.
-- `dist`: Dissimilarity index/measure to use (default = "bray").
-- `groups`: Boolean value indicating whether the data includes different treatments/groups (default = F). If `TRUE` is selected then the second column of the `phenofile` must be the groups/treatments.
-
-2. For MDS:
-- `dir`: Directory where data is located.
-- `phenofile`: A database of genotypes/individuals (rows) and their traits (columns). First column must be genotypes/individuals names.
-- `dist`: Dissimilarity index/measure to use (default = "gower").
-- `groups`: Boolean value indicating whether the data includes different treatments/groups (default = F). If `TRUE` is selected then the second column of the `phenofile` must be the groups/treatments.
-
-3. For PCA:
-- `dir`: Directory where data is located.
-- `type`: A character string indicating wheter data is genotypic ("geno") of phenotypic ("pheno").
-- `groups`: Boolean value indicating whether the data includes different treatments/groups (default = F). If `TRUE` is selected then the second column of the `phenofile` must be the groups/treatments.
-- `phenofile`: A database of genotypes/individuals (rows) and their traits (columns). First column must be genotypes/individuals names.
-- `genofile`: An object of class SNPGDSFileClass (GDS file read with the `snpgdsOpen` function from `SNPRelate` package).
-- `labels`: When provide a `genofile` and `groups` argument is `TRUE`, please provide a dataframe with genotypes/individuals in the first column and groups/treatment data in the second column.
-- `gds`: A Genomic Data Structures (GDS) file (a reformatted VCF file with the `snpgdsVCF2GDS` function from `vcfR` package).
-- `vcf`: A Variant Call Format (VCF) file containing DNA polymorphism data such as SNPs, insertions, deletions and structural variants, together with rich annotations.
+- `data`: If phenofile: A csv file of genotypes (rows) and their traits (columns). First column must be genotypes. If genofile: A Variant Call Format (VCF) file.
+- `labels`: Dataframe with genotypes in the first column and groups data in the second column.
 - `PC.retain`: Boolean value indicating whether to analyze how many PCs retain (default = F).
-
-4. For DAPC:
-- `my_genind`: An object of class genind (vcf file read with the `vcfR2genind` function from `vcfR` package).
 
 ### Usage
 
 ```R
 
-# NDMS, MDS, and PCA
-NDMS(dir, phenofile, dist = "bray", groups = F)
-MDS(dir, phenofile, dist = "gower", groups = F)
-PCA(dir, type, groups = F, phenofile = NULL, labels = NULL, genofile = NULL, vcf = NULL, gds = NULL, PC.retain = F)
-
-# DAPC
-library(adegenet)
-grp <- find.clusters(my_genind)
-dapc <- dapc(my_genind, grp$grp)
+PCA(dir = <dir>, data = <data>, labels = <labels>, PC.retain = <PC.retain>)
 
 ```
 
@@ -224,30 +212,16 @@ dapc <- dapc(my_genind, grp$grp)
 
 ```R
 
-# NDMS, MDS, and PCA
-NDMS(dir, phenofile, dist = "bray", groups = F)
-MDS(dir, phenofile, dist = "gower", groups = F)
-PCA(dir, type, groups = F, phenofile = NULL, labels = NULL, genofile = NULL, vcf = NULL, gds = NULL, PC.retain = F)
-
-# DAPC
-library(adegenet)
-grp <- find.clusters(my_genind)
-dapc <- dapc(my_genind, grp$grp)
+PCA(dir = "/path/to/vcf/", data = "snps_filter.vcf", labels = "snps_filter_labels.csv", PC.retain = FALSE)
 
 ```
 
 ### Dependencies
 
-- `vegan`
-- `tidyverse`
-- `plotly`
-- `htmlwidgets`
 - `SNPRelate`
-- `gdsfmt`
+- `tidyverse`
 - `psych`
-- `adegenet`
-- `grDevices`
-- `vcfR`
+- `tools`
 
 
 
@@ -425,28 +399,17 @@ GWAS_Boxplot("outputname", ".path/to/save/plots/", "phenotype.csv", "genotype.hm
 
 
 
-## References
+## References 📚
 
-- Petr Danecek, James K Bonfield, Jennifer Liddle, John Marshall, Valeriu Ohan, Martin O Pollard, Andrew Whitwham, Thomas Keane, Shane A McCarthy, Robert M Davies, Heng Li, Twelve years of SAMtools and BCFtools, GigaScience, Volume 10, Issue 2, February 2021, giab008, https://doi.org/10.1093/gigascience/giab008
-
-- Petr Danecek, Adam Auton, Goncalo Abecasis, Cornelis A. Albers, Eric Banks, Mark A. DePristo, Robert E. Handsaker, Gerton Lunter, Gabor T. Marth, Stephen T. Sherry, Gilean McVean, Richard Durbin, 1000 Genomes Project Analysis Group, The variant call format and VCFtools, Bioinformatics, Volume 27, Issue 15, August 2011, Pages 2156–2158, https://doi.org/10.1093/bioinformatics/btr330
-
-- B L Browning, X Tian, Y Zhou, and S R Browning (2021) Fast two-stage phasing of large-scale sequence data. Am J Hum Genet 108(10):1880-1890. doi:10.1016/j.ajhg.2021.08.005
-
-- B L Browning, Y Zhou, and S R Browning (2018). A one-penny imputed genome from next generation reference panels. Am J Hum Genet 103(3):338-348. doi:10.1016/j.ajhg.2018.07.015
-
-- Chi Zhang, Shan-Shan Dong, Jun-Yang Xu, Wei-Ming He, Tie-Lin Yang, PopLDdecay: a fast and effective tool for linkage disequilibrium decay analysis based on variant call format files, Bioinformatics, Volume 35, Issue 10, May 2019, Pages 1786–1788, https://doi.org/10.1093/bioinformatics/bty875
-
-- Thibaut Jombart, adegenet: a R package for the multivariate analysis of genetic markers, Bioinformatics, Volume 24, Issue 11, June 2008, Pages 1403–1405, https://doi.org/10.1093/bioinformatics/btn129
-
-- Xiuwen Zheng, David Levine, Jess Shen, Stephanie M. Gogarten, Cathy Laurie, Bruce S. Weir, A high-performance computing toolset for relatedness and principal component analysis of SNP data, Bioinformatics, Volume 28, Issue 24, December 2012, Pages 3326–3328, https://doi.org/10.1093/bioinformatics/bts606
-
-- Wang J., Zhang Z., GAPIT Version 3: Boosting Power and Accuracy for Genomic Association and Prediction, Genomics, Proteomics & Bioinformatics (2021), doi: https://doi.org/10.1016/j.gpb.2021.08.005.
-
-- Huang M, Liu X, Zhou Y, Summers RM, Zhang Z. BLINK: A package for the next level of genome-wide association studies with both individuals and markers in the millions. Gigascience. https://doi.org/10.1093/gigascience/giy154.
-
-- Liu X., Huang M., Fan B., Buckler E. S., Zhang Z., 2016 Iterative Usage of Fixed and Random Effect Models for Powerful and Efficient Genome-Wide Association Studies. PLoS Genet. 12: e1005767. https://doi.org/10.1371/journal.pgen.1005767.
-
-- David M. Goodstein, Shengqiang Shu, Russell Howson, Rochak Neupane, Richard D. Hayes, Joni Fazo, Therese Mitros, William Dirks, Uffe Hellsten, Nicholas Putnam, and Daniel S. Rokhsar, Phytozome: a comparative platform for green plant genomics, Nucleic Acids Res. 2012 40 (D1): D1178-D1186
-
-- R Core Team (2021). R: A language and environment for statistical computing. R Foundation for Statistical Computing, Vienna, Austria. URL https://www.R-project.org/.
+- Browning, B. L., Tian, X., Zhou, Y., and Browning, S. R. 2021. Fast two-stage phasing of large-scale sequence data. American Journal of Human Genetics, 108(10):1880–1890. https://doi.org/10.1016/j.ajhg.2021.08.005
+- Browning, B. L., Zhou, Y., and Browning, S. R. 2018. A one-penny imputed genome from next generation reference panels. American Journal of Human Genetics, 103(3):338–348. https://doi.org/10.1016/j.ajhg.2018.07.015
+- Danecek, P., Auton, A., Abecasis, G., Albers, C. A., Banks, E., DePristo, M. A., Handsaker, R. E., Lunter, G., Marth, G. T., Sherry, S. T., McVean, G., Durbin, R., and 1000 Genomes Project Analysis Group. 2011. The variant call format and VCFtools. Bioinformatics, 27(15):2156–2158. https://doi.org/10.1093/bioinformatics/btr330
+- Danecek, P., Bonfield, J. K., Liddle, J., Marshall, J., Ohan, V., Pollard, M. O., Whitwham, A., Keane, T., McCarthy, S. A., Davies, R. M., and Li, H. 2021. Twelve years of SAMtools and BCFtools. GigaScience, 10(2):giab008. https://doi.org/10.1093/gigascience/giab008
+- Goodstein, D. M., Shu, S., Howson, R., Neupane, R., Hayes, R. D., Fazo, J., Mitros, T., Dirks, W., Hellsten, U., Putnam, N., and Rokhsar, D. S. 2012. Phytozome: a comparative platform for green plant genomics. Nucleic Acids Research, 40(D1):D1178–D1186.
+- Huang, M., Liu, X., Zhou, Y., Summers, R. M., and Zhang, Z. 2019. BLINK: A package for the next level of genome-wide association studies with both individuals and markers in the millions. GigaScience. https://doi.org/10.1093/gigascience/giy154
+- Jombart, T. 2008. adegenet: a R package for the multivariate analysis of genetic markers. Bioinformatics, 24(11):1403–1405. https://doi.org/10.1093/bioinformatics/btn129
+- Liu, X., Huang, M., Fan, B., Buckler, E. S., and Zhang, Z. 2016. Iterative usage of fixed and random effect models for powerful and efficient genome-wide association studies. PLoS Genetics, 12:e1005767. https://doi.org/10.1371/journal.pgen.1005767
+- R Core Team. 2021. R: A language and environment for statistical computing. R Foundation for Statistical Computing, Vienna, Austria. https://www.R-project.org/
+- Wang, J., and Zhang, Z. 2021. GAPIT Version 3: Boosting power and accuracy for genomic association and prediction. Genomics, Proteomics & Bioinformatics. https://doi.org/10.1016/j.gpb.2021.08.005
+- Zhang, C., Dong, S. S., Xu, J. Y., He, W. M., and Yang, T. L. 2019. PopLDdecay: a fast and effective tool for linkage disequilibrium decay analysis based on variant call format files. Bioinformatics, 35(10):1786–1788. https://doi.org/10.1093/bioinformatics/bty875
+- Zheng, X., Levine, D., Shen, J., Gogarten, S. M., Laurie, C., and Weir, B. S. 2012. A high-performance computing toolset for relatedness and principal component analysis of SNP data. Bioinformatics, 28(24):3326–3328. https://doi.org/10.1093/bioinformatics/bts606
