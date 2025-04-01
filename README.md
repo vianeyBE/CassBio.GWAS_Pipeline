@@ -58,6 +58,8 @@ Each module contains a README.md describing:
 
 ## Installation and dependencies 🛠️
 
+To clone the repository:
+
 ```bash
 
 git clone https://github.com/vianeyBE/cassava-gwas-pipeline.git
@@ -83,20 +85,30 @@ Tools and softwares to install before use this pipeline:
 
 ### Description
 
-This module applies quality control filters to genotype data in VCF format using `VCFtools`. It provides a simple and customizable Bash script that supports different filtering strategies tailored for different pipelines. You can activate the desired strategy by commenting/uncommenting the relevant lines in the script.
+This module applies quality control filters to genotype data in `.vcf` format using `VCFtools`. It provides a simple and customizable `Bash` script that supports different filtering strategies tailored for different pipelines. You can activate the desired strategy by commenting/uncommenting the relevant lines in the script
 
-This step ensures that only high-quality and informative SNPs are retained for downstream analysis.
+This step ensures that only high-quality and informative SNPs are retained for downstream analysis
 
 ### Input arguments
 
-- **`input_vcf`**: Path to the input VCF file (can be compressed with **`.gz`**)
-- **`output`**: Prefix for the output file(s) generated after filtering. The output will be a **`.recode.vcf`** file
+- **`input_vcf`**: Path to the input `.vcf` file (can be compressed with `.gz`)
+- **`output`**: Prefix for the output file(s) generated after filtering. The output will be a `.recode.vcf` file
 
 ### Example usage
+
+Structure of to execture the command
 
 ``` sh
 
 bash 01_GWAS_QC.sh <input_vcf> <output>
+
+```
+
+This command will apply the currently active filter set (GATK-style by default) to the `raw_variants.vcf.gz` file and produce a filtered VCF named `filtered_variants.recode.vcf`
+
+``` sh
+
+bash 01_QC.sh raw_variants.vcf.gz filtered_variants
 
 ```
 
@@ -149,11 +161,21 @@ All steps are logged and output files are compressed and plotted automatically.
 - **`dist`**: Maximum distance (in base pairs) for pairwise LD calculation.
 - **`mode`**: Analysis mode — either ''whole_genome'' or ''by_chr''.
 
-### Example sage
+### Example usage
+
+Structure of to execture the command
+
+``` sh
+
+bash 02_LD_Decay.sh <dirIn> <vcfFile> <dirOut> <prefix> <dist> <mode>
+
+```
+
+This will split `mydata.vcf` into 18 chromosomes, compute LD decay up to `10 kb` for each chromosome, and generate corresponding `.stat.gz` files and LD decay plots in the specified output directory.
 
 ```sh
 
-bash 02_LD_Decay.sh <dirIn> <vcfFile> <dirOut> <prefix> <dist> <mode>
+bash 02_LD_Decay.sh /path/to/vcf mydata.vcf /path/to/output cassava_ld 10000 by_chr
 
 ```
 
@@ -206,25 +228,16 @@ The workflow is implemented using Snakemake and is designed to operate chromosom
 
 ### Input arguments
 
-The pruning parameters are set via hard-coded values in the Snakefile:
+The pruning parameters are set via hard-coded values in the `Snakefile`:
 
-- **`path`**: Path to the directory where is located the input VCF file 
+- **`path`**: Path to the directory where is located the input `.vcf` file 
 - **`file`**: Name of the input VCF file
 - **`window`**: The size (in kilobases) of the sliding window used by PLINK to calculate LD between SNPs
 - **`step`**: The number of SNPs to shift the window forward at each iteration
 - **`r²`**: The LD threshold above which one of two highly correlated SNPs is removed
+- **`r²`**: A mandatory flag by `Snakemake` in which you define until which step of the pipeline you want to reach
 
-You can configure until which step of the workflow you want to reach. For example:
-
-``` yaml
-
-rule all:
-    input:
-        outdir = directory(f"{path}/LD/{window}_{step}_{r2}_{get_basename(file)}/05_hapmap")
-
-```
-
-Tool-specific paths and thread count are controlled via **`config/config.yaml`**:
+Tool-specific paths and thread count are controlled via `config/config.yaml`:
 
 ``` yaml
 
@@ -241,11 +254,34 @@ tassel:
 
 ### Example usage
 
-Ensure the paths and filenames are correctly configured in the **`Snakefile`**. If everything is correctly configurated, this command will tell you: 
+First, please configure initial parameters and the final output in the `Snakefile`. For example as:
+
+``` yaml
+
+# Define objects
+path = "/path/to/vcf"
+file = "mydata.vcf.gz"
+
+window = 10000
+step = 10
+r2 = 0.25
+
+# Include modular rules for different stages of the workflow
+include: "rules/common.smk"
+include: "rules/plink.smk"
+
+# Define the final output of the workflow
+rule all:
+    input:
+        outdir = directory(f"{path}/LD/{window}_{step}_{r2}_{get_basename(file)}/04_vcf")
+
+```
+
+Ensure the paths and filenames are correctly configured in the `Snakefile`. If everything is correctly configurated, this command will tell you: 
 
 ``` sh
 
-snakemake --np 
+snakemake --np
 
 ```
 
@@ -253,9 +289,11 @@ Then execute the workflow with:
 
 ``` sh
 
-snakemake --cores <cores>
+snakemake --cores 50 
 
 ```
+
+After executing the previous commands. You will filter `mydata.vcf.gz` using `PLINK` using a window size of `'10000`, step of `10` and r² trehsold of 0.25 and you will obtain a `.vcf` as an output
 
 ### Example output structure
 
