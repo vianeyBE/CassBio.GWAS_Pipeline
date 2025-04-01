@@ -61,14 +61,14 @@ git clone https://github.com/vianeyBE/cassava-gwas-pipeline.git
 
 ```
 
-- R (>= 4.1.0): GAPIT, adegenet, vegan, SNPRelate, plotly, tidyverse, etc.
-- Bash
-- Perl
-- VCFtools
-- BCFtools
-- PopLDdecay
-- Snakemake
-- EMMAX
+- **`R (>= 4.1.0)`**: **`GAPIT`**, **`adegenet`**, **`vegan`**, **`SNPRelate`**, **`tidyverse`**, etc
+- **`Bash`**
+- **`Perl`**
+- **`VCFtools`**
+- **`BCFtools`**
+- **`PopLDdecay`**
+- **`Snakemake`**
+- **`EMMAX`**
 
 
 
@@ -82,8 +82,8 @@ A simple Bash script for filtering Variant Call Format (VCF) files using VCFtool
 
 ### Arguments
 
-- `input_vcf`: Path to VCF file to filter.
-- `output`: Prefix to the output VCF filtered file.
+- **`input_vcf`**: Path to VCF file to filter.
+- **`output`**: Prefix to the output VCF filtered file.
 
 ### Usage
 
@@ -103,7 +103,7 @@ bash 01_QC.sh raw_variants.vcf.gz filtered_variants
 
 ### Dependencies
 
-- `VCFtools`: https://vcftools.github.io/
+- **`VCFtools`**: https://vcftools.github.io/
 
 
 
@@ -119,12 +119,12 @@ This script performs Linkage Disequilibrium (LD) Decay analysis using PopLDdecay
 
 ### Arguments
 
-- `dirIn`: Directory containing the input VCF file.
-- `vcfFile`: Name of the input VCF file.
-- `dirOut`: Directory where output files will be saved.
-- `prefix`: Prefix for output files.
-- `dist`: Maximum distance (in base pairs) for pairwise LD calculation.
-- `mode`: Analysis mode — either ''whole_genome'' or ''by_chr''.
+- **`dirIn`**: Directory containing the input VCF file.
+- **`vcfFile`**: Name of the input VCF file.
+- **`dirOut`**: Directory where output files will be saved.
+- **`prefix`**: Prefix for output files.
+- **`dist`**: Maximum distance (in base pairs) for pairwise LD calculation.
+- **`mode`**: Analysis mode — either ''whole_genome'' or ''by_chr''.
 
 ### Usage
 
@@ -144,9 +144,9 @@ bash 02_LD_Decay.sh /path/to/vcf gs.vcf /path/to/output gs_2023 10000 whole_geno
 
 ### Dependencies
 
-- `PopLDdecay`: https://github.com/BGI-shenzhen/PopLDdecay
-- `vcftools`: https://vcftools.github.io/
-- `perl`: For the PopLDdecay plotting script
+- **`PopLDdecay`**: https://github.com/BGI-shenzhen/PopLDdecay
+- **`vcftools`**: https://vcftools.github.io/
+- **`perl`**: For the PopLDdecay plotting script
 
 
 
@@ -166,17 +166,16 @@ The workflow is implemented using Snakemake and is designed to operate chromosom
 
 The pruning parameters are set via hard-coded values in the Snakefile:
 
-- `path`: Path to the directory where is located the input VCF file 
-- `file`: Name of the input VCF file
-- `window`: The size (in kilobases) of the sliding window used by PLINK to calculate LD between SNPs
-- `step`: The number of SNPs to shift the window forward at each iteration
-- `r²`: The LD threshold above which one of two highly correlated SNPs is removed
+- **`path`**: Path to the directory where is located the input VCF file 
+- **`file`**: Name of the input VCF file
+- **`window`**: The size (in kilobases) of the sliding window used by PLINK to calculate LD between SNPs
+- **`step`**: The number of SNPs to shift the window forward at each iteration
+- **`r²`**: The LD threshold above which one of two highly correlated SNPs is removed
 
 Tool-specific paths and thread count are controlled via **`config/config.yaml`**:
 
 ``` yaml
 
-Copy
 PLINK:
   path: /opt/miniconda/envs/tools/bin/plink
   filtering:
@@ -188,21 +187,35 @@ tassel:
 
 ```
 
-### Usage
+### Example usage
 
-Ensure the paths and filenames are correctly configured in the **`Snakefile`**. Then execute the workflow with:
+Ensure the paths and filenames are correctly configured in the **`Snakefile`**
 
-```sh
+``` sh
+
+snakemake --np
+
+```
+
+Then execute the workflow with:
+
+``` sh
 
 snakemake --cores <cores>
 
 ```
 
-### Example
+### Example output structure
 
-```sh
+``` markdown
 
-snakemake --cores 50
+LD/
+└── 10000_1_0.25_GATK2.snps.vcf.gz/
+    ├── 01_plink/
+    ├── 02_filtering/
+    ├── 03_prune/
+    ├── 04_vcf/
+    └── 05_hapmap/
 
 ```
 
@@ -210,15 +223,15 @@ snakemake --cores 50
 
 This module depends on the following tools:
 
-- `PLINK`: For LD pruning and format conversion
-- `TASSEL 5`: For VCF to HapMap conversion
-- `Snakemake`: workflow orchestration
+- **`PLINK`**: For LD pruning and format conversion
+- **`TASSEL5`**: For VCF to HapMap conversion
+- **`Snakemake`**: For workflow orchestration
 
 Ensure the following are available and properly configured:
 
 - **`plink`** binary in your environment
 - **`run_pipeline.pl`** from TASSEL
-- **`config/config.yaml`** and Snakemake version ≥ 6.0
+- **`config/config.yaml`** and **`Snakemake`** version ≥ 6.0
 
 
 
