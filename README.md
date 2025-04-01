@@ -504,45 +504,70 @@ conda
 
 
 
-
-
 ## 6. Functional annotation 🧾
 
-This code annotates the gen containing the significat SNPs from the `GAPIT3` results. Additional, it retrieves the closest genes downstream and upstream.
+This module performs **functional annotation of significant SNPs** identified through GWAS using the GAPIT3 module. It annotates the genes that directly overlap with each SNP, as well as the closest **upstream and downstream genes** within a defined genomic window (±10 kb)
 
-### Arguments
+The function supports **recursive search across trait-specific folders**, filters SNPs based on significance threshold (**Bonferroni correction**), and annotates results using genome-specific GFF3 and functional annotation tables. It is compatible with both **cassava genome v6.1 and v8.1**
 
-- `pat`: Location path of the files.
-- `wdyw`: Gene feature to annotate.
-- `Mdir`: Name of the directory that contains the `GAPIT3` results.
-- `mod`: Names of the models to filter (options: )
-- `gff3`: gff3 file from the genome version used for alignment.
-- `annotationFile`: Annotation details of the genes. txt file from the genome version used for alignment.
-- `version`: (Options: 6.1 or 8.1. Default = 6.1).
+The final output includes SNP location, nearby gene information, gene ontology (GO), annotation summary, and effect sizes from the **GWAS**
 
-### Usage
+### Input arguments
 
-```R
+- **`version`**: Reference genome version used for alignment and annotation. Options: `6.1` or `8.1` (default = `6.1`)
+- **`recursive`**: Logical. If `TRUE`, the function searches subdirectories recursively to locate **GWAS** result files (e.g., from multiple traits)
+- **`Wdir`**: Path to the working directory containing **GAPIT3** results (e.g., trait-specific folders or a summary `.csv` file)
+- **`name`**: If `recursive = TRUE`: Name pattern of the summary result files to look for. If `recursive = FALSE`: File name of a merged summary result file (e.g., `Summary_GWAS_Results.csv`)
+- **`mod`**: A character vector specifying which GWAS models to include (e.g., `MLMM`, `Blink`, `FarmCPU`)
+- **`wdyw`**: Feature type to annotate from the GFF3 file. Options: `gene`, `CDS`, `mRNA`, `five_prime_UTR`, `three_prime_UTR`
 
-GWAS_Annotation(Mdir, pat, mod, wdyw, annot, GFF)
+### Example usage
+
+This command will annotate significant SNPs (after **Bonferroni correction**), fetch nearby genes, and generate a clean annotation report saved in the working directory.
+
+``` R
+
+GWAS_Annotation(
+  version = "8.1",
+  recursive = FALSE,
+  Wdir = "/path/to/GAPIT_results/",
+  name = "Summary_GWAS_Results.csv",
+  mod = c("BLINK", "FarmCPU", "MLMM"),
+  wdyw = "gene"
+)
 
 ```
 
-### Examples
+### Example output structure
 
-```R
+``` markdown
 
-GWAS_Annotation(Mdir, pat, mod, wdyw, annot, GFF)
+06_annotation/
+├── GWAS_Annotation.csv         # Final annotated SNP-gene associations
+├── GAPIT_trait1/               # GAPIT3 output folders (input)
+├── GAPIT_trait2/               # ...
+├── Mesculenta_v6.1.gene.gff3   # GFF3 file (used internally)
+├── Mesculenta_v6.1.annotation_info.txt
+└── (log and temp files)
 
 ```
 
 ### Dependencies
 
-- `XXX`
+This module uses `base` and `tidyverse` `R` packages:
 
+- **`tidyverse`**: Data wrangling and filtering
+- **`Base`**: For string and file management
 
+To install:
 
+``` R
 
+install.packages("tidyverse")
+
+```
+
+Ensure your annotation files (**GFF3** and **annotation table**) are formatted for the specified genome version and are available in the working directory or updated within the function paths.
 
 
 
