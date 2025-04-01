@@ -154,21 +154,47 @@ bash 02_LD_Decay.sh /path/to/vcf gs.vcf /path/to/output gs_2023 10000 whole_geno
 
 
 
-## 3. LD pruning ✂️
+## 3. Linkage disequilibrium pruning ✂️
 
 ### Description
 
-XXX
+This module performs linkage disequilibrium (LD) pruning to reduce the number of highly correlated (non-informative) SNPs from the input genotype file (VCF). LD pruning enhances GWAS accuracy by reducing multicollinearity and improves time-efficiency in downstream modeling.
+
+The workflow is implemented using Snakemake and is designed to operate chromosome-wise. It includes format conversion, pruning using PLINK’s --indep-pairwise method, and output conversion to HapMap format for GWAS compatibility.
 
 ### Arguments
 
-- `XXX`: 
+The pruning parameters are set via hard-coded values in the Snakefile:
+
+- `path`: Path to the directory where is located the input VCF file 
+- `file`: Name of the input VCF file
+- `window`: The size (in kilobases) of the sliding window used by PLINK to calculate LD between SNPs
+- `step`: The number of SNPs to shift the window forward at each iteration
+- `r²`: The LD threshold above which one of two highly correlated SNPs is removed
+
+Tool-specific paths and thread count are controlled via **`config/config.yaml`**:
+
+``` yaml
+
+Copy
+PLINK:
+  path: /opt/miniconda/envs/tools/bin/plink
+  filtering:
+    threads: 50
+
+tassel:
+  path: /datas3/Cassava/Cassava_basics/Tools/Programs/tassel-5/run_pipeline.pl
+  threads: 50
+
+```
 
 ### Usage
 
+Ensure the paths and filenames are correctly configured in the **`Snakefile`**. Then execute the workflow with:
+
 ```sh
 
-bash 
+snakemake --cores <cores>
 
 ```
 
@@ -176,13 +202,23 @@ bash
 
 ```sh
 
-bash 
+snakemake --cores 50
 
 ```
 
 ### Dependencies
 
-- `XXX`: 
+This module depends on the following tools:
+
+- `PLINK`: For LD pruning and format conversion
+- `TASSEL 5`: For VCF to HapMap conversion
+- `Snakemake`: workflow orchestration
+
+Ensure the following are available and properly configured:
+
+- **`plink`** binary in your environment
+- **`run_pipeline.pl`** from TASSEL
+- **`config/config.yaml`** and Snakemake version ≥ 6.0
 
 
 
