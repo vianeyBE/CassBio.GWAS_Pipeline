@@ -20,21 +20,21 @@ For questions or feedback about this pipeline, please contact:
 
 
 ## Workflow overview 🚀
-| 1 | Quality control 🧹 Filters SNPs and samples based on quality metrics
+**| 1 | Quality control** 🧹 Filters SNPs and samples based on quality metrics
 
-| 2 | Linkgae desequilibirum (LD) decay analysis 📉 Estimates and visualizes LD decay across the genome
+**| 2 | Linkage desequilibirum (LD) decay analysis** 📉 Estimates and visualizes LD decay across the genome
 
-| 3 | Linkgae desequilibirum (LD) pruning ✂️ Removes SNPs in high LD to reduce redundancy
+**| 3 | Linkage desequilibirum (LD) pruning** ✂️ Removes SNPs in high LD to reduce redundancy
 
-| 4 | Population structure analysis 🧭 Performs PCA to assess population stratification
+**| 4 | Population structure analysis** 🧭 Performs PCA to assess population stratification
 
-| 5 | GWAS - GAPIT3 📊 Runs GWAS using models from the GAPIT3 package
+**| 5 | GWAS - GAPIT3** 📊 Runs GWAS using models from the GAPIT3 package
 
-| 6 | GWAS - EMMAX 🧮 Performs GWAS using the EMMAX mixed model
+**| 6 | GWAS - EMMAX** 🧮 Performs GWAS using the EMMAX mixed model
 
-| 7 | Functional annotation 🧾 Annotates significant SNPs with gene-level information
+**| 7 | Functional annotation** 🧾 Annotates significant SNPs with gene-level information
 
-| 8 | Marker validation boxplots 📈 Generates boxplots to visualize genotype–phenotype effects
+**| 8 | Marker validation boxplots** 📈 Generates boxplots to visualize genotype–phenotype effects
 
 
 
@@ -43,11 +43,12 @@ For questions or feedback about this pipeline, please contact:
 
 ## Module descriptions 🧩
 Each module contains a README.md describing:
-- Description: A brief explanation of what the module does.
-- Arguments: Parameters or flags used when running the module.
-- Usage: Command-line or script usage.
-- Example: Example invocation with test data.
-- Dependencies: Required packages, tools, or environments.
+
+- **Description**: A brief explanation of what the module does.
+- **Arguments**: Parameters or flags used when running the module.
+- **Usage**: Command-line or script usage.
+- **Example**: Example invocation with test data.
+- **Dependencies**: Required packages, tools, or environments.
 
 
 
@@ -60,6 +61,8 @@ Each module contains a README.md describing:
 git clone https://github.com/vianeyBE/cassava-gwas-pipeline.git
 
 ```
+
+Tools and softwares to install before use this pipeline:
 
 - **`R (>= 4.1.0)`**: **`GAPIT`**, **`adegenet`**, **`vegan`**, **`SNPRelate`**, **`tidyverse`**, etc
 - **`Bash`**
@@ -78,11 +81,11 @@ git clone https://github.com/vianeyBE/cassava-gwas-pipeline.git
 
 ### Description
 
-This module applies quality control filters to genotype data in VCF format using **`VCFtools`**. It provides a simple and customizable Bash script that supports different filtering strategies tailored for different pipelines. You can activate the desired strategy by commenting/uncommenting the relevant lines in the script.
+This module applies quality control filters to genotype data in VCF format using `VCFtools`. It provides a simple and customizable Bash script that supports different filtering strategies tailored for different pipelines. You can activate the desired strategy by commenting/uncommenting the relevant lines in the script.
 
 This step ensures that only high-quality and informative SNPs are retained for downstream analysis.
 
-### Arguments
+### Input arguments
 
 - **`input_vcf`**: Path to the input VCF file (can be compressed with **`.gz`**)
 - **`output`**: Prefix for the output file(s) generated after filtering. The output will be a **`.recode.vcf`** file
@@ -111,7 +114,7 @@ This module requires:
 
 - **`VCFtools`**: A robust toolkit for manipulating and filtering VCF files.
 
-Ensure **`vcftools`** is accessible in your environment path. You can install it using **`conda`**:
+Ensure `vcftools` is accessible in your environment path. You can install it using `conda`:
 
 ``` sh
 
@@ -127,11 +130,15 @@ conda install -c bioconda vcftools
 
 ### Description
 
-This script performs Linkage Disequilibrium (LD) Decay analysis using PopLDdecay. It supports two modes:
-- Whole genome: Calculates LD decay across the entire genome.
-- Per chromosome: Splits the VCF file by chromosome and calculates LD decay for each chromosome separately.
+This module performs Linkage Disequilibrium (LD) decay analysis using `PopLDdecay`, a fast and effective tool designed to calculate pairwise LD between SNPs and visualize the decay of LD with increasing genomic distance.
 
-### Arguments
+The script supports two flexible modes:
+- **Whole-genome analysis**: Computes LD decay across the entire genome from a single VCF file.
+- **Per-chromosome analysis**: Splits the input VCF by chromosome and performs LD decay analysis on each separately, enabling finer resolution and scalability.
+
+All steps are logged and output files are compressed and plotted automatically.
+
+### Input arguments
 
 - **`dirIn`**: Directory containing the input VCF file.
 - **`vcfFile`**: Name of the input VCF file.
@@ -140,7 +147,7 @@ This script performs Linkage Disequilibrium (LD) Decay analysis using PopLDdecay
 - **`dist`**: Maximum distance (in base pairs) for pairwise LD calculation.
 - **`mode`**: Analysis mode — either ''whole_genome'' or ''by_chr''.
 
-### Usage
+### Example sage
 
 ```sh
 
@@ -148,27 +155,46 @@ bash 02_LD_Decay.sh <dirIn> <vcfFile> <dirOut> <prefix> <dist> <mode>
 
 ```
 
-### Example
+### Example output structure
 
-```sh
+``` markdown
 
-bash 02_LD_Decay.sh /path/to/vcf gs.vcf /path/to/output gs_2023 10000 whole_genome
+02_ld_decay/
+├── split_chr/                             # Temporary VCFs per chromosome
+│   ├── cassava_ld.chr01.recode.vcf
+│   └── ...
+├── cassava_ld.chr01.PopLDdecay.MaxDist_10000.stat.gz
+├── cassava_ld.chr01.MaxDist_10000.plot
+├── cassava_ld.chr02.PopLDdecay.MaxDist_10000.stat.gz
+├── cassava_ld.chr02.MaxDist_10000.plot
+├── ...
+└── ld_decay_analysis_cassava_ld.log       # Complete run log
 
 ```
 
 ### Dependencies
 
-- **`PopLDdecay`**: https://github.com/BGI-shenzhen/PopLDdecay
-- **`vcftools`**: https://vcftools.github.io/
-- **`perl`**: For the PopLDdecay plotting script
+This module requires the following tools:
+
+- **`PopLDdecay`**: For LD calculation and plotting
+- **`VCFtools`**: Used in per-chromosome mode to subset the VCF by chromosome
+- **`Perl`**: Required for running the bundled Plot_OnePop.pl plotting script from PopLDdecay
+
+To install `PopLDdecay`:
+
+```sh
+
+git clone https://github.com/BGI-shenzhen/PopLDdecay.git
+cd PopLDdecay
+make
+
+```
 
 
 
 
 
-
-
-## 3. Linkage disequilibrium pruning ✂️
+## 3. LD pruning ✂️
 
 ### Description
 
@@ -176,7 +202,7 @@ This module performs linkage disequilibrium (LD) pruning to reduce the number of
 
 The workflow is implemented using Snakemake and is designed to operate chromosome-wise. It includes format conversion, pruning using PLINK’s --indep-pairwise method, and output conversion to HapMap format for GWAS compatibility.
 
-### Arguments
+### Input arguments
 
 The pruning parameters are set via hard-coded values in the Snakefile:
 
