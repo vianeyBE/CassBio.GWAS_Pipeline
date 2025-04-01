@@ -8,6 +8,7 @@ This pipeline is designed to streamline complex GWAS analyses while ensuring fle
 
 
 
+
 ## Authors 🙋
 
 For questions or feedback about this pipeline, please contact:
@@ -20,6 +21,7 @@ For questions or feedback about this pipeline, please contact:
 
 
 ## Workflow overview 🚀
+
 **| 1 | Quality control** 🧹 Filters SNPs and samples based on quality metrics
 
 **| 2 | Linkage desequilibirum (LD) decay analysis** 📉 Estimates and visualizes LD decay across the genome
@@ -40,15 +42,15 @@ For questions or feedback about this pipeline, please contact:
 
 
 
-
 ## Module descriptions 🧩
+
 Each module contains a README.md describing:
 
-- **Description**: A brief explanation of what the module does.
-- **Arguments**: Parameters or flags used when running the module.
-- **Usage**: Command-line or script usage.
-- **Example**: Example invocation with test data.
-- **Dependencies**: Required packages, tools, or environments.
+- **Description**: A brief explanation of what the module does
+- **Input arguments**: Parameters or flags used when running the module
+- **Example usage**: Command-line or script usage example
+- **Example output structure**: Example of the outputs produced by the module
+- **Dependencies**: Required packages, tools, or environments
 
 
 
@@ -200,7 +202,7 @@ make
 
 This module performs linkage disequilibrium (LD) pruning to reduce the number of highly correlated (non-informative) SNPs from the input genotype file (VCF). LD pruning enhances GWAS accuracy by reducing multicollinearity and improves time-efficiency in downstream modeling.
 
-The workflow is implemented using Snakemake and is designed to operate chromosome-wise. It includes format conversion, pruning using PLINK’s --indep-pairwise method, and output conversion to HapMap format for GWAS compatibility.
+The workflow is implemented using Snakemake and is designed to operate chromosome-wise. It includes format conversion, pruning using PLINK’s `--indep-pairwise` method, and output conversion to `HapMap` format for `GWAS` compatibility.
 
 ### Input arguments
 
@@ -212,28 +214,38 @@ The pruning parameters are set via hard-coded values in the Snakefile:
 - **`step`**: The number of SNPs to shift the window forward at each iteration
 - **`r²`**: The LD threshold above which one of two highly correlated SNPs is removed
 
+You can configure until which step of the workflow you want to reach. For example:
+
+``` yaml
+
+rule all:
+    input:
+        outdir = directory(f"{path}/LD/{window}_{step}_{r2}_{get_basename(file)}/05_hapmap")
+
+```
+
 Tool-specific paths and thread count are controlled via **`config/config.yaml`**:
 
 ``` yaml
 
 PLINK:
-  path: /opt/miniconda/envs/tools/bin/plink
+  path: /path/to/plink
   filtering:
-    threads: 50
+    threads: <threads>
 
 tassel:
-  path: /datas3/Cassava/Cassava_basics/Tools/Programs/tassel-5/run_pipeline.pl
-  threads: 50
+  path: /path/to/tassel-5/run_pipeline.pl
+  threads: <threads>
 
 ```
 
 ### Example usage
 
-Ensure the paths and filenames are correctly configured in the **`Snakefile`**
+Ensure the paths and filenames are correctly configured in the **`Snakefile`**. If everything is correctly configurated, this command will tell you: 
 
 ``` sh
 
-snakemake --np
+snakemake --np 
 
 ```
 
@@ -264,59 +276,85 @@ LD/
 This module depends on the following tools:
 
 - **`PLINK`**: For LD pruning and format conversion
-- **`TASSEL5`**: For VCF to HapMap conversion
+- **`TASSEL5`**: For VCF to `HapMap` conversion
 - **`Snakemake`**: For workflow orchestration
 
 Ensure the following are available and properly configured:
 
-- **`plink`** binary in your environment
-- **`run_pipeline.pl`** from TASSEL
-- **`config/config.yaml`** and **`Snakemake`** version ≥ 6.0
+- `plink` binary in your environment
+- `run_pipeline.pl` from `TASSEL`
+- `config/config.yaml`** and `Snakemake` version ≥ 6.0
 
 
 
 
 
+## 4. Population structure 🎯
 
+This module performs **Principal Component Analysis (PCA)** to assess **population structure** in both phenotypic and genotypic datasets. It supports:
+- **Phenotypic PCA** using standard `.csv` input, allowing exploratory analysis and variance decomposition
+- **Genotypic PCA** using `.vcf` files, with conversion to `GDS` format via `SNPRelate`, suitable for large-scale SNP datasets
+- Optional analysis for **retaining the most informative principal components**, using methods like `parallel analysis`, `Velicer’s MAP`, and `scree plots`
+- Generation of **interactive or static plots** with or without group labels to visualize stratification.
 
+This module helps detect population substructure and adjust for confounding effects in the downstream `GWAS`
 
-## 4. Population structure 🧭
+### Input arguments
 
-XXXXX
+- **`dir`**: Directory where the input data file is located. Used as the working directory during execution.
+- **`data`**: For **phenotypic data**: A `.csv` file where rows are genotypes and columns are traits. First column must be genotype IDs. For **genotypic data**: A `.vcf` file with SNP data.
+- **`labels`** (optional): A `.csv` file with genotype IDs in the first column and group/class information in the second column (used for coloring plots).
+- **`PC.retain`** (optional; default = `FALSE`): Boolean value indicating whether to perform an in-depth analysis to determine the optimal number of PCs to retain using multiple statistical methods.
 
-### Arguments
+### Example usage
 
-- `dir`: Directory where data is located.
-- `data`: If phenofile: A csv file of genotypes (rows) and their traits (columns). First column must be genotypes. If genofile: A Variant Call Format (VCF) file.
-- `labels`: Dataframe with genotypes in the first column and groups data in the second column.
-- `PC.retain`: Boolean value indicating whether to analyze how many PCs retain (default = F).
+This command will run **PCA** on a `.vcf` file, include sample labels for grouping in the plot, and skip the PC-retention diagnostics.
 
-### Usage
+``` R
 
-```R
-
-PCA(dir = <dir>, data = <data>, labels = <labels>, PC.retain = <PC.retain>)
+PCA(
+  dir = "/path/to/vcf/",
+  data = "data.vcf",
+  labels = "data_labels.csv",
+  PC.retain = FALSE
+)
 
 ```
 
-### Example
+### Example output structure
 
-```R
+``` markdown
 
-PCA(dir = "/path/to/vcf/", data = "snps_filter.vcf", labels = "snps_filter_labels.csv", PC.retain = FALSE)
+04_population_structure/
+├── snps_filter.gds                 # Converted GDS file from VCF
+├── PCA_snps_filter.jpg             # PCA plot (static image)
+├── GWAS_PCA.html                   # PCA plot (interactive, if phenotypic)
+├── snps_filter.PCA_SNPRelate.csv   # Eigenvalues / explained variance
+├── PCA_summary.txt                 # PC retention statistics (if enabled)
+└── lib/                            # Support files for HTML visualization
 
 ```
 
 ### Dependencies
 
-- `SNPRelate`
-- `tidyverse`
-- `psych`
-- `tools`
+This module uses several R packages for data handling, analysis, and visualization:
 
+- **`SNPRelate`**: Performs efficient PCA on large genotype datasets
+- **`tidyverse`**: Data wrangling and plotting
+- **`psych`**: Parallel analysis and factor retention
+- **`tools`**: File and extension handling
+- **`plotly`** (optional): Interactive plots for phenotypic PCA
+- **`ggplot2`**: High-quality static plots
 
+To install the dependencies:
 
+``` R
 
+install.packages(c("tidyverse", "psych", "tools", "plotly"))
+if (!requireNamespace("BiocManager", quietly = TRUE)) install.packages("BiocManager")
+BiocManager::install("SNPRelate")
+
+```
 
 
 

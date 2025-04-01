@@ -360,10 +360,10 @@ PCA <- function(dir, data, labels, PC.retain){
 
 # 3.1: PCA example(s) ----------------------------------------------------------
 # Examples
- dir <- "D:/OneDrive - CGIAR/00_BioInf_Platform/04_CBSD_Group6/05_LD_&_GWAS_Camilo/"
- data <- "104_group6.indel.vcf"
- labels <- NULL
- PC.retain <- F
+# dir <- "D:/OneDrive - CGIAR/00_BioInf_Platform/04_CBSD_Group6/05_LD_&_GWAS_Camilo/"
+# data <- "104_group6.indel.vcf"
+# labels <- NULL
+# PC.retain <- F
 
 
 
