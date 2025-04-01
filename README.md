@@ -400,36 +400,73 @@ BiocManager::install("SNPRelate")
 
 ## 5. GWAS: GAPIT 📊
 
-This R script runs a Genome-Wide Association Study (GWAS) analysis using the GAPIT3 R package. It saves the results of each trait in an individual folder. This function loads the required packages and data, then performs a GWAS analysis using the `GAPIT` function from the `GAPIT3` package. It loops through each trait in `trait_list`, creating a new folder for each trait in the working directory and saving the results of the GWAS analysis for that trait in that folder.
+This module performs **Genome-Wide Association Studies (GWAS)** using the `GAPIT3` `R package`. It supports multiple GWAS models such as `MLMM`, `BLINK`, or `FarmCPU`, and allows batch analysis of multiple traits.
 
-### Arguments
+The script reads phenotypic and genotypic data, prepares the input format for `GAPIT`, and executes **GWAS** independently for each trait listed. Each trait's results are organized in dedicated output folders within the working directory. The function also provides detailed logging and quality control summaries (e.g. number of markers and samples).
 
-- `phenofile`: A database of genotypes/individuals (rows) and the trait's measurements or BLUPs (columns).
-- `genofile`: Genotype data in hapmap format.
-- `wdir`: A working directory where the function will create the folders for each trait.
-- `trait_list`: A vector with the trait's name. The default is `NULL`, which will use the full phenotype dataset.
+This implementation is ideal for high-throughput association studies across diverse traits and environments.
 
-### Usage
+### Input arguments
+
+- **`phenofile`**: A `.csv` file containing phenotype data. Rows represent individuals, columns represent traits. The first column must be individual/genotype IDs
+- **`genofile`**: Genotypic data in HapMap format (`.hmp.txt`)
+- **`dir`**: Working directory where output folders for each trait will be created
+- **`models`**: A character vector specifying one or more GWAS models to use (e.g., `MLMM`, `Blink`, `FarmCPU`).
+- **`trait_list`** (optional): A vector of trait names to analyze. If `NULL`, all traits in the phenotype file will be included.
+
+### Example usage
+
+This command will perform GWAS for the three traits using the specified models, and output results into separate folders inside `my_gwas_output/`
 
 ```R
-
-GAPIT3(phenofile, genofile, wdir, trait_list = NULL)
+GAPIT3(
+  phenofile = "my_phenotypes.csv",
+  genofile = "my_genotypes.hmp.txt",
+  dir = "my_gwas_output/",
+  models = c("MLMM", "Blink", "FarmCPU"),
+  trait_list = c("PlantHeight", "Yield", "DiseaseScore")
+)
 
 ```
 
-### Examples
+### Example output structure
 
-```R
+Each folder contains model-specific outputs including **Manhattan plots**, **QQ plots**, and result tables for significant associations
 
-GAPIT3(phenofile = "my_phenotypes.csv", genofile = "my_genotypes.hmp", wdir = "my_results_folder", trait_list = c("Trait1", "Trait2", "Trait3"))
+``` markdown
+
+05_gwas_gapit/
+├── PlantHeight/
+│   ├── GAPIT.MLMM.Plot.*
+│   ├── GAPIT.MLMM.Result.csv
+│   └── ...
+├── Yield/
+│   ├── GAPIT.FarmCPU.Result.csv
+│   └── ...
+├── DiseaseScore/
+│   ├── GAPIT.Blink.Plot.*
+│   └── ...
+└── GAPIT_run.log
 
 ```
 
 ### Dependencies
 
-- `devtools`
-- `GAPIT3`
+This module requires the following `R` packages:
 
+- **`GAPIT3`**: Core **GWAS** models and visualization.
+- **`devtools`**: To install `GAPIT3` from GitHub.
+
+To install them:
+
+``` R
+
+install.packages("devtools")
+devtools::install_github("jiabowang/GAPIT3", force = TRUE)
+
+```
+
+Make sure you have `GAPIT3` installed and loaded before running this module
 
 
 

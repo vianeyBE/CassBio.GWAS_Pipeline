@@ -1,8 +1,9 @@
 # Short name: GWAS analysis.
-# Description: Run GWAS analysis using GAPIT3 R package.
+# Description: Run GWAS analysis using GAPIT package.
 # Output: It saves the results of each trait in a individual folder.
 #
 # Author: Vianey Barrera-Enriquez (vpbarrerae@gmail.com)
+# Author: Camilo E. Sánchez-Sarria (c.e.sanchez@cgiar.org)
 #
 # Arguments:
 # phenofile: Measurements or BLUPs of the traits. Row are individuals and columns are traits/variables
@@ -75,7 +76,7 @@ GAPIT3 <- function(phenofile, genofile, dir, models, trait_list = NULL){
     # Creation and setting working directories
     setwd(dir)
     dir.create(trait)
-    setwd(paste(dir, trait, sep = ""))
+    setwd(paste0(dir, trait))
     
     # Informative message
     message("Running GWAS on trait: ", trait)
@@ -85,12 +86,11 @@ GAPIT3 <- function(phenofile, genofile, dir, models, trait_list = NULL){
       
       Y = myY[, c(taxacol, trait)], # Phenotypic data
       G = myG, # Genotypic data
-      PCA.total = 10, # Principal components to retain
+      PCA.total = 3, # Principal components to retain
       model = models, # Model(s) to use
       Multiple_analysis = T, # Allow multiple analyses
       Geno.View.output = T, # Visualization of geno data
       Phenotype.View = T, # Visualization of pheno data
-      Model.selection = T, # Select a model
       Random.model = T, # Do not include random effects
       kinship.cluster = "average", # Clustering method
       kinship.group = "Mean", # Type of grouping of indvs
