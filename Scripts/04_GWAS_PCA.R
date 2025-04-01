@@ -27,11 +27,8 @@ PCA <- function(dir, data, labels, PC.retain){
   # Install packages if needed
   if (!require("BiocManager", quietly = T)) install.packages("BiocManager")
   if (!require(SNPRelate)) BiocManager::install("SNPRelate")
-  if (!require(gdsfmt)) install.packages("gdsfmt")
   if (!require(tidyverse)) install.packages("tidyverse")
   if (!require(psych)) install.packages("psych")
-  if (!require(plotly)) install.packages("plotly")
-  if (!require(htmlwidgets)) install.packages("htmlwidgets")
   if (!require(tools)) install.packages("tools")
   
   # Load libraries
@@ -182,10 +179,10 @@ PCA <- function(dir, data, labels, PC.retain){
                    "Reading VCF file: ", data, "\n"))
     
     # Reading VCF
-    prefixVCF <- readline("Please enter the chromosomes prefix in the VCF: ")
+    prefixVCF <- readline("Please enter the chromosome prefix in the VCF (if no prefix, skip, just enter): ")
     
     # Informative message
-    message("Reformatting data to a GDS file and to a SNPGDSFileClass file...\n")
+    message("Reformatting VCF to a GDS file...\n")
     
     # Extract the prefix
     prefix <- file_path_sans_ext(data)
@@ -193,8 +190,14 @@ PCA <- function(dir, data, labels, PC.retain){
     # Generate a path to store the gds file
     gds <- paste0(dir, prefix, ".gds")
       
-    # Read and transform the files
-    snpgdsVCF2GDS(data, gds, ignore.chr.prefix = prefixVCF, verbose = F)
+    # Transform the VCF to a gds depending on the chr prefix
+    if (prefixVCF == "") {
+      snpgdsVCF2GDS(data, gds, verbose = T)
+    } else {
+      snpgdsVCF2GDS(data, gds, ignore.chr.prefix = prefixVCF, verbose = T)
+    }
+    
+    # Read the gds file and its index
     genofile <- snpgdsOpen(gds)
     sample_id <- read.gdsn(index.gdsn(genofile, "sample.id"))
     
@@ -341,22 +344,25 @@ PCA <- function(dir, data, labels, PC.retain){
       
     }
     
+    
+    
     # 2.2.5: Save the plots ----------------------------------------------------
     
-    # Guardar el gráfico con alta resolución (300 dpi)
-    ggsave("PCA_no_labels.jpg", plot = fig, width = 10, height = 6, dpi = 600)
+    # Save the path with high resolution (300 dpi)
+    ggsave(paste0("PCA_", prefix, ".jpg"), plot = fig, width = 10, height = 6, dpi = 600)
     dev.off()
     
   }
+  
 }
 
 
 
 # 3.1: PCA example(s) ----------------------------------------------------------
 # Examples
- dir <- "D:/OneDrive - CGIAR/00_BioInf_Platform/09_DiversityPanel/03_GWAS_Camilo/"
- data <- "Diversity.GATK.vcf"
- labels <- "Labels.csv"
+ dir <- "D:/OneDrive - CGIAR/00_BioInf_Platform/04_CBSD_Group6/05_LD_&_GWAS_Camilo/"
+ data <- "104_group6.indel.vcf"
+ labels <- NULL
  PC.retain <- F
 
 
