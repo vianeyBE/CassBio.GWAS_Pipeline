@@ -78,32 +78,46 @@ git clone https://github.com/vianeyBE/cassava-gwas-pipeline.git
 
 ### Description
 
-A simple Bash script for filtering Variant Call Format (VCF) files using VCFtools. The script applies customizable quality control filters to genetic variant data. The script currently includes three different filtering strategies (commented and active), allowing users to select the most appropriate filter set for their project.
+This module applies quality control filters to genotype data in VCF format using **`VCFtools`**. It provides a simple and customizable Bash script that supports different filtering strategies tailored for different pipelines. You can activate the desired strategy by commenting/uncommenting the relevant lines in the script.
+
+This step ensures that only high-quality and informative SNPs are retained for downstream analysis.
 
 ### Arguments
 
-- **`input_vcf`**: Path to VCF file to filter.
-- **`output`**: Prefix to the output VCF filtered file.
+- **`input_vcf`**: Path to the input VCF file (can be compressed with **`.gz`**)
+- **`output`**: Prefix for the output file(s) generated after filtering. The output will be a **`.recode.vcf`** file
 
-### Usage
+### Example usage
 
-```sh
+``` sh
 
-bash 01_QC.sh <input_vcf> <output>
+bash 01_GWAS_QC.sh <input_vcf> <output>
 
 ```
 
-### Example
+### Example output structure
 
-```sh
+``` markdown
 
-bash 01_QC.sh raw_variants.vcf.gz filtered_variants
+01_quality_control/
+├── raw_variants.vcf.gz          # Input file
+└── filtered_variants.recode.vcf # Output after filtering
 
 ```
 
 ### Dependencies
 
-- **`VCFtools`**: https://vcftools.github.io/
+This module requires:
+
+- **`VCFtools`**: A robust toolkit for manipulating and filtering VCF files.
+
+Ensure **`vcftools`** is accessible in your environment path. You can install it using **`conda`**:
+
+``` sh
+
+conda install -c bioconda vcftools
+
+```
 
 
 
@@ -210,7 +224,7 @@ snakemake --cores <cores>
 ``` markdown
 
 LD/
-└── 10000_1_0.25_GATK2.snps.vcf.gz/
+└── 10000_1_0.25_GATK2.snps.vcf.gz/ # This name is given based on the Snakefile inputs
     ├── 01_plink/
     ├── 02_filtering/
     ├── 03_prune/
