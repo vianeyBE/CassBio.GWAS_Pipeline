@@ -559,7 +559,7 @@ This module uses `base` and `tidyverse` `R` packages:
 - **`tidyverse`**: Data wrangling and filtering
 - **`Base`**: For string and file management
 
-To install:
+To install the dependencies:
 
 ``` R
 
@@ -567,7 +567,7 @@ install.packages("tidyverse")
 
 ```
 
-Ensure your annotation files (**GFF3** and **annotation table**) are formatted for the specified genome version and are available in the working directory or updated within the function paths.
+Ensure your annotation files (**GFF3** and **annotation table**) are formatted for the specified genome version and are available in the working directory or updated within the function paths
 
 
 
@@ -575,55 +575,104 @@ Ensure your annotation files (**GFF3** and **annotation table**) are formatted f
 
 ## 7. Boxplot: Genotype vs Phenotype 📈
 
-This R function generates a boxplot for a given SNP. The function takes as inputs a CSV file with the phenotype values and a list of SNPs. The function can also receive an optional CSV file to add extra information about the samples to the plot (categories, family, ect.) The output of the function is a PDF file with the plot. The function loads all the necessary packages and data files. It then checks for the presence of an optional file with sample labels and prepares the data for the boxplot. The function generates a boxplot for each SNP specified in the input CSV file. It uses `ggplot2` package to generate the plot, with the genotypes on the x-axis and the phenotype on the y-axis. The function adds a label to the x-axis to indicate the trait being plotted. If `labelfile` is provided, it adds extra information about the samples, coloring the data by the levels in the provided file.
+This module generates **publication-ready boxplots** to visualize the effect of individual SNPs on phenotypic traits. Each boxplot compares phenotypic values (y-axis) across **genotype groups (x-axis)** for SNPs of interest. The plots help validate and interpret **marker-trait associations** identified through GWAS
 
-### Arguments
-- `outputname`: (required) character string with the base name for the output file.
-- `dir`: (required) character string with the directory where the output file will be saved.
-- `phenofile`: (required) character string with the name of the phenotype file in tabular format. The first column should contain the sample names, and the rest of the columns should contain the phenotypes.
-- `genofile`: (required) character string with the name of the genotype file in hapmap format.
-- `snp_list_file`: (required) character string with the name of the CSV file with three columns:
-    - Column 01 - Name: SNPS. List of SNPS to plot. The name should be the same as in the `genofile` data.
-    - Column 02 - Name: trait. Name of the trait as in the `phenofile` data.
-    - Column 03 - Name: xlabel. Name of the trait to be included as a label.
-- `labelfile`: (optional) character string with the name of the CSV file with two columns:
-    - Column 01 - Name: Taxa. Sample names.
-    - Column 02 - Name: label. Label or category to add to the plot.
+The function accepts:
+- A **phenotype file** (`.csv` file)
+- A **genotype file** (`HapMap` format)
+- A **list of SNP–trait pairs** to plot
+- Optionally, a **label file** to color samples by categories (e.g. family, treatment, population group)
 
-### Usage
+It supports **recursive search** for multiple traits/models, automatically handles IUPAC allele encoding, and outputs:
+
+- A **multi-page PDF** with all boxplots
+- An **Excel summary** of the plotted data
+
+### Input arguments
+- **`prefix`**: Output prefix. Used for naming the PDF and Excel files
+- **`dir`**: Directory containing all input files and where outputs will be saved
+- **`phenofile`**: 
+  `.csv` file with phenotype data:
+    1. Sample IDs (Taxa)
+    2. Other columns: Traits.
+- **`genofile`**: Genotype data in HapMap format (`.hmp.txt`)
+- **`snpList`**:
+  Either:
+  - A `.csv` file with 3 columns:
+    1. `SNPs`: SNP names as in genotype file
+    2. `trait`: Trait name in phenotype file
+    3. `model`: GWAS model name
+  OR a **search pattern** if `recursive = TRUE`
+- **`recursive`**: Logical. If `TRUE`, the function searches subdirectories for SNP-trait result files
+- `**labelfile`** (optional):
+  A `.csv` file with 2 columns:
+    1. `Taxa`: Sample names
+    2. `label`: Grouping variable (e.g., population, treatment)
+- **`order`** (optional): Character vector specifying the desired plot order of levels in `labelfile`
+
+### Example usage
 
 ```R
 
-GWAS_Boxplot(outputname, dir, phenofile, genofile, snp_list_file, labelfile = NULL)
+# Without group labels
+GWAS_Boxplot(
+  prefix = "ACWP_F2_Results",
+  dir = "/path/to/data/",
+  phenofile = "phenotypes.csv",
+  genofile = "genotypes.hmp.txt",
+  snpList = "significant_snps.csv",
+  recursive = FALSE
+)
+
+# With group labels and custom order
+GWAS_Boxplot(
+  prefix = "ACWP_F2_Results",
+  dir = "/path/to/data/",
+  phenofile = "phenotypes.csv",
+  genofile = "genotypes.hmp.txt",
+  snpList = "significant_snps.csv",
+  recursive = FALSE,
+  labelfile = "sample_labels.csv",
+  order = c("S", "IS", "I", "IR", "R")
+)
+
 
 ``` 
 
-### Example
+### Example output structure
 
-```R
+``` markdown
 
-# Generate boxplot without extra labels
-GWAS_Boxplot("outputname", ".path/to/save/plots/", "phenotype.csv", "genotype.hmp", "snp_list.csv")
-
-# Generate boxplot with extra labels
-GWAS_Boxplot("outputname", ".path/to/save/plots/", "phenotype.csv", "genotype.hmp", "snp_list.csv", "labelfile.csv")
+07_boxplots/
+├── ACWP_F2_Results.SNPs_boxplot.pdf     # PDF file with one boxplot per SNP
+├── ACWP_F2_Results.trait_x_snp.xlsx     # Excel summary of genotype–phenotype values
+├── phenotypes.csv                       # Input phenotype data
+├── genotypes.hmp.txt                    # Input genotype data (hapmap format)
+├── significant_snps.csv                # List of SNPs to plot
+└── sample_labels.csv                   # Optional: sample groupings
 
 ```
 
 ### Dependencies
 
-- `tidyverse`
-- `tibble`
-- `dplyr`
-- `janitor`
-- `ggplot2`
-- `Biostrings`
-- `hrbrthemes`
-- `forcats`
-- `ggsignif`
-- `RColorBrewer`
+This module requires several R packages:
+- **`tidyverse`**: Data wrangling and visualization
+- **`janitor`**: Data cleaning
+- **`Biostrings`**: For SNP encoding
+- **`hrbrthemes`**: Improved plot aesthetics
+- **`ggsignif`**: Significance bars on plots
+- **`RColorBrewer`**: Custom color palettes
+- **`openxlsx`**: Excel export
 
+To install the dependencies:
 
+``` R
+
+install.packages(c("tidyverse", "janitor", "hrbrthemes", "ggsignif", "RColorBrewer", "openxlsx"))
+if (!requireNamespace("BiocManager", quietly = TRUE)) install.packages("BiocManager")
+BiocManager::install("Biostrings")
+
+```
 
 
 
