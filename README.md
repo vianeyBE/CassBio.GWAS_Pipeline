@@ -764,7 +764,7 @@ If you use this pipeline in your research or publication, please cite it as:
 
 > Authors: Sánchez-Sarria, C. E., and Barrera-Enríquez, V  
 > Title: *GWAS modular pipeline for Cassava: A reproducible and scalable workflow for pre-processing steps, GWAS and annotation in Cassava (Manihot esculenta)*
-> GitHub repository: https://github.com/vianeyBE/cassava-gwas-pipeline.git  
+> GitHub repository: https://github.com/vianeyBE/CassBio.GWAS_Pipeline  
 > Version: v1.0  
 > Year: 2025
 
@@ -777,7 +777,7 @@ Alternatively, cite this repository using the following BibTeX entry:
   title        = {GWAS modular pipeline for Cassava},
   year         = 2025,
   version      = {v1.0},
-  url          = {https://github.com/vianeyBE/cassava-gwas-pipeline.git},
+  url          = {https://github.com/vianeyBE/CassBio.GWAS_Pipeline},
   note         = {GWAS modular pipeline for Cassava}
 }
 
