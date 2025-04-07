@@ -474,31 +474,89 @@ Make sure you have `GAPIT3` installed and loaded before running this module
 
 ## 6. GWAS: EMMAX 🧮
 
-XXX
+This module performs **Genome-Wide Association Studies (GWAS)** using the **EMMAX** software, a high-performance tool for mixed-model association analysis that accounts for population structure and relatedness. Implemented as a **Snakemake workflow**, this module automates all steps from:
+- Preparing input genotype and phenotype data
+- Generating a kinship matrix
+- Running EMMAX for each trait
+- Calculating **PVE (percent variance explained)** for significant SNPs
+- Producing **Manhattan and QQ plots**
+- Saving trait-specific results in structured folders
 
-### Arguments
+It supports **multiple traits** and applies statistical corrections (Bonferroni or FDR) to identify significant SNPs
 
-- `XXX`: 
+### Input arguments
+
+- **`geno`**: A genotype file (`.vcf`)
+- **`pheno`**: Phenotype table with columns: `Taxa` and `trait(s)`
+- **`prefix`**: Base name for outputs
+- **`method`**: Significance threshold correction method (`Bonferroni` or `FDR`)
+- **`alpha`**: Threshold significance level (p.e., alpha = 0.05)
 
 ### Usage
 
+This will launch the workflow, process all traits in the phenotype file, and save EMMAX results and plots in the specified working directory
+
 ```bash
 
-conda 
+snakemake --cores 16 --resources mem_mb=5150
 
 ```
 
-### Examples
+### Example output structure
 
-```bash
+Each trait is processed separately, and visual outputs are saved under `results/`
 
-conda
+``` markdown
+
+08_gwas_emmax/
+├── kinship_matrix.kinf                         # Kinship matrix
+├── trait1/
+│   ├── results/
+│   │   ├── EMMAX_results_trait1.csv           # Final filtered SNP results with PVE
+│   │   ├── EMMAX_Manhattan_trait1.pdf         # Manhattan plot
+│   │   └── EMMAX_QQ_trait1.pdf                # QQ plot
+│   ├── trait1.ps                               # Association stats from EMMAX
+│   ├── trait1.reml                             # REML variance estimates
+│   └── freq.frq                                # Minor allele frequencies
+├── trait2/
+│   └── ...
+└── logs/
 
 ```
 
 ### Dependencies
 
-- `XXX`
+This module depends on the following tools:
+
+- **`PLINK`**: For genotype preprocessing and conversion from VCF to binary format (`.bed` - `.bim` - `.fam`) compatible with EMMAX
+- **`EMMAX`**: Efficient Mixed-Model Association tool for GWAS
+- **`emmax-kin`**: Companion tool to compute kinship matrices required by EMMAX
+- **`R`**: For post-GWAS statistical analysis and high-quality visualization of Manhattan and QQ plots
+- **`Snakemake`**: For workflow orchestration and scalable execution across traits
+
+Ensure the following are available and properly configured:
+
+- The `plink` binary (v1.9 or above) is accessible in your system path or specified in `config.yaml`
+- EMMAX executables: `emmax` and `emmax-kin` are correctly pointed to in the config
+- `R (≥ 4.0)` with the following packages installed:
+
+``` R 
+
+install.packages("tidyverse")
+
+```
+
+- `plot_gwas_results.R` script is present in the working directory or path specified in the workflow
+- A valid `config.yaml` file with paths, filenames, models, and thresholds
+- `Snakemake` version ≥ 6.0 installed and available in your environment
+
+To install Snakemake (if needed):
+
+``` bash 
+
+conda install -c bioconda snakemake
+
+```
 
 
 
