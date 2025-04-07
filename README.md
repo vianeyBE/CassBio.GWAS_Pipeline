@@ -1,8 +1,14 @@
 # Cassava Bioinformatics Platform: GWAS Pipeline 🧬
 
-A modular and reproducible pipeline for performing genome-wide association studies (GWAS) in Manihot esculenta (cassava), covering the complete analysis workflow from genotype quality control to the functional annotation of significant markers.
+A modular, scalable, and reproducible pipeline for Genome-Wide Association Studies (GWAS) in Manihot esculenta (cassava). This end-to-end workflow spans from genotype quality control and population structure analysis to GWAS modeling and functional annotation.
 
 This pipeline is designed to streamline complex GWAS analyses while ensuring flexibility and scalability for high-throughput plant breeding projects. Each module is independent and well-documented, enabling easy customization or integration into broader genomic workflows.
+
+**Highlights** ✨:
+- Modular design: Run individual components independently
+- Built for plant breeding: Tailored filters and annotation
+- Scalable: Snakemake-driven parallel execution
+- Compatible: GAPIT, EMMAX, TASSEL, PLINK, and more
 
 
 
@@ -13,8 +19,8 @@ This pipeline is designed to streamline complex GWAS analyses while ensuring fle
 
 For questions or feedback about this pipeline, please contact:
 
+- **Camilo E. Sánchez-Sarria** - [CGIAR]: c.e.sanchez@cgiar.org
 - **Vianey Barrera-Enriquez** - [CGIAR]: v.barrera@cgiar.org
-- **Camilo E. Sanchez** - [CGIAR]: c.e.sanchez@cgiar.org
 
 
 
@@ -62,7 +68,13 @@ To clone the repository:
 
 ```bash
 
+# Clone the repository
 git clone https://github.com/vianeyBE/cassava-gwas-pipeline.git
+cd cassava-gwas-pipeline/
+
+# OPTIONAL: Set up a conda environment
+conda create -n cassava_gwas_env snakemake plink vcftools bcftools perl -c bioconda -c conda-forge
+conda activate cassava_gwas_env
 
 ```
 
@@ -96,7 +108,7 @@ This step ensures that only high-quality and informative SNPs are retained for d
 
 ### Example usage
 
-Structure of to execture the command
+Structure to execute the command:
 
 ``` sh
 
@@ -277,7 +289,7 @@ rule all:
 
 ```
 
-Ensure the paths and filenames are correctly configured in the `Snakefile`. If everything is correctly configurated, this command will tell you: 
+Ensure the paths and filenames are correctly configured in the `Snakefile`. If everything is correctly configured, this command will display the planned workflow without executing it:
 
 ``` sh
 
@@ -328,6 +340,8 @@ Ensure the following are available and properly configured:
 
 
 ## 4. Population structure 🎯
+
+### Description
 
 This module performs **Principal Component Analysis (PCA)** to assess **population structure** in both phenotypic and genotypic datasets. It supports:
 - **Phenotypic PCA** using standard `.csv` input, allowing exploratory analysis and variance decomposition
@@ -399,6 +413,8 @@ BiocManager::install("SNPRelate")
 
 
 ## 5. GWAS: GAPIT 📊
+
+### Description
 
 This module performs **Genome-Wide Association Studies (GWAS)** using the `GAPIT3` `R package`. It supports multiple GWAS models such as `MLMM`, `BLINK`, or `FarmCPU`, and allows batch analysis of multiple traits.
 
@@ -474,6 +490,8 @@ Make sure you have `GAPIT3` installed and loaded before running this module
 
 ## 6. GWAS: EMMAX 🧮
 
+### Description
+
 This module performs **Genome-Wide Association Studies (GWAS)** using the **EMMAX** software, a high-performance tool for mixed-model association analysis that accounts for population structure and relatedness. Implemented as a **Snakemake workflow**, this module automates all steps from:
 - Preparing input genotype and phenotype data
 - Generating a kinship matrix
@@ -492,7 +510,7 @@ It supports **multiple traits** and applies statistical corrections (Bonferroni 
 - **`method`**: Significance threshold correction method (`Bonferroni` or `FDR`)
 - **`alpha`**: Threshold significance level (p.e., alpha = 0.05)
 
-### Usage
+### Example usage
 
 This will launch the workflow, process all traits in the phenotype file, and save EMMAX results and plots in the specified working directory
 
@@ -564,6 +582,8 @@ conda install -c bioconda snakemake
 
 ## 6. Functional annotation 🧾
 
+### Description
+
 This module performs **functional annotation of significant SNPs** identified through GWAS using the GAPIT3 module. It annotates the genes that directly overlap with each SNP, as well as the closest **upstream and downstream genes** within a defined genomic window (±10 kb)
 
 The function supports **recursive search across trait-specific folders**, filters SNPs based on significance threshold (**Bonferroni correction**), and annotates results using genome-specific GFF3 and functional annotation tables. It is compatible with both **cassava genome v6.1 and v8.1**
@@ -632,6 +652,8 @@ Ensure your annotation files (**GFF3** and **annotation table**) are formatted f
 
 
 ## 7. Boxplot: Genotype vs Phenotype 📈
+
+### Description
 
 This module generates **publication-ready boxplots** to visualize the effect of individual SNPs on phenotypic traits. Each boxplot compares phenotypic values (y-axis) across **genotype groups (x-axis)** for SNPs of interest. The plots help validate and interpret **marker-trait associations** identified through GWAS
 
@@ -731,6 +753,44 @@ if (!requireNamespace("BiocManager", quietly = TRUE)) install.packages("BiocMana
 BiocManager::install("Biostrings")
 
 ```
+
+
+
+
+
+## Citing this pipeline 📌
+
+If you use this pipeline in your research or publication, please cite it as:
+
+> Authors: Sánchez-Sarria, C. E., and Barrera-Enríquez, V  
+> Title: *GWAS modular pipeline for Cassava: A reproducible and scalable workflow for pre-processing steps, GWAS and annotation in Cassava (Manihot esculenta)*
+> GitHub repository: https://github.com/vianeyBE/cassava-gwas-pipeline.git  
+> Version: v1.0  
+> Year: 2025
+
+Alternatively, cite this repository using the following BibTeX entry:
+
+``` bibtex
+
+@misc{cassava_gwas_pipeline,
+  author       = {Sánchez-Sarria, C. E., and Barrera-Enríquez, V},
+  title        = {GWAS modular pipeline for Cassava},
+  year         = 2025,
+  version      = {v1.0},
+  url          = {https://github.com/vianeyBE/cassava-gwas-pipeline.git},
+  note         = {GWAS modular pipeline for Cassava}
+}
+
+```
+
+
+
+
+
+## License 📄
+
+This pipeline is released under the MIT License (see LICENSE file)
+
 
 
 

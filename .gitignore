@@ -1,0 +1,49 @@
+# Python cache
+__pycache__
+.py[cod]
+.pyo
+
+# R and RStudio
+.Rhistory
+.RData
+.Ruserdata
+.Rproj.user
+.Rproj
+
+# Snakemake cache and temp
+.snakemake
+.snakemake
+.log
+.bak
+.tmp
+.cache
+.conda
+
+# Conda env
+.env
+env
+.yml.lock
+
+# Output directories
+.hmp.txt
+.vcf
+.csv
+.pdf
+.png
+.xlsx
+.tsv
+.reml
+.ps
+.stat
+.plot
+results
+output
+logs
+
+# IDEs
+.vscode
+.idea
+
+# System
+.DS_Store
+Thumbs.db
