@@ -8,8 +8,8 @@
 # Arguments:
 # phenofile: Measurements or BLUPs of the traits. Row are individuals and columns are traits/variables
 # genofile: Genotype data on hapmap format
-# models: Vector with the model or models to evaluate
 # dir: Working directory. Here it will create the folders for each trait
+# models: Vector with the model or models to evaluate
 # trait_list: Vector with the trait's name to do GWAS. Default NULL
 
 
@@ -113,11 +113,16 @@ GAPIT3 <- function(phenofile, genofile, dir, models, trait_list = NULL){
 
 ###### Example(s) ######
 # Set arguments
-# phenofile <- "Traits_noparents.csv"
-# genofile <- "GATK_noparents.hmp.txt"
-# models <- c("MLMM", "Blink", "FarmCPU")
-# dir <- "/datas3/Cassava/Cassava_Analysis/Cassava_BGI_VCF/2024-07-17_group7/GWAS/GAPIT/"
-# trait_list <- NULL
+phenofile <- "Traits_noparents.csv"
+genofile <- "GATK_noparents.hmp.txt"
+models <- c("MLMM", "BLINK", "FarmCPU")
+dir <- "/datas3/Cassava/Cassava_Analysis/Cassava_BGI_VCF/2024-07-17_group7/GWAS/GAPIT/"
+trait_list <- c("RootEval_BLUP_Light", "RootEval_BLUE_NoLight", "RootEval_BLUP_NoLight", "TotalWeight_BLUE_Light", 
+                "TotalWeight_BLUP_Light", "TotalWeight_BLUE_NoLight", "TotalWeight_BLUP_NoLight", "WeightAir_BLUE_Light", 
+                "WeightAir_BLUP_Light", "WeightAir_BLUE_NoLight", "WeightAir_BLUP_NoLight", "WeightWater_BLUE_Light", 
+                "WeightWater_BLUP_Light", "WeightWater_BLUE_NoLight", "WeightWater_BLUP_NoLight")
+
+
 
 # Run function
-# GAPIT3(phenofile, genofile, wdir, trait_list = NULL)
+# GAPIT3(phenofile, genofile, dir, models, trait_list = NULL)
