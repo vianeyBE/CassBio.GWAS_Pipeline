@@ -192,9 +192,13 @@ PCA <- function(dir, data, labels, PC.retain){
       
     # Transform the VCF to a gds depending on the chr prefix
     if (prefixVCF == "") {
+      
       snpgdsVCF2GDS(data, gds, verbose = T)
+      
     } else {
+      
       snpgdsVCF2GDS(data, gds, ignore.chr.prefix = prefixVCF, verbose = T)
+      
     }
     
     # Read the gds file and its index
@@ -223,7 +227,7 @@ PCA <- function(dir, data, labels, PC.retain){
     
     # 2.2.3: Perform the PCA ---------------------------------------------------
     
-    PCA <- snpgdsPCA(genofile, autosome.only = F, remove.monosnp = T, need.genmat = T,
+    PCA <- snpgdsPCA(genofile, autosome.only = F, remove.monosnp = F, need.genmat = T,
                      algorithm = "exact", eigen.method = "DSPEVX", num.thread = 4, 
                      verbose = F)
     
@@ -304,29 +308,62 @@ PCA <- function(dir, data, labels, PC.retain){
     tab <- data.frame(sample.id = PCA$sample.id, stringsAsFactors = F,
                       PC1 = PCA$eigenvect[, 1],PC2 = PCA$eigenvect[, 2])
     
+    
+    
     # PCA - Scatter Plots PC1 vs PC2
-    # Adding Groups 
-    if (groups == T){
+    # Adding groups 
+    if (is.null(labels) == F){
+      
+      # Read csv file
+      labels <- read.csv(paste0(dir, labels))
       
       # Labeling
       labels <- labels %>% dplyr::rename(sample.id = 1, groups = 2)
       dt <- tab %>% inner_join(labels, by = "sample.id")
       
-      # Plotting
-      fig <- ggplot(dt, aes(x = PC1, y = PC2, color = as.factor(groups), 
-                            label = sample.id)) +
-        geom_point(size = 1.5, shape = 16) +
-        labs(x = paste("PC1 (", round(PC$var[1], 2), "%)"),
-             y = paste("PC2 (", round(PC$var[2], 2), "%)")) +
-        geom_vline(xintercept = 0) +
-        geom_hline(yintercept = 0) +
+      # Definir colores y formas personalizados con longitud igual al número de grupos
+      n_grupos <- length(unique(dt$groups))
+      formas <- rep(0:25, length.out = n_grupos)  # ggplot soporta 0–25 para formas
+      colores <- scales::hue_pal()(n_grupos)      # paleta de colores base
+      
+      fig <- ggplot(dt, aes(x = PC1, y = PC2, color = as.factor(groups),
+                     shape = as.factor(groups))) +
+        geom_point(size = 2) +
+        scale_shape_manual(values = formas) +
+        scale_color_manual(values = colores) +
+        geom_hline(yintercept = 0, linetype = "dashed") +
+        geom_vline(xintercept = 0, linetype = "dashed") +
+        xlim(c(- 0.1, 0.1)) +
+        labs(x = paste0("PC1 (", round(PC$var[1], 2), " %)"),
+             y = paste0("PC2 (", round(PC$var[2], 2), " %)")) +
         theme_bw() +
         theme(legend.title = element_blank(), legend.position = "bottom",
-              legend.text = element_text(color = "black", size = 12),
+          legend.text = element_text(color = "black", size = 10),
+          axis.title = element_text(color = "black", size = 16),
+          axis.text = element_text(color = "black", size = 16),
+          legend.key.size = unit(1.2, "lines"), panel.grid = element_blank(),
+          legend.box = "horizontal") +
+        guides(color = guide_legend(nrow = 4, override.aes = list(size = 4)),
+               shape = guide_legend(nrow = 4, override.aes = list(size = 4)))
+      
+      # Plotting
+      fig <- ggplot(dt, aes(x = PC1, y = PC2, color = as.factor(groups),
+                            shape = as.factor(groups),
+                            label = sample.id)) +
+        geom_point(size = 1.5) +
+        scale_shape_manual(values = c(1:length(unique(dt$groups)))) +
+        geom_hline(yintercept = 0, linetype = "dashed") +
+        geom_vline(xintercept = 0, linetype = "dashed") +
+        labs(x = paste("PC1 (", round(PC$var[1], 2), "%)"),
+             y = paste("PC2 (", round(PC$var[2], 2), "%)")) +
+        theme_bw() +
+        theme(legend.title = element_blank(), legend.position = "bottom",
+              legend.text = element_text(color = "black", size = 10),
               legend.direction = "horizontal", legend.box.just = "center",
               axis.title = element_text(color = "black", size = 16),
               axis.text = element_text(color = "black", size = 16),
               panel.grid = element_blank())
+        
       
     } else { # Without Groups
       
@@ -335,8 +372,8 @@ PCA <- function(dir, data, labels, PC.retain){
         geom_point(size = 1.5, color = "#91bfdb") +
         labs(x = paste("PC1 (", round(PC$var[1], 2), "%)"),
              y = paste("PC2 (", round(PC$var[2], 2), "%)")) +
-        geom_vline(xintercept = 0) +
-        geom_hline(yintercept = 0) +
+        geom_vline(xintercept = 0, linetype = "dashed") +
+        geom_hline(yintercept = 0, linetype = "dashed") +
         theme_bw() +
         theme(axis.title = element_text(color = "black", size = 16),
               axis.text = element_text(color = "black", size = 16),
@@ -348,8 +385,11 @@ PCA <- function(dir, data, labels, PC.retain){
     
     # 2.2.5: Save the plots ----------------------------------------------------
     
-    # Save the path with high resolution (300 dpi)
-    ggsave(paste0("PCA_", prefix, ".jpg"), plot = fig, width = 10, height = 6, dpi = 600)
+    # Save the PCA with high resolution (600 dpi)
+    ggsave(paste0("PCA_", prefix, ".jpg"), plot = fig, width = 13, height = 9, dpi = 600)
+    ggsave(paste0("ind_var_", prefix, ".jpg"), plot = ind_var, width = 10, height = 6, dpi = 600)
+    ggsave(paste0("cum_var_", prefix, ".jpg"), plot = cum_var, width = 10, height = 6, dpi = 600)
+    
     dev.off()
     
   }
@@ -360,10 +400,10 @@ PCA <- function(dir, data, labels, PC.retain){
 
 # 3.1: PCA example(s) ----------------------------------------------------------
 # Examples
-# dir <- "D:/OneDrive - CGIAR/00_BioInf_Platform/04_CBSD_Group6/05_LD_&_GWAS_Camilo/"
-# data <- "104_group6.indel.vcf"
-# labels <- NULL
-# PC.retain <- F
+ dir <- "D:/OneDrive - CGIAR/00_BioInf_Platform/04_CBSD_Group6/08_PCA/"
+ data <- "25_group6.vcf"
+ labels <- "family_groups.csv"
+ PC.retain <- F
 
 
 
