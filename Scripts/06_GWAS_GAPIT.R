@@ -115,12 +115,9 @@ GAPIT3 <- function(phenofile, genofile, dir, models, trait_list = NULL){
 # Set arguments
 phenofile <- "Traits_noparents.csv"
 genofile <- "GATK_noparents.hmp.txt"
-models <- c("MLMM", "BLINK", "FarmCPU")
+models <- c("GLM", "MLMM", "BLINK")
 dir <- "/datas3/Cassava/Cassava_Analysis/Cassava_BGI_VCF/2024-07-17_group7/GWAS/GAPIT/"
-trait_list <- c("RootEval_BLUP_Light", "RootEval_BLUE_NoLight", "RootEval_BLUP_NoLight", "TotalWeight_BLUE_Light", 
-                "TotalWeight_BLUP_Light", "TotalWeight_BLUE_NoLight", "TotalWeight_BLUP_NoLight", "WeightAir_BLUE_Light", 
-                "WeightAir_BLUP_Light", "WeightAir_BLUE_NoLight", "WeightAir_BLUP_NoLight", "WeightWater_BLUE_Light", 
-                "WeightWater_BLUP_Light", "WeightWater_BLUE_NoLight", "WeightWater_BLUP_NoLight")
+trait_list <- NULL
 
 
 

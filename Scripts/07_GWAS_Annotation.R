@@ -8,8 +8,8 @@
 #
 # Arguments:
 # version: Choose among the reference genome versions (Options: 6.1 or 8.1)
-# recursive: 
-# pb: 
+# recursive: If the functions look file by file or one file already merged (Options: TRUE/FALSE)
+# pb: Distance in pair bases
 # dir: Directory that contains the GAPIT results (Example: home/user/folder)
 # file_name: The path of file names to look for. (Example: QTL_LOD_Intervals)
 # mod: The model(s) of interest (Options: BLINK, GLM, MLM, FarmCPU, etc)
@@ -116,7 +116,7 @@ GWAS_Annotation <- function(version, recursive, pb, dir, file_name, mod, wdyw){
     
     # Get the names of the files
     message("Getting list of CSV files...")
-    names <- list.files(path = dir, pattern = paste0(name, "."), 
+    names <- list.files(path = dir, pattern = paste0(file_name, "."), 
                         all.files = F, full.names = F, recursive = T)
     
     # Informative messages
@@ -132,7 +132,7 @@ GWAS_Annotation <- function(version, recursive, pb, dir, file_name, mod, wdyw){
       
       # Get the name of the trait and the model
       tr <- str_split_1(paste0(names[i]), "/")
-      int <- str_split_1(tr[2], paste0(name, "."))
+      int <- str_split_1(tr[2], paste0(file_name, "."))
       mdl <- str_split_1(int[2], paste0(".", tr[1]))
       
       # Database handling
@@ -150,14 +150,12 @@ GWAS_Annotation <- function(version, recursive, pb, dir, file_name, mod, wdyw){
     
     # Merge dataframes of the list in a single data frame and filter by model type
     GWAS <- bind_rows(csv_L)
-    GWAS <- filter(GWAS, Model %in% mod)
     
     message(paste("There are", dim(GWAS)[1], "SNPs after filtering"))
     
   } else {
     
     GWAS <- read.csv(paste0(dir, file_name)) %>%
-      rename(PValue = P.value) %>%
       select(Trait, Model, SNP, Chr, Pos, PValue, MAF, Effect, PVE)
     
   }
@@ -260,9 +258,8 @@ GWAS_Annotation <- function(version, recursive, pb, dir, file_name, mod, wdyw){
  version <- "8.1"
  recursive <- "F"
  pb <- 10000
- dir <- "D:/OneDrive - CGIAR/00_BioInf_Platform/04_CBSD_Group6/10_Annotation/"
- file_name <- "GWAS.csv"
- mod <- c("GLM", "MLMM", "BLINK")
+ dir <- "D:/OneDrive - CGIAR/00_BioInf_Platform/01_ACWP/03_F2/02_F2_Pheno/12_MaleSterility/Annotation/"
+ file_name <- "GWAS_results_MS.csv"
  wdyw <- "gene"
 
 

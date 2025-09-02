@@ -314,18 +314,16 @@ PCA <- function(dir, data, labels, PC.retain){
     # Adding groups 
     if (is.null(labels) == F){
       
-      # Read csv file
-      labels <- read.csv(paste0(dir, labels))
-      
       # Labeling
       labels <- labels %>% dplyr::rename(sample.id = 1, groups = 2)
       dt <- tab %>% inner_join(labels, by = "sample.id")
       
-      # Definir colores y formas personalizados con longitud igual al número de grupos
+      # Define personalized colors and shapes
       n_grupos <- length(unique(dt$groups))
-      formas <- rep(0:25, length.out = n_grupos)  # ggplot soporta 0–25 para formas
-      colores <- scales::hue_pal()(n_grupos)      # paleta de colores base
+      formas <- rep(0:25, length.out = n_grupos)
+      colores <- scales::hue_pal()(n_grupos) 
       
+      # Plotting
       fig <- ggplot(dt, aes(x = PC1, y = PC2, color = as.factor(groups),
                      shape = as.factor(groups))) +
         geom_point(size = 2) +
@@ -338,13 +336,14 @@ PCA <- function(dir, data, labels, PC.retain){
              y = paste0("PC2 (", round(PC$var[2], 2), " %)")) +
         theme_bw() +
         theme(legend.title = element_blank(), legend.position = "bottom",
-          legend.text = element_text(color = "black", size = 10),
-          axis.title = element_text(color = "black", size = 16),
-          axis.text = element_text(color = "black", size = 16),
-          legend.key.size = unit(1.2, "lines"), panel.grid = element_blank(),
-          legend.box = "horizontal") +
-        guides(color = guide_legend(nrow = 4, override.aes = list(size = 4)),
-               shape = guide_legend(nrow = 4, override.aes = list(size = 4)))
+              legend.text = element_text(color = "black", size = 10),
+              axis.title = element_text(color = "black", size = 18),
+              axis.text = element_text(color = "black", size = 18),
+              legend.key.size = unit(1.2, "lines"), 
+              panel.grid = element_blank(),
+              legend.box = "horizontal") +
+        guides(color = guide_legend(nrow = 1, override.aes = list(size = 4)),
+               shape = guide_legend(nrow = 1, override.aes = list(size = 4)))
       
       # Plotting
       fig <- ggplot(dt, aes(x = PC1, y = PC2, color = as.factor(groups),
@@ -386,7 +385,7 @@ PCA <- function(dir, data, labels, PC.retain){
     # 2.2.5: Save the plots ----------------------------------------------------
     
     # Save the PCA with high resolution (600 dpi)
-    ggsave(paste0("PCA_", prefix, ".jpg"), plot = fig, width = 13, height = 9, dpi = 600)
+    ggsave(paste0("PCA_reduced_", prefix, ".jpg"), plot = fig, width = 13, height = 9, dpi = 600)
     ggsave(paste0("ind_var_", prefix, ".jpg"), plot = ind_var, width = 10, height = 6, dpi = 600)
     ggsave(paste0("cum_var_", prefix, ".jpg"), plot = cum_var, width = 10, height = 6, dpi = 600)
     
@@ -402,7 +401,7 @@ PCA <- function(dir, data, labels, PC.retain){
 # Examples
  dir <- "D:/OneDrive - CGIAR/00_BioInf_Platform/04_CBSD_Group6/08_PCA/"
  data <- "25_group6.vcf"
- labels <- "family_groups.csv"
+ labels <- "family_groups_reduced.csv"
  PC.retain <- F
 
 
