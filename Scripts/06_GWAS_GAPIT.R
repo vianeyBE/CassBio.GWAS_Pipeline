@@ -53,7 +53,7 @@ GAPIT3 <- function(phenofile, genofile, dir, models, trait_list = NULL){
     # Informative message
     message("Subsetting according provided list")
     
-    # 
+    # Filter sample list
     myY <- myY2[, c(taxacol, trait_list)]
     
   }
@@ -69,8 +69,8 @@ GAPIT3 <- function(phenofile, genofile, dir, models, trait_list = NULL){
   
   
   
-  # 2: GAPIT -------------------------------------------------------------------
-  # GWAS
+  # 2: GWAS with GAPIT ---------------------------------------------------------
+  # Loop per trait
   for (trait in trait_list){
     
     # Creation and setting working directories
@@ -113,11 +113,11 @@ GAPIT3 <- function(phenofile, genofile, dir, models, trait_list = NULL){
 
 ###### Example(s) ######
 # Set arguments
-phenofile <- "Traits_noparents.csv"
-genofile <- "GATK_noparents.hmp.txt"
-models <- c("GLM", "MLMM", "BLINK")
-dir <- "/datas3/Cassava/Cassava_Analysis/Cassava_BGI_VCF/2024-07-17_group7/GWAS/GAPIT/"
-trait_list <- NULL
+# phenofile <- "pheno.csv"
+# genofile <- "Flowering.GATK.hmp.txt"
+# models <- c("GLM", "MLMM", "BLINK")
+# dir <- "/datas3/Cassava/Cassava_Analysis/Cassava_BGI_VCF/2023-01-06_group1_11/GWAS/Flowering/"
+# trait_list <- NULL
 
 
 
