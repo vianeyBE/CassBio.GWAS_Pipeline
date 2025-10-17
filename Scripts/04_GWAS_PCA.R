@@ -1,25 +1,29 @@
-# Short name: PCA.
-# Description: Principal component analysis for phenotypic and genotypic data.
+# Short name: PCA
+# Description: Principal component analysis for phenotypic and genotypic data
 # Output: It saves the results of PCA and its plots in the working folder
 #
 # Author: Camilo E. Sánchez-Sarria (c.e.sanchez@cgiar.org)
 #
 # Arguments:
-# dir: Directory where data is located.
-# data: If phenofile: A csv file of genotypes (rows) and their traits (columns). First column must be genotypes.
-#       If genofile: A Variant Call Format (VCF) file.
-# labels: Dataframe with genotypes in the first column and groups data in the second column.
-# PC.retain: Boolean value indicating whether to analyze how many PCs retain (default = F).
+# dir: Directory where data is located
+# data: phenofile -> A CSV of genotypes (rows) and traits (columns)
+#       genofile -> A Variant Call Format (VCF) file
+# labels: CSV with genotypes in first column and grouping data in the second
+# ellipses: If TRUE -> Draws ellipses on groups
+# PC.retain: If TRUE -> Analyzes how many PCs retain (default = F)
+
 
 
 
 ##### To do #####
-# Everything is good!
+# 1. Change Phenotypic PCA accordingly
+
 
 
 
 # 0: Function init -------------------------------------------------------------
-PCA <- function(dir, data, labels, PC.retain){
+PCA <- function(dir, data, labels, ellipses, PC.retain){
+  
   
   
   
@@ -39,6 +43,7 @@ PCA <- function(dir, data, labels, PC.retain){
   
   
   
+  
   # 2: Determines which path continue in the analysis -------------------------- 
   # Set working directory
   setwd(dir)
@@ -49,6 +54,10 @@ PCA <- function(dir, data, labels, PC.retain){
   # Conditional to determine if the data is genotypic of phenotypic
   if (ext == "csv"){
     
+    
+    
+    
+    # 2.1: Phenotypic PCA ------------------------------------------------------
     # Informative message
     message("Selected data option: Phenotypic")
     
@@ -170,16 +179,17 @@ PCA <- function(dir, data, labels, PC.retain){
     
     
     
+    
+    
     # 2.2: Genotypic PCA -------------------------------------------------------
-    
-    # 2.2.1: Read and transform the data ---------------------------------------
-    
+    # 2.3: Read VCF and transform the data -------------------------------------
     # Informative message
     message(paste0("Selected data option: Genotypic\n\n",
                    "Reading VCF file: ", data, "\n"))
     
     # Reading VCF
-    prefixVCF <- readline("Please enter the chromosome prefix in the VCF (if no prefix, skip, just enter): ")
+    prefixVCF <- readline("Enter the VCF chromosome prefix
+                          If no prefix, skip, just enter: ")
     
     # Informative message
     message("Reformatting VCF to a GDS file...\n")
@@ -207,41 +217,31 @@ PCA <- function(dir, data, labels, PC.retain){
     
     
     
-    # 2.2.2: Read (or not) labels for PCA --------------------------------------
     
-    if (!is.null(labels)){
-      
-      message("Label file provided by the user ")
-      groups <- T
-      labels <- read.csv(labels)
-      message("Files loaded successfully!")
-      
-    } else {
-      
-      message("No labels provided ")
-      groups <- F
-      
-    }
-    
-    
-    
-    # 2.2.3: Perform the PCA ---------------------------------------------------
-    
-    PCA <- snpgdsPCA(genofile, autosome.only = F, remove.monosnp = F, need.genmat = T,
-                     algorithm = "exact", eigen.method = "DSPEVX", num.thread = 4, 
-                     verbose = F)
+    # 2.4: Perform the PCA -----------------------------------------------------
+    message("Doing PCA...\n")
+    PCA <- snpgdsPCA(genofile, autosome.only = F, remove.monosnp = F, 
+                     need.genmat = T, algorithm = "exact", 
+                     eigen.method = "DSPEVX", num.thread = 4, verbose = F)
     
     # Saving PCs data
     PC <- data.frame(PC = 1:length(PCA$varprop), id = PCA[["sample.id"]],
                      eigen = PCA[["eigenval"]], var = PCA$varprop * 100) %>%
       mutate(var.cum = cumsum(var))
     
-    write.csv(PCA[["eigenval"]], paste0(prefix, '.PCA_SNPRelate.csv'), quote = F)
+    # Table to plot the PCA
+    tab <- data.frame(sample.id = PCA$sample.id, stringsAsFactors = F,
+                      PC1 = PCA$eigenvect[, 1],PC2 = PCA$eigenvect[, 2])
+    
+    # Save the output dataframe
+    message("Saving PCA output...\n")
+    write.csv(PC, file = paste0("PCA_results_", prefix, ".csv"), row.names = F)
+    dev.off()
     
     
     
-    # 2.2.4: PCs retaining analysis --------------------------------------------
     
+    # 2.5: PCs retaining analysis ----------------------------------------------
     if (PC.retain == T) {
       
       message("Principal components retaining analyses in process")
@@ -284,110 +284,136 @@ PCA <- function(dir, data, labels, PC.retain){
     
     
     
-    # 2.2.5: Plots -------------------------------------------------------------
+    
+    # 2.6: Plots -------------------------------------------------------------
+    # PCA plots
+    message("Plotting...\n")
     
     # Scree plot - Individual variance
-    ind_var <- filter(PC, var != "NaN") %>%
+    ind_var <- PC %>% dplyr::filter(!is.nan(var)) %>%
       ggplot(aes(x = as.factor(PC), y = var)) +
-      geom_bar(stat = "identity", fill = "grey", color = "black") +
+      geom_bar(stat = "identity", width = 0.5, fill = "grey", color = "grey") +
       labs(x = "PCs", y = "Explained variance (%)") +
       theme_classic() +
-      theme(axis.title = element_text(color = "black", size = 16),
-            axis.text = element_text(color = "black", size = 16))
+      theme(axis.title = element_text(color = "black", size = 14),
+            axis.text  = element_text(color = "black", size = 14))
     
     # Scree plot -  Cumulative variance
-    cum_var <- filter(PC, var != "NaN") %>%
+    cum_var <- PC %>% dplyr::filter(!is.nan(var)) %>%
       ggplot(aes(x = as.factor(PC), y = var.cum)) +
-      geom_bar(stat = "identity", fill = "grey", color = "black") +
+      geom_bar(stat = "identity", width = 0.5, fill = "grey", color = "grey") +
       labs(x = "PCs", y = "Cumulative variance (%)") +
       theme_classic() +
+      theme(axis.title = element_text(color = "black", size = 14),
+            axis.text  = element_text(color = "black", size = 14))
+    
+    
+    # Simple PCA: Without groups and without ellipses
+    pca_s <- ggplot(tab, aes(x = PC1, y = PC2, label = sample.id)) +
+      geom_point(size = 1.5, color = "#91bfdb") +
+      labs(x = paste("PC1 (", round(PC$var[1], 2), "%)"),
+           y = paste("PC2 (", round(PC$var[2], 2), "%)")) +
+      geom_vline(xintercept = 0, linetype = "dashed") +
+      geom_hline(yintercept = 0, linetype = "dashed") +
+      theme_bw() +
       theme(axis.title = element_text(color = "black", size = 16),
-            axis.text = element_text(color = "black", size = 16))
+            axis.text = element_text(color = "black", size = 16),
+            panel.grid = element_blank())
     
-    # Table to plot the PCA
-    tab <- data.frame(sample.id = PCA$sample.id, stringsAsFactors = F,
-                      PC1 = PCA$eigenvect[, 1],PC2 = PCA$eigenvect[, 2])
-    
-    
-    
-    # PCA - Scatter Plots PC1 vs PC2
-    # Adding groups 
-    if (is.null(labels) == F){
+    # If groups
+    if (!is.null(labels) == TRUE) {
+      
+      # Informative message
+      message("Label file provided by the user...\n")
+      
+      # Read csv file
+      labels <- read.csv(labels)
+      message("Files loaded successfully!\n")
       
       # Labeling
       labels <- labels %>% dplyr::rename(sample.id = 1, groups = 2)
       dt <- tab %>% inner_join(labels, by = "sample.id")
-      
-      # Define personalized colors and shapes
-      n_grupos <- length(unique(dt$groups))
-      formas <- rep(0:25, length.out = n_grupos)
-      colores <- scales::hue_pal()(n_grupos) 
-      
-      # Plotting
-      fig <- ggplot(dt, aes(x = PC1, y = PC2, color = as.factor(groups),
-                     shape = as.factor(groups))) +
-        geom_point(size = 2) +
-        scale_shape_manual(values = formas) +
-        scale_color_manual(values = colores) +
-        geom_hline(yintercept = 0, linetype = "dashed") +
-        geom_vline(xintercept = 0, linetype = "dashed") +
-        xlim(c(- 0.1, 0.1)) +
-        labs(x = paste0("PC1 (", round(PC$var[1], 2), " %)"),
-             y = paste0("PC2 (", round(PC$var[2], 2), " %)")) +
-        theme_bw() +
-        theme(legend.title = element_blank(), legend.position = "bottom",
-              legend.text = element_text(color = "black", size = 10),
-              axis.title = element_text(color = "black", size = 18),
-              axis.text = element_text(color = "black", size = 18),
-              legend.key.size = unit(1.2, "lines"), 
-              panel.grid = element_blank(),
-              legend.box = "horizontal") +
-        guides(color = guide_legend(nrow = 1, override.aes = list(size = 4)),
-               shape = guide_legend(nrow = 1, override.aes = list(size = 4)))
-      
-      # Plotting
-      fig <- ggplot(dt, aes(x = PC1, y = PC2, color = as.factor(groups),
-                            shape = as.factor(groups),
-                            label = sample.id)) +
-        geom_point(size = 1.5) +
-        scale_shape_manual(values = c(1:length(unique(dt$groups)))) +
-        geom_hline(yintercept = 0, linetype = "dashed") +
-        geom_vline(xintercept = 0, linetype = "dashed") +
-        labs(x = paste("PC1 (", round(PC$var[1], 2), "%)"),
-             y = paste("PC2 (", round(PC$var[2], 2), "%)")) +
-        theme_bw() +
-        theme(legend.title = element_blank(), legend.position = "bottom",
-              legend.text = element_text(color = "black", size = 10),
-              legend.direction = "horizontal", legend.box.just = "center",
-              axis.title = element_text(color = "black", size = 16),
-              axis.text = element_text(color = "black", size = 16),
-              panel.grid = element_blank())
         
+      # Define personalized colors and shapes
+      n_groups <- length(unique(dt$groups))
+      shapes <- rep(0:25, length.out = n_groups)
+      colors <- scales::hue_pal()(n_groups)
+      pal <- stats::setNames(colors, sort(unique(dt$groups)))
+        
+    } else {
       
-    } else { # Without Groups
+      # Informative message
+      message("No labels provided...\n")
       
-      # Plotting
-      fig <- ggplot(tab, aes(x = PC1, y = PC2, label = sample.id)) +
-        geom_point(size = 1.5, color = "#91bfdb") +
-        labs(x = paste("PC1 (", round(PC$var[1], 2), "%)"),
-             y = paste("PC2 (", round(PC$var[2], 2), "%)")) +
-        geom_vline(xintercept = 0, linetype = "dashed") +
-        geom_hline(yintercept = 0, linetype = "dashed") +
-        theme_bw() +
-        theme(axis.title = element_text(color = "black", size = 16),
-              axis.text = element_text(color = "black", size = 16),
-              panel.grid = element_blank())
-      
+    }
+    
+    # PCA plots with groups
+    if (ellipses == TRUE) {
+    
+    # Plotting with groups and ellipses
+    #dt <- dt %>% dplyr::filter(groups != "Unassigned")
+    pca_e <- ggplot(dt, aes(x = PC1, y = PC2, color = as.factor(groups), 
+                            shape = as.factor(groups))) +
+      geom_point(size = 2) +
+      #stat_ellipse(aes(group = as.factor(groups), fill = as.factor(groups)),
+      #             type = "norm", level = 0.95, geom = "polygon", 
+      #             alpha = 0.05, linewidth = 0) +
+      stat_ellipse(aes(group = as.factor(groups)), type = "norm", 
+                   level = 0.95, linewidth = 0.3) +
+      scale_shape_manual(values = shapes) +
+      scale_color_manual(values = colors) +
+      scale_fill_manual(values  = colors) +
+      geom_hline(yintercept = 0, linetype = "dashed") +
+      geom_vline(xintercept = 0, linetype = "dashed") +
+      labs(x = paste0("PC1 (", round(PC$var[1], 2), " %)"),
+           y = paste0("PC2 (", round(PC$var[2], 2), " %)")) +
+      theme_bw() +
+      theme(legend.title = element_blank(), legend.position = "bottom",
+            legend.text = element_text(color = "black", size = 14),
+            axis.title = element_text(color = "black", size = 14),
+            axis.text = element_text(color = "black", size = 14),
+            legend.key.size = unit(1.2, "lines"), 
+            panel.grid = element_blank(), legend.box = "horizontal") +
+      guides(color = guide_legend(nrow = 1, override.aes = list(size = 4)),
+             shape = guide_legend(nrow = 1, override.aes = list(size = 4)))
+    
+    } else {
+    
+    # Plotting with groups but without ellipses
+    #dt <- dt %>% dplyr::filter(groups != "Unassigned")
+    pca_g <- ggplot(dt, aes(x = PC1, y = PC2, color = as.factor(groups), 
+                            shape = as.factor(groups))) +
+      geom_point(size = 2) +
+      scale_shape_manual(values = shapes) +
+      scale_color_manual(values = colors) +
+      geom_hline(yintercept = 0, linetype = "dashed") +
+      geom_vline(xintercept = 0, linetype = "dashed") +
+      labs(x = paste0("PC1 (", round(PC$var[1], 2), " %)"),
+           y = paste0("PC2 (", round(PC$var[2], 2), " %)")) +
+      theme_bw() +
+      theme(legend.title = element_blank(), legend.position = "bottom",
+            legend.text = element_text(color = "black", size = 14),
+            axis.title = element_text(color = "black", size = 14),
+            axis.text = element_text(color = "black", size = 14),
+            legend.key.size = unit(1.2, "lines"), 
+            panel.grid = element_blank(), legend.box = "horizontal") +
+      guides(color = guide_legend(nrow = 1, override.aes = list(size = 4)),
+             shape = guide_legend(nrow = 1, override.aes = list(size = 4)))
+        
     }
     
     
     
-    # 2.2.5: Save the plots ----------------------------------------------------
     
+    # 2.2.5: Save the plots ----------------------------------------------------
     # Save the PCA with high resolution (600 dpi)
-    ggsave(paste0("PCA_reduced_", prefix, ".jpg"), plot = fig, width = 13, height = 9, dpi = 600)
-    ggsave(paste0("ind_var_", prefix, ".jpg"), plot = ind_var, width = 10, height = 6, dpi = 600)
-    ggsave(paste0("cum_var_", prefix, ".jpg"), plot = cum_var, width = 10, height = 6, dpi = 600)
+    pdf(paste0("PCA_", prefix, ".pdf"), onefile = T, width = 10, height = 6)
+    
+    print(ind_var)
+    print(cum_var)
+    print(pca_s)
+    print(pca_g)
+    print(pca_e)
     
     dev.off()
     
@@ -399,13 +425,14 @@ PCA <- function(dir, data, labels, PC.retain){
 
 # 3.1: PCA example(s) ----------------------------------------------------------
 # Examples
- dir <- "D:/OneDrive - CGIAR/00_BioInf_Platform/04_CBSD_Group6/08_PCA/"
- data <- "25_group6.vcf"
- labels <- "family_groups_reduced.csv"
- PC.retain <- F
+# dir <- "D:/OneDrive - CGIAR/00_BioInf_Platform/09_DiversityPanel/03_Paper/"
+# data <- "Diversity.GATK.vcf"
+# labels <- "Labels.csv"
+# ellipses <- T
+# PC.retain <- F
 
 
 
 # 3.2: Run PCA function --------------------------------------------------------
-# PCA(dir, data, labels, PC.retain)
+# PCA(dir, data, labels, ellipses, PC.retain)
  
